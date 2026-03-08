@@ -26,6 +26,7 @@ class SettingsHelper
                 'admin_email' => 'admin@antrian.com',
                 'per_page' => 15,
                 'email_notifications' => true,
+                'notification_window_days' => 3,
                 'maintenance_mode' => false,
             ];
             

@@ -75,6 +75,13 @@
                                 <input type="number" name="per_page" class="form-control form-control-lg border-light shadow-none bg-light" value="{{ old('per_page', $settings['per_page']) }}" min="5" max="100">
                             </div>
                         </div>
+                        <div class="col-sm-6">
+                            <div class="form-group mb-4">
+                                <label class="font-weight-600 text-dark">Jendela Notifikasi (hari)</label>
+                                <input type="number" name="notification_window_days" class="form-control form-control-lg border-light shadow-none bg-light" value="{{ old('notification_window_days', $settings['notification_window_days'] ?? 3) }}" min="1" max="30">
+                                <small class="form-text text-muted mt-1">Notifikasi approval/progress ditampilkan dari rentang hari terakhir ini.</small>
+                            </div>
+                        </div>
                     </div>
 
                     <hr class="my-4 border-light">

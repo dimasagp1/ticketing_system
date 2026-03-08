@@ -115,6 +115,7 @@ Route::middleware(['auth'])->prefix('api/chat')->name('api.chat.')->group(functi
 Route::middleware(['auth'])->prefix('notifications')->name('notifications.')->group(function () {
     Route::get('/counts', [App\Http\Controllers\NotificationController::class, 'getCounts'])->name('counts');
     Route::get('/list', [App\Http\Controllers\NotificationController::class, 'getNotifications'])->name('list');
+    Route::get('/mark-read', [App\Http\Controllers\NotificationController::class, 'markAsRead'])->name('mark-read-get');
     Route::post('/mark-read', [App\Http\Controllers\NotificationController::class, 'markAsRead'])->name('mark-read');
 });
 

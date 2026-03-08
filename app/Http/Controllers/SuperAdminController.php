@@ -140,6 +140,7 @@ class SuperAdminController extends Controller
             'admin_email' => 'required|email|max:255',
             'per_page' => 'required|integer|min:5|max:100',
             'email_notifications' => 'nullable|boolean',
+            'notification_window_days' => 'required|integer|min:1|max:30',
             'maintenance_mode' => 'nullable|boolean',
             'app_logo' => 'nullable|image|max:2048', // max 2MB
             'app_favicon' => 'nullable|image|mimes:jpeg,png,jpg,gif,svg,ico|max:1024', // max 1MB
@@ -187,6 +188,7 @@ class SuperAdminController extends Controller
         $settings['admin_email'] = $validated['admin_email'];
         $settings['per_page'] = (int) $validated['per_page'];
         $settings['email_notifications'] = (bool) ($request->boolean('email_notifications'));
+        $settings['notification_window_days'] = (int) $validated['notification_window_days'];
         $settings['maintenance_mode'] = (bool) ($request->boolean('maintenance_mode'));
         $settings['updated_at'] = now()->toDateTimeString();
         $settings['updated_by'] = auth()->id();
@@ -373,6 +375,7 @@ class SuperAdminController extends Controller
             'admin_email' => 'admin@antrian.com',
             'per_page' => 15,
             'email_notifications' => true,
+            'notification_window_days' => 3,
             'maintenance_mode' => false,
         ];
     }

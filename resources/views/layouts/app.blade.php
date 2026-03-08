@@ -1247,21 +1247,22 @@
                 const id = $link.data('id');
                 const targetUrl = $link.attr('href');
 
-                // Mark as read in backend
-                if (type === 'message') {
-                    // Extract conversation ID from the URL if needed, but NotificationController currently needs 'id'
-                    // The NotificationController markAsRead expects 'id', so we need it passed from getNotifications.
-                    // We updated getNotifications to include it.
-                    $.ajax({
-                        url: '{{ route("notifications.mark-read") }}',
-                        method: 'POST',
-                        data: {
-                            _token: '{{ csrf_token() }}',
-                            type: type,
-                            id: id
-                        },
-                        success: function() {
-                            // Update counts locally to reflect read
+                if (!type || !id) {
+                    window.location.href = targetUrl;
+                    return;
+                }
+
+                $.ajax({
+                    url: '{{ route("notifications.mark-read-get") }}',
+                    method: 'GET',
+                    data: {
+                        type: type,
+                        id: id || 0
+                    },
+                    complete: function() {
+                        // Always continue to target page even if mark-read fails.
+                        // This prevents users being blocked by session/CSRF edge cases.
+                        if (type === 'message') {
                             let currentTotal = parseInt($('#notification-count').text()) || 0;
                             if (currentTotal > 0) {
                                 let newTotal = currentTotal - 1;
@@ -1273,19 +1274,11 @@
                                     document.title = '(' + newTotal + ') {{ config("app.name") }}';
                                 }
                             }
-                            
-                            // Redirect to target URL
-                            window.location.href = targetUrl;
-                        },
-                        error: function(xhr) {
-                            console.error('Failed to mark read', xhr);
-                            window.location.href = targetUrl; // Still redirect even if it fails
                         }
-                    });
-                } else {
-                    // Approvals or others
-                    window.location.href = targetUrl;
-                }
+
+                        window.location.href = targetUrl;
+                    }
+                });
             });
 
             // Initial load and auto-update every 30 seconds
