@@ -38,6 +38,10 @@
     --chat-bottom: 20px;
     --chat-toggle-size: 60px;
     --chat-gap: 12px;
+    --chat-panel-width: 320px;
+    --chat-panel-height: 450px;
+    --chat-window-width: 320px;
+    --chat-window-height: 400px;
     --chat-primary: #3b82f6;
     --chat-secondary: #06b6d4;
     --chat-accent-gradient: linear-gradient(135deg, var(--chat-primary) 0%, var(--chat-secondary) 100%);
@@ -97,8 +101,9 @@
     position: fixed;
     bottom: calc(var(--chat-bottom) + var(--chat-toggle-size) + var(--chat-gap));
     right: var(--chat-right);
-    width: 320px;
-    height: min(450px, calc(100vh - 120px));
+    width: var(--chat-panel-width);
+    height: var(--chat-panel-height);
+    max-height: calc(100vh - 120px);
     background: white;
     border-radius: 10px;
     box-shadow: 0 4px 20px rgba(0,0,0,0.15);
@@ -209,12 +214,16 @@
     display: flex;
     gap: 10px;
     flex-direction: row-reverse;
+    max-width: calc(100vw - (var(--chat-right) * 2) - var(--chat-toggle-size) - var(--chat-gap));
+    overflow-x: auto;
+    scrollbar-width: thin;
     z-index: 10010;
 }
 
 .chat-window {
-    width: 320px;
-    height: 400px;
+    width: var(--chat-window-width);
+    height: var(--chat-window-height);
+    min-height: 280px;
     background: white;
     border-radius: 10px 10px 0 0;
     box-shadow: 0 -2px 20px rgba(0,0,0,0.15);
@@ -284,6 +293,7 @@
     padding: 10px 15px;
     border-radius: 18px;
     word-wrap: break-word;
+    overflow-wrap: anywhere;
 }
 
 .chat-message.received .chat-message-bubble {
@@ -361,15 +371,8 @@
     .chat-widget {
         --chat-right: 15px;
         --chat-bottom: 15px;
-    }
-
-    .chat-panel {
-        width: 300px;
-        height: min(450px, calc(100vh - 120px));
-    }
-
-    .chat-window {
-        width: 280px;
+        --chat-panel-width: min(300px, calc(100vw - 30px));
+        --chat-window-width: min(300px, calc(100vw - 30px));
     }
 
     .chat-windows-container {
@@ -383,6 +386,8 @@
         --chat-bottom: 15px;
         --chat-toggle-size: 50px;
         --chat-gap: 10px;
+        --chat-panel-width: calc(100vw - 30px);
+        --chat-window-width: calc(100vw - 20px);
     }
 
     .chat-toggle {
@@ -395,8 +400,8 @@
     }
 
     .chat-panel {
-        width: calc(100vw - 30px);
-        height: min(58vh, calc(100vh - 90px));
+        width: var(--chat-panel-width);
+        height: min(58vh, var(--chat-panel-height));
         bottom: calc(var(--chat-bottom) + var(--chat-toggle-size) + var(--chat-gap));
         z-index: 10000;
     }
@@ -413,11 +418,11 @@
     }
 
     .chat-window {
-        width: 100%;
+        width: var(--chat-window-width);
         max-width: 100%;
-        height: 100vh; /* Full screen on mobile */
+        height: var(--chat-window-height);
         margin: 0;
-        border-radius: 0;
+        border-radius: 12px 12px 0 0;
         pointer-events: auto; /* Re-enable clicks */
     }
 
@@ -437,7 +442,7 @@
     }
 
     .chat-window-header {
-        border-radius: 0;
+        border-radius: 12px 12px 0 0;
         padding: 15px;
     }
     
@@ -451,8 +456,43 @@
 <script>
 $(document).ready(function() {
     let openWindows = [];
-    const maxWindows = 3;
+    let maxWindows = 3;
     const csrfToken = '{{ csrf_token() }}';
+
+    function computeMaxWindows() {
+        if (window.innerWidth <= 576) return 1;
+        if (window.innerWidth <= 1200) return 2;
+        return 3;
+    }
+
+    function adjustChatLayout() {
+        const widget = document.getElementById('chat-widget');
+        if (!widget) {
+            return;
+        }
+
+        const viewportWidth = window.innerWidth || document.documentElement.clientWidth;
+        const viewportHeight = window.innerHeight || document.documentElement.clientHeight;
+        const isMobile = viewportWidth <= 576;
+
+        const panelWidth = isMobile ? Math.max(260, viewportWidth - 30) : Math.min(340, Math.max(300, Math.round(viewportWidth * 0.26)));
+        const panelHeight = isMobile ? Math.max(300, Math.min(520, viewportHeight - 105)) : Math.max(360, Math.min(460, viewportHeight - 130));
+        const windowWidth = isMobile ? Math.max(280, viewportWidth - 20) : Math.min(360, Math.max(300, Math.round(viewportWidth * 0.25)));
+        const windowHeight = isMobile ? Math.max(320, Math.min(620, viewportHeight - 85)) : Math.max(300, Math.min(430, viewportHeight - 130));
+
+        widget.style.setProperty('--chat-panel-width', `${panelWidth}px`);
+        widget.style.setProperty('--chat-panel-height', `${panelHeight}px`);
+        widget.style.setProperty('--chat-window-width', `${windowWidth}px`);
+        widget.style.setProperty('--chat-window-height', `${windowHeight}px`);
+
+        maxWindows = computeMaxWindows();
+        while (openWindows.length > maxWindows) {
+            closeChatWindow(openWindows[0]);
+        }
+    }
+
+    adjustChatLayout();
+    $(window).on('resize orientationchange', adjustChatLayout);
 
     // Toggle chat panel
     $('#chat-toggle').click(function() {
@@ -537,6 +577,8 @@ $(document).ready(function() {
 
     // Open chat window
     function openChatWindow(id, title) {
+        adjustChatLayout();
+
         // Close panel when opening a room to avoid overlap with chat windows
         $('#chat-panel').hide();
         $('#chat-widget').removeClass('panel-open');
@@ -774,14 +816,18 @@ $(document).ready(function() {
         });
     }
 
-    // Auto-refresh messages every 10 seconds for open windows
+    // Auto-refresh messages every 5 seconds for open windows to feel more real-time.
     setInterval(function() {
+        if (document.hidden) {
+            return;
+        }
+
         openWindows.forEach(id => {
             if (!$(`#chat-window-${id}`).hasClass('minimized')) {
                 loadMessages(id);
             }
         });
-    }, 10000);
+    }, 5000);
 
     // Auto-refresh conversations every 30 seconds if panel is open
     setInterval(function() {

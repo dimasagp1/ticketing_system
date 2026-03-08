@@ -387,6 +387,87 @@
             margin: 0 .5rem;
         }
 
+        /* Notification dropdown layout */
+        #notification-dropdown.notification-dropdown {
+            width: min(420px, calc(100vw - 24px));
+            max-height: min(70vh, 560px);
+            padding: 0;
+            overflow: hidden;
+        }
+
+        #notification-list {
+            max-height: min(58vh, 420px);
+            overflow-y: auto;
+            overscroll-behavior: contain;
+        }
+
+        #notification-list .notification-item {
+            white-space: normal;
+            padding: 0.75rem 0.9rem;
+            line-height: 1.25;
+        }
+
+        .notification-item-top {
+            display: flex;
+            align-items: flex-start;
+            gap: 0.55rem;
+        }
+
+        .notification-item-title {
+            display: flex;
+            align-items: flex-start;
+            gap: 0.45rem;
+            min-width: 0;
+            flex: 1;
+            font-weight: 600;
+            color: #1f2d3d;
+        }
+
+        .notification-item-title i {
+            flex-shrink: 0;
+            margin-top: 0.12rem;
+        }
+
+        .notification-item-title-text {
+            min-width: 0;
+            overflow-wrap: anywhere;
+            word-break: break-word;
+        }
+
+        .notification-item-time {
+            flex-shrink: 0;
+            color: #94a3b8;
+            font-size: 0.72rem;
+            white-space: nowrap;
+            margin-top: 0.05rem;
+        }
+
+        .notification-item-message {
+            margin: 0.35rem 0 0 1.35rem;
+            color: #64748b;
+            font-size: 0.82rem;
+            overflow-wrap: anywhere;
+            word-break: break-word;
+            display: -webkit-box;
+            -webkit-line-clamp: 2;
+            -webkit-box-orient: vertical;
+            overflow: hidden;
+        }
+
+        @media (max-width: 576px) {
+            #notification-dropdown.notification-dropdown {
+                width: calc(100vw - 16px);
+            }
+
+            #notification-list .notification-item {
+                padding: 0.7rem 0.75rem;
+            }
+
+            .notification-item-message {
+                margin-left: 1.2rem;
+            }
+        }
+
         @media (max-width: 992px) {
             .support-search {
                 width: 260px;
@@ -778,6 +859,18 @@
             color: var(--theme-gray) !important;
         }
 
+        body.dark-mode .notification-item-title {
+            color: #e5e7eb;
+        }
+
+        body.dark-mode .notification-item-time {
+            color: #9ca3af;
+        }
+
+        body.dark-mode .notification-item-message {
+            color: #d1d5db;
+        }
+
         /* Pagination */
         body.dark-mode .page-link {
             background-color: var(--theme-white);
@@ -1166,6 +1259,23 @@
         $(document).ready(function() {
             let notificationInterval;
 
+            function escapeHtml(value) {
+                return String(value ?? '')
+                    .replace(/&/g, '&amp;')
+                    .replace(/</g, '&lt;')
+                    .replace(/>/g, '&gt;')
+                    .replace(/"/g, '&quot;')
+                    .replace(/'/g, '&#39;');
+            }
+
+            function safeHref(url) {
+                if (typeof url !== 'string' || !url.trim()) {
+                    return '#';
+                }
+
+                return url;
+            }
+
             function updateNotifications() {
                 $.ajax({
                     url: '{{ route("notifications.counts") }}',
@@ -1215,16 +1325,31 @@
                             return;
                         }
 
-                        notifications.forEach(function(notif) {
+                        notifications.forEach(function(notif, index) {
+                            const iconClass = escapeHtml(notif.icon || 'fas fa-bell');
+                            const color = escapeHtml(notif.color || 'primary');
+                            const title = escapeHtml(notif.title || 'Notifikasi');
+                            const message = escapeHtml(notif.message || '');
+                            const time = escapeHtml(notif.time || '');
+
                             const $item = $(`
-                                <a href="${notif.url}" class="dropdown-item notif-link" data-type="${notif.type}" data-id="${notif.id || 0}">
-                                    <i class="${notif.icon} text-${notif.color} mr-2"></i> ${notif.title}
-                                    <span class="float-right text-muted text-sm">${notif.time}</span>
-                                    <p class="text-sm text-muted mb-0">${notif.message}</p>
+                                <a href="${safeHref(notif.url)}" class="dropdown-item notif-link notification-item" data-type="${escapeHtml(notif.type || '')}" data-id="${parseInt(notif.id || 0, 10) || 0}">
+                                    <div class="notification-item-top">
+                                        <span class="notification-item-title">
+                                            <i class="${iconClass} text-${color}"></i>
+                                            <span class="notification-item-title-text">${title}</span>
+                                        </span>
+                                        <span class="notification-item-time">${time}</span>
+                                    </div>
+                                    <p class="notification-item-message mb-0">${message}</p>
                                 </a>
                             `);
+
                             $list.append($item);
-                            $list.append('<div class="dropdown-divider"></div>');
+
+                            if (index < notifications.length - 1) {
+                                $list.append('<div class="dropdown-divider"></div>');
+                            }
                         });
                     },
                     error: function(xhr, status, error) {

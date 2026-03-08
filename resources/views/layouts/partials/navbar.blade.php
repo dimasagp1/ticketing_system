@@ -30,7 +30,7 @@
                 <i class="far fa-bell"></i>
                 <span class="badge badge-warning navbar-badge" id="notification-count" style="display: none;">0</span>
             </a>
-            <div class="dropdown-menu dropdown-menu-lg dropdown-menu-right" id="notification-dropdown">
+            <div class="dropdown-menu dropdown-menu-lg dropdown-menu-right notification-dropdown" id="notification-dropdown">
                 <span class="dropdown-item dropdown-header" id="notification-header">0 Notifikasi</span>
                 <div class="dropdown-divider"></div>
                 <div id="notification-list">
