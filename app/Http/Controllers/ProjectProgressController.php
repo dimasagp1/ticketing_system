@@ -6,6 +6,7 @@ use App\Models\Queue;
 use App\Models\ProjectStage;
 use App\Models\ProjectProgressLog;
 use App\Models\ActivityLog;
+use App\Services\SystemEmailNotifier;
 use Illuminate\Http\Request;
 
 class ProjectProgressController extends Controller
@@ -75,6 +76,22 @@ class ProjectProgressController extends Controller
         }
 
         ActivityLog::log('update_progress', 'Updated project progress to ' . $request->progress_percentage . '%', $queue);
+
+        if ($queue->projectRequest && $queue->projectRequest->client) {
+            $projectRequest = $queue->projectRequest;
+            $ticketCode = $projectRequest->ticket_number ?? ('#' . $projectRequest->id);
+            $stageName = optional($progressLog->projectStage)->name ?? 'Tahap Progres';
+
+            SystemEmailNotifier::sendToUser(
+                $projectRequest->client,
+                'Update Progres Tiket: ' . $ticketCode,
+                'Ada pembaruan progres pada tiket Anda',
+                "Tiket {$ticketCode} ({$projectRequest->project_name}) diperbarui ke {$request->progress_percentage}% pada tahap {$stageName}.\nCatatan: {$request->activity_description}",
+                route('project-requests.show', $projectRequest),
+                'Lihat Progres Tiket',
+                'Anda menerima email ini karena notifikasi progres aktif.'
+            );
+        }
 
         return back()->with('success', 'Project progress updated successfully!');
     }

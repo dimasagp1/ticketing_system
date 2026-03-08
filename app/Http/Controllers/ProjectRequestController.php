@@ -6,6 +6,7 @@ use App\Models\ProjectRequest;
 use App\Models\ProjectRequirement;
 use App\Models\ActivityLog;
 use App\Models\User;
+use App\Services\SystemEmailNotifier;
 use Illuminate\Http\Request;
 use Illuminate\Support\Facades\Storage;
 
@@ -287,12 +288,34 @@ class ProjectRequestController extends Controller
         }
 
         // Create approval record
-        $projectRequest->approvals()->create([
+        $approval = $projectRequest->approvals()->create([
             'approver_id' => $approver->id,
             'status' => 'pending',
         ]);
 
         ActivityLog::log('submit_project', 'Submitted project request for approval: ' . $projectRequest->project_name, $projectRequest);
+
+        $ticketCode = $projectRequest->ticket_number ?? ('#' . $projectRequest->id);
+
+        SystemEmailNotifier::sendToUser(
+            $approver,
+            'Tiket Baru Menunggu Approval: ' . $ticketCode,
+            'Tiket baru membutuhkan persetujuan Anda',
+            "Tiket {$ticketCode} ({$projectRequest->project_name}) telah diajukan oleh {$projectRequest->client?->name}.\nSilakan review dan berikan keputusan approval.",
+            route('approvals.show', $approval),
+            'Buka Approval',
+            'Email ini dikirim otomatis oleh sistem ticketing.'
+        );
+
+        SystemEmailNotifier::sendToUser(
+            $projectRequest->client,
+            'Pengajuan Tiket Berhasil: ' . $ticketCode,
+            'Tiket Anda berhasil dikirim untuk proses approval',
+            "Tiket {$ticketCode} ({$projectRequest->project_name}) sudah masuk ke antrian approval.\nKami akan mengirim pembaruan saat ada perubahan status.",
+            route('project-requests.show', $projectRequest),
+            'Lihat Tiket',
+            'Anda menerima email ini karena notifikasi email aktif.'
+        );
 
         return redirect()->route('project-requests.show', $projectRequest)
             ->with('success', 'Project request submitted for approval!');
@@ -317,6 +340,17 @@ class ProjectRequestController extends Controller
 
         ActivityLog::log('resolve_ticket', 'Resolved ticket: ' . ($projectRequest->ticket_number ?? $projectRequest->project_name), $projectRequest);
 
+        $ticketCode = $projectRequest->ticket_number ?? ('#' . $projectRequest->id);
+        SystemEmailNotifier::sendToUser(
+            $projectRequest->client,
+            'Tiket Terselesaikan: ' . $ticketCode,
+            'Tiket Anda telah diselesaikan',
+            "Tiket {$ticketCode} ({$projectRequest->project_name}) sudah diselesaikan oleh tim.\nSilakan review hasilnya sebelum tiket ditutup.",
+            route('project-requests.show', $projectRequest),
+            'Tinjau Tiket',
+            'Silakan berikan konfirmasi jika hasil sudah sesuai.'
+        );
+
         return back()->with('success', 'Ticket berhasil di-resolve.');
     }
 
@@ -339,6 +373,17 @@ class ProjectRequestController extends Controller
         ]);
 
         ActivityLog::log('close_ticket', 'Closed ticket: ' . ($projectRequest->ticket_number ?? $projectRequest->project_name), $projectRequest);
+
+        $ticketCode = $projectRequest->ticket_number ?? ('#' . $projectRequest->id);
+        SystemEmailNotifier::sendToUser(
+            $projectRequest->client,
+            'Tiket Ditutup: ' . $ticketCode,
+            'Tiket telah ditutup',
+            "Tiket {$ticketCode} ({$projectRequest->project_name}) telah ditutup.\nTerima kasih telah menggunakan layanan kami.",
+            route('project-requests.show', $projectRequest),
+            'Lihat Riwayat Tiket',
+            'Email ini sebagai konfirmasi penutupan tiket.'
+        );
 
         return back()->with('success', 'Ticket berhasil ditutup.');
     }

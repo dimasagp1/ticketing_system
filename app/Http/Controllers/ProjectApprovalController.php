@@ -7,6 +7,7 @@ use App\Models\ProjectApproval;
 use App\Models\ProjectRevision;
 use App\Models\Queue;
 use App\Models\ActivityLog;
+use App\Services\SystemEmailNotifier;
 use Illuminate\Http\Request;
 
 class ProjectApprovalController extends Controller
@@ -82,6 +83,17 @@ class ProjectApprovalController extends Controller
 
         ActivityLog::log('approve_project', 'Approved project request: ' . $projectRequest->project_name, $projectRequest);
 
+        $ticketCode = $projectRequest->ticket_number ?? ('#' . $projectRequest->id);
+        SystemEmailNotifier::sendToUser(
+            $projectRequest->client,
+            'Tiket Disetujui: ' . $ticketCode,
+            'Pengajuan tiket Anda telah disetujui',
+            "Tiket {$ticketCode} ({$projectRequest->project_name}) sudah disetujui dan dipindahkan ke antrian pengerjaan.",
+            route('project-requests.show', $projectRequest),
+            'Lihat Detail Tiket',
+            'Pantau progres tiket melalui dashboard Anda.'
+        );
+
         return redirect()->route('approvals.index')
             ->with('success', 'Project request approved and added to queue!');
     }
@@ -104,6 +116,18 @@ class ProjectApprovalController extends Controller
         ]);
 
         ActivityLog::log('reject_project', 'Rejected project request: ' . $approval->projectRequest->project_name, $approval->projectRequest);
+
+        $projectRequest = $approval->projectRequest;
+        $ticketCode = $projectRequest->ticket_number ?? ('#' . $projectRequest->id);
+        SystemEmailNotifier::sendToUser(
+            $projectRequest->client,
+            'Tiket Ditolak: ' . $ticketCode,
+            'Pengajuan tiket Anda ditolak',
+            "Tiket {$ticketCode} ({$projectRequest->project_name}) ditolak.\nAlasan: {$request->comments}",
+            route('project-requests.show', $projectRequest),
+            'Lihat Detail Tiket',
+            'Silakan perbarui data dan ajukan ulang jika diperlukan.'
+        );
 
         return redirect()->route('approvals.index')
             ->with('success', 'Project request rejected.');
@@ -137,6 +161,18 @@ class ProjectApprovalController extends Controller
         ]);
 
         ActivityLog::log('request_revision', 'Requested revision for project: ' . $approval->projectRequest->project_name, $approval->projectRequest);
+
+        $projectRequest = $approval->projectRequest;
+        $ticketCode = $projectRequest->ticket_number ?? ('#' . $projectRequest->id);
+        SystemEmailNotifier::sendToUser(
+            $projectRequest->client,
+            'Revisi Diperlukan: ' . $ticketCode,
+            'Tiket Anda membutuhkan revisi',
+            "Tim meminta revisi untuk tiket {$ticketCode} ({$projectRequest->project_name}).\nCatatan revisi: {$request->revision_notes}",
+            route('project-requests.edit', $projectRequest),
+            'Perbarui Tiket',
+            'Setelah revisi disimpan, silakan submit kembali tiket.'
+        );
 
         return redirect()->route('approvals.index')
             ->with('success', 'Revision requested. Client will be notified.');

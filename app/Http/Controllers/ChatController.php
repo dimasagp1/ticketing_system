@@ -8,7 +8,9 @@ use App\Models\ProjectRequest;
 use App\Models\Queue;
 use App\Models\User;
 use App\Models\ActivityLog;
+use App\Services\SystemEmailNotifier;
 use Illuminate\Http\Request;
+use Illuminate\Support\Str;
 use Illuminate\Support\Facades\Storage;
 
 class ChatController extends Controller
@@ -211,6 +213,42 @@ class ChatController extends Controller
 
         // Update conversation last_message_at
         $conversation->update(['last_message_at' => now()]);
+
+        $sender = auth()->user();
+        $receiver = null;
+
+        if ($sender->id === $conversation->client_id) {
+            $receiver = $conversation->developer;
+        } else {
+            $receiver = $conversation->client;
+        }
+
+        $subject = $conversation->subject ?: 'Percakapan Dukungan';
+        $messagePreview = Str::limit(trim(strip_tags((string) $message)), 180, '...');
+
+        if ($receiver) {
+            SystemEmailNotifier::sendToUser(
+                $receiver,
+                'Pesan Chat Baru: ' . $subject,
+                'Anda menerima pesan chat baru',
+                "{$sender->name} mengirim pesan baru pada percakapan '{$subject}'.\nPreview: {$messagePreview}",
+                route('chat.show', $conversation),
+                'Buka Chat',
+                'Notifikasi ini dikirim karena ada pesan baru yang belum dibaca.'
+            );
+        } elseif ($sender->isClient()) {
+            // Fallback when conversation has no assigned staff yet.
+            SystemEmailNotifier::sendToAddress(
+                (string) \App\Helpers\SettingsHelper::get('admin_email'),
+                'Pesan Chat Baru dari Client: ' . $subject,
+                'Ada pesan baru yang membutuhkan tindak lanjut',
+                "{$sender->name} mengirim pesan pada percakapan '{$subject}', tetapi belum ada petugas yang terpasang.\nPreview: {$messagePreview}",
+                route('chat.show', $conversation),
+                'Buka Chat',
+                'Admin',
+                'Silakan assign petugas untuk percakapan ini.'
+            );
+        }
 
         if ($request->ajax() || $request->wantsJson()) {
             $chat->load('user');
