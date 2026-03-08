@@ -280,4 +280,222 @@
         </div>
     </div>
 </div>
+
+<div class="row">
+    <div class="col-12">
+        <div class="card support-shell-card mb-3">
+            <div class="card-header border-0 bg-white d-flex justify-content-between align-items-center">
+                <div>
+                    <h3 class="card-title mb-0">Linimasa Alur Tiket End-to-End</h3>
+                    <small class="text-muted">Memetakan seluruh alur dari pengajuan sampai penutupan ({{ $flowRangeLabel }})</small>
+                </div>
+                <div class="btn-group btn-group-sm" role="group" aria-label="Filter periode linimasa">
+                    <a href="{{ request()->fullUrlWithQuery(['flow_range' => '7d']) }}" class="btn {{ $flowRange === '7d' ? 'btn-primary' : 'btn-outline-primary' }}">7H</a>
+                    <a href="{{ request()->fullUrlWithQuery(['flow_range' => '30d']) }}" class="btn {{ $flowRange === '30d' ? 'btn-primary' : 'btn-outline-primary' }}">30H</a>
+                    <a href="{{ request()->fullUrlWithQuery(['flow_range' => '90d']) }}" class="btn {{ $flowRange === '90d' ? 'btn-primary' : 'btn-outline-primary' }}">90H</a>
+                    <a href="{{ request()->fullUrlWithQuery(['flow_range' => 'all']) }}" class="btn {{ $flowRange === 'all' ? 'btn-primary' : 'btn-outline-primary' }}">ALL</a>
+                </div>
+            </div>
+            <div class="card-body">
+                @php
+                    $totalFlowTickets = max($flowTotalTickets, 1);
+                    $doneTickets = $flowCounts['resolved'] + $flowCounts['closed'];
+                    $activeTickets = $flowCounts['open'] + $flowCounts['in_progress'] + $flowCounts['pending_user'];
+                    $approvalStageTickets = $flowCounts['submitted'] + $flowCounts['under_review'] + $flowCounts['revision_requested'];
+                    $blockedOutcomeTickets = $flowCounts['rejected'] + $flowCounts['cancelled'];
+
+                    $donePercent = (int) round(($doneTickets / $totalFlowTickets) * 100);
+                    $activePercent = (int) round(($activeTickets / $totalFlowTickets) * 100);
+                    $approvalPercent = (int) round(($approvalStageTickets / $totalFlowTickets) * 100);
+                    $blockedPercent = (int) round(($blockedOutcomeTickets / $totalFlowTickets) * 100);
+
+                    $mainFlow = [
+                        ['label' => '1. Diajukan', 'icon' => 'fas fa-paper-plane', 'badge' => 'warning', 'count' => $flowCounts['submitted'], 'desc' => 'Tiket baru dikirim oleh client.'],
+                        ['label' => '2. Ditinjau', 'icon' => 'fas fa-search', 'badge' => 'info', 'count' => $flowCounts['under_review'], 'desc' => 'Admin menilai kebutuhan dan prioritas.'],
+                        ['label' => '3. Revisi Diminta', 'icon' => 'fas fa-pen', 'badge' => 'primary', 'count' => $flowCounts['revision_requested'], 'desc' => 'Menunggu perbaikan data dari pemohon.'],
+                        ['label' => '4. Disetujui', 'icon' => 'fas fa-check-circle', 'badge' => 'success', 'count' => $flowCounts['approved'], 'desc' => 'Approval selesai, siap masuk operasional.'],
+                        ['label' => '5. Open (Queue)', 'icon' => 'fas fa-inbox', 'badge' => 'primary', 'count' => $flowCounts['open'], 'desc' => 'Masuk antrean kerja.'],
+                        ['label' => '6. Diproses', 'icon' => 'fas fa-cogs', 'badge' => 'info', 'count' => $flowCounts['in_progress'], 'desc' => 'Tim mengerjakan tiket.'],
+                        ['label' => '7. Menunggu User', 'icon' => 'fas fa-user-clock', 'badge' => 'warning', 'count' => $flowCounts['pending_user'], 'desc' => 'Menunggu feedback/konfirmasi user.'],
+                        ['label' => '8. Terselesaikan', 'icon' => 'fas fa-flag-checkered', 'badge' => 'success', 'count' => $flowCounts['resolved'], 'desc' => 'Pekerjaan selesai.'],
+                        ['label' => '9. Ditutup', 'icon' => 'fas fa-lock', 'badge' => 'secondary', 'count' => $flowCounts['closed'], 'desc' => 'Tiket ditutup menjadi arsip.'],
+                    ];
+
+                    $outcomeFlow = [
+                        ['label' => 'Ditolak', 'icon' => 'fas fa-times-circle', 'badge' => 'danger', 'count' => $flowCounts['rejected'], 'desc' => 'Outcome dari tahap review/approval.'],
+                        ['label' => 'Dibatalkan', 'icon' => 'fas fa-ban', 'badge' => 'dark', 'count' => $flowCounts['cancelled'], 'desc' => 'Outcome dari tahap operasional.'],
+                    ];
+                @endphp
+
+                <div class="row mb-3">
+                    <div class="col-lg-3 col-sm-6 mb-2 mb-lg-0">
+                        <div class="p-2 border rounded bg-light h-100">
+                            <small class="text-muted d-block">Tingkat Selesai</small>
+                            <div class="d-flex justify-content-between align-items-center">
+                                <strong>{{ $donePercent }}%</strong>
+                                <small class="text-success">{{ $doneTickets }} tiket</small>
+                            </div>
+                            <div class="progress progress-xs mt-2">
+                                <div class="progress-bar bg-success" style="width: {{ $donePercent }}%"></div>
+                            </div>
+                        </div>
+                    </div>
+                    <div class="col-lg-3 col-sm-6 mb-2 mb-lg-0">
+                        <div class="p-2 border rounded bg-light h-100">
+                            <small class="text-muted d-block">Dalam Proses</small>
+                            <div class="d-flex justify-content-between align-items-center">
+                                <strong>{{ $activePercent }}%</strong>
+                                <small class="text-info">{{ $activeTickets }} tiket</small>
+                            </div>
+                            <div class="progress progress-xs mt-2">
+                                <div class="progress-bar bg-info" style="width: {{ $activePercent }}%"></div>
+                            </div>
+                        </div>
+                    </div>
+                    <div class="col-lg-3 col-sm-6 mb-2 mb-sm-0">
+                        <div class="p-2 border rounded bg-light h-100">
+                            <small class="text-muted d-block">Tahap Approval</small>
+                            <div class="d-flex justify-content-between align-items-center">
+                                <strong>{{ $approvalPercent }}%</strong>
+                                <small class="text-warning">{{ $approvalStageTickets }} tiket</small>
+                            </div>
+                            <div class="progress progress-xs mt-2">
+                                <div class="progress-bar bg-warning" style="width: {{ $approvalPercent }}%"></div>
+                            </div>
+                        </div>
+                    </div>
+                    <div class="col-lg-3 col-sm-6">
+                        <div class="p-2 border rounded bg-light h-100">
+                            <small class="text-muted d-block">Outcome Non-Lanjut</small>
+                            <div class="d-flex justify-content-between align-items-center">
+                                <strong>{{ $blockedPercent }}%</strong>
+                                <small class="text-danger">{{ $blockedOutcomeTickets }} tiket</small>
+                            </div>
+                            <div class="progress progress-xs mt-2">
+                                <div class="progress-bar bg-danger" style="width: {{ $blockedPercent }}%"></div>
+                            </div>
+                        </div>
+                    </div>
+                </div>
+
+                <style>
+                    .flow-scroll {
+                        overflow-x: auto;
+                        padding-bottom: 0.25rem;
+                    }
+
+                    .flow-track {
+                        display: flex;
+                        align-items: stretch;
+                        min-width: 1080px;
+                    }
+
+                    .flow-step {
+                        width: 220px;
+                        min-width: 220px;
+                        border: 1px solid #e2e8f0;
+                        border-radius: 0.7rem;
+                        background: #f8fafc;
+                        padding: 0.8rem 0.85rem;
+                    }
+
+                    .flow-step-head {
+                        display: flex;
+                        justify-content: space-between;
+                        align-items: flex-start;
+                        gap: 0.4rem;
+                        margin-bottom: 0.35rem;
+                    }
+
+                    .flow-step-title {
+                        font-weight: 600;
+                        color: #1f2d3d;
+                        font-size: 0.88rem;
+                        line-height: 1.2;
+                    }
+
+                    .flow-step-desc {
+                        color: #64748b;
+                        font-size: 0.77rem;
+                        line-height: 1.35;
+                        margin-bottom: 0;
+                    }
+
+                    .flow-connector {
+                        width: 34px;
+                        min-width: 34px;
+                        display: flex;
+                        justify-content: center;
+                        align-items: center;
+                        color: #94a3b8;
+                        font-size: 0.92rem;
+                    }
+
+                    .flow-outcome-track {
+                        display: grid;
+                        grid-template-columns: repeat(2, minmax(220px, 1fr));
+                        gap: 0.75rem;
+                    }
+
+                    @media (max-width: 768px) {
+                        .flow-step {
+                            width: 200px;
+                            min-width: 200px;
+                        }
+
+                        .flow-track {
+                            min-width: 930px;
+                        }
+
+                        .flow-outcome-track {
+                            grid-template-columns: 1fr;
+                        }
+                    }
+                </style>
+
+                <div class="mb-3">
+                    <small class="text-uppercase text-muted font-weight-600">Alur Utama</small>
+                </div>
+
+                <div class="flow-scroll mb-4">
+                    <div class="flow-track">
+                        @foreach($mainFlow as $index => $stage)
+                            <div class="flow-step">
+                                <div class="flow-step-head">
+                                    <div class="flow-step-title">
+                                        <i class="{{ $stage['icon'] }} text-{{ $stage['badge'] }} mr-1"></i>{{ $stage['label'] }}
+                                    </div>
+                                    <span class="badge badge-{{ $stage['badge'] }}">{{ $stage['count'] }}</span>
+                                </div>
+                                <p class="flow-step-desc">{{ $stage['desc'] }}</p>
+                            </div>
+
+                            @if($index < count($mainFlow) - 1)
+                                <div class="flow-connector"><i class="fas fa-arrow-right"></i></div>
+                            @endif
+                        @endforeach
+                    </div>
+                </div>
+
+                <div class="mb-2">
+                    <small class="text-uppercase text-muted font-weight-600">Outcome Cabang</small>
+                </div>
+
+                <div class="flow-outcome-track">
+                    @foreach($outcomeFlow as $stage)
+                        <div class="flow-step">
+                            <div class="flow-step-head">
+                                <div class="flow-step-title">
+                                    <i class="{{ $stage['icon'] }} text-{{ $stage['badge'] }} mr-1"></i>{{ $stage['label'] }}
+                                </div>
+                                <span class="badge badge-{{ $stage['badge'] }}">{{ $stage['count'] }}</span>
+                            </div>
+                            <p class="flow-step-desc">{{ $stage['desc'] }}</p>
+                        </div>
+                    @endforeach
+                </div>
+            </div>
+        </div>
+    </div>
+</div>
 @endsection

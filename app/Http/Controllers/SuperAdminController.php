@@ -16,6 +16,47 @@ class SuperAdminController extends Controller
 {
     public function dashboard()
     {
+        $flowRange = request()->query('flow_range', '30d');
+        $allowedFlowRanges = ['7d', '30d', '90d', 'all'];
+        if (!in_array($flowRange, $allowedFlowRanges, true)) {
+            $flowRange = '30d';
+        }
+
+        $flowRangeStart = match ($flowRange) {
+            '7d' => now()->subDays(7),
+            '30d' => now()->subDays(30),
+            '90d' => now()->subDays(90),
+            default => null,
+        };
+
+        $flowRangeLabel = match ($flowRange) {
+            '7d' => '7 Hari Terakhir',
+            '30d' => '30 Hari Terakhir',
+            '90d' => '90 Hari Terakhir',
+            default => 'Semua Waktu',
+        };
+
+        $flowBaseQuery = ProjectRequest::query();
+        if ($flowRangeStart) {
+            $flowBaseQuery->where('created_at', '>=', $flowRangeStart);
+        }
+
+        $flowCounts = [
+            'submitted' => (clone $flowBaseQuery)->where('status', 'submitted')->count(),
+            'under_review' => (clone $flowBaseQuery)->where('status', 'under_review')->count(),
+            'revision_requested' => (clone $flowBaseQuery)->where('status', 'revision_requested')->count(),
+            'rejected' => (clone $flowBaseQuery)->where('status', 'rejected')->count(),
+            'approved' => (clone $flowBaseQuery)->where('status', 'approved')->count(),
+            'open' => (clone $flowBaseQuery)->where('ticket_status', 'open')->count(),
+            'in_progress' => (clone $flowBaseQuery)->where('ticket_status', 'in_progress')->count(),
+            'pending_user' => (clone $flowBaseQuery)->where('ticket_status', 'pending_user')->count(),
+            'resolved' => (clone $flowBaseQuery)->where('ticket_status', 'resolved')->count(),
+            'closed' => (clone $flowBaseQuery)->where('ticket_status', 'closed')->count(),
+            'cancelled' => (clone $flowBaseQuery)->where('ticket_status', 'cancelled')->count(),
+        ];
+
+        $flowTotalTickets = max((clone $flowBaseQuery)->count(), 1);
+
         // Statistics
         $stats = [
             'total_users' => User::count(),
@@ -94,7 +135,11 @@ class SuperAdminController extends Controller
             'queuesByStatus',
             'recentUsers',
             'slaWatchlist',
-            'supportAgents'
+            'supportAgents',
+            'flowCounts',
+            'flowTotalTickets',
+            'flowRange',
+            'flowRangeLabel'
         ));
     }
 
