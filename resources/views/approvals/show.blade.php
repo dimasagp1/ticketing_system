@@ -53,9 +53,23 @@
                             <tbody>
                                 @foreach($approval->projectRequest->requirements as $req)
                                 <tr>
-                                        <td class="pl-4"><i class="fas fa-file text-primary mr-2"></i> {{ $req->file_name }}</td>
+                                        <td class="pl-4"><i class="fas {{ $req->file_icon_class }} mr-2"></i> {{ $req->file_name }}</td>
                                         <td class="d-none d-md-table-cell">{{ $req->file_size_formatted }}</td>
                                         <td class="pr-4">
+                                            <button
+                                                type="button"
+                                                class="btn btn-sm btn-light text-info requirement-preview-btn"
+                                                data-toggle="modal"
+                                                data-target="#requirementPreviewModal"
+                                                data-url="{{ route('project-requirements.view', $req) }}"
+                                                data-download-url="{{ route('project-requirements.download', $req) }}"
+                                                data-name="{{ $req->file_name }}"
+                                                data-mime="{{ $req->file_type ?? '' }}"
+                                                data-previewable="{{ $req->is_previewable ? '1' : '0' }}"
+                                                title="Lihat"
+                                            >
+                                                <i class="fas fa-eye mr-1"></i> Lihat
+                                            </button>
                                             <a href="{{ route('project-requirements.download', $req) }}" class="btn btn-sm btn-light text-primary">
                                                 <i class="fas fa-download mr-1"></i> Unduh
                                             </a>
@@ -134,4 +148,5 @@
         </div>
     </div>
 </div>
+@include('layouts.partials.requirement-preview-modal')
 @endsection

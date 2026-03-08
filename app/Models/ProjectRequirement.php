@@ -49,6 +49,46 @@ class ProjectRequirement extends Model
         return round($bytes, 2) . ' ' . $units[$i];
     }
 
+    public function getIsPreviewableAttribute(): bool
+    {
+        $mime = strtolower((string) ($this->file_type ?? ''));
+        $extension = strtolower((string) pathinfo((string) $this->file_name, PATHINFO_EXTENSION));
+
+        if (str_starts_with($mime, 'image/') || $mime === 'application/pdf' || str_starts_with($mime, 'text/')) {
+            return true;
+        }
+
+        return in_array($extension, ['pdf', 'png', 'jpg', 'jpeg', 'gif', 'bmp', 'webp', 'svg', 'txt', 'csv', 'json'], true);
+    }
+
+    public function getFileIconClassAttribute(): string
+    {
+        $mime = strtolower((string) ($this->file_type ?? ''));
+        $extension = strtolower((string) pathinfo((string) $this->file_name, PATHINFO_EXTENSION));
+
+        if (str_starts_with($mime, 'image/') || in_array($extension, ['png', 'jpg', 'jpeg', 'gif', 'bmp', 'webp', 'svg'], true)) {
+            return 'fa-file-image text-info';
+        }
+
+        if ($mime === 'application/pdf' || $extension === 'pdf') {
+            return 'fa-file-pdf text-danger';
+        }
+
+        if (str_contains($mime, 'spreadsheet') || in_array($extension, ['xls', 'xlsx', 'csv'], true)) {
+            return 'fa-file-excel text-success';
+        }
+
+        if (str_contains($mime, 'word') || in_array($extension, ['doc', 'docx'], true)) {
+            return 'fa-file-word text-primary';
+        }
+
+        if (str_contains($mime, 'zip') || in_array($extension, ['zip', 'rar', '7z', 'tar', 'gz'], true)) {
+            return 'fa-file-archive text-warning';
+        }
+
+        return 'fa-file text-muted';
+    }
+
     // Helper methods
     public function download()
     {

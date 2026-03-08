@@ -44,6 +44,8 @@ Route::middleware(['auth'])->group(function () {
         ->name('project-requests.close');
     Route::post('project-requests/{projectRequest}/upload-requirements', [ProjectRequestController::class, 'uploadRequirements'])
         ->name('project-requests.upload-requirements');
+    Route::get('project-requirements/{requirement}/view', [ProjectRequestController::class, 'viewRequirement'])
+        ->name('project-requirements.view');
     Route::get('project-requirements/{requirement}/download', [ProjectRequestController::class, 'downloadRequirement'])
         ->name('project-requirements.download');
     Route::delete('project-requirements/{requirement}', [ProjectRequestController::class, 'deleteRequirement'])

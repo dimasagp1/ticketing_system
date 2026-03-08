@@ -377,6 +377,23 @@ class ProjectRequestController extends Controller
         return Storage::disk('public')->download($requirement->file_path, $requirement->file_name);
     }
 
+    public function viewRequirement(ProjectRequirement $requirement)
+    {
+        abort_unless(Storage::disk('public')->exists($requirement->file_path), 404);
+
+        $mimeType = Storage::disk('public')->mimeType($requirement->file_path) ?? 'application/octet-stream';
+
+        return Storage::disk('public')->response(
+            $requirement->file_path,
+            $requirement->file_name,
+            [
+                'Content-Type' => $mimeType,
+                'Content-Disposition' => 'inline; filename="' . addslashes($requirement->file_name) . '"',
+                'X-Content-Type-Options' => 'nosniff',
+            ]
+        );
+    }
+
     public function deleteRequirement(ProjectRequirement $requirement)
     {
         // Only allow if project is draft

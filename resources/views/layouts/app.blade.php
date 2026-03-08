@@ -255,6 +255,19 @@
             font-size: .9rem;
         }
 
+        .brand-head.has-logo .brand-icon {
+            width: auto;
+            height: auto;
+            border-radius: 0;
+            background: transparent;
+            color: inherit;
+            display: inline-flex;
+        }
+
+        .brand-head.has-logo .brand-icon img {
+            display: block;
+        }
+
         .brand-head span:last-child {
             letter-spacing: .1px;
             font-size: 1.03rem;

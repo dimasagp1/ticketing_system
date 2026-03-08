@@ -2,9 +2,9 @@
     <!-- Left area -->
     <ul class="navbar-nav">
         <li class="nav-item d-flex align-items-center">
-            <a href="{{ route('dashboard') }}" class="brand-head ml-1">
+            <a href="{{ route('dashboard') }}" class="brand-head ml-1 {{ \App\Helpers\SettingsHelper::get('app_logo') ? 'has-logo' : '' }}">
                 @if(\App\Helpers\SettingsHelper::get('app_logo'))
-                    <span class="brand-icon"><img src="{{ asset('storage/' . \App\Helpers\SettingsHelper::get('app_logo')) }}" alt="Logo" style="height: 28px; width: auto; max-width: 140px; object-fit: contain;"></span>
+                    <span class="brand-icon"><img src="{{ asset('storage/' . \App\Helpers\SettingsHelper::get('app_logo')) }}" alt="Logo" style="height: 32px; width: auto; max-width: 160px; object-fit: contain;"></span>
                 @else
                     <span class="brand-icon"><i class="fas fa-life-ring"></i></span>
                     <span>{{ \App\Helpers\SettingsHelper::get('app_name', config('app.name', 'Antrian Project')) }}</span>
