@@ -162,6 +162,101 @@
 
 <div class="row">
     <div class="col-md-12">
+        <div class="card support-shell-card mb-4" style="border-left: 4px solid #17a2b8;">
+            <div class="card-header border-0 bg-white pt-4 px-4 pb-2 d-flex justify-content-between align-items-center">
+                <div>
+                    <h3 class="card-title mb-0 font-weight-bold text-info" style="font-size: 1.15rem;">
+                        <i class="fas fa-list-ol mr-2"></i> Papan Antrian Global Tim IT
+                    </h3>
+                    <p class="text-muted small mb-0 mt-1">Transparansi antrian beban kerja saat ini.</p>
+                </div>
+            </div>
+            <div class="card-body p-0">
+                <div class="table-responsive">
+                    <table class="table table-hover mb-0 align-middle">
+                        <thead class="bg-light">
+                            <tr>
+                                <th class="pl-4 border-bottom-0" style="width: 80px;">Posisi</th>
+                                <th class="border-bottom-0">Project</th>
+                                <th class="border-bottom-0">Status</th>
+                                <th class="border-bottom-0">Ditangani Oleh</th>
+                                <th class="pr-4 border-bottom-0 text-right">Ditambahkan</th>
+                            </tr>
+                        </thead>
+                        <tbody>
+                            @forelse($globalQueues ?? collect() as $index => $queue)
+                                @php
+                                    $isMine = false;
+                                    if ($queue->projectRequest) {
+                                        $isMine = $queue->projectRequest->client_id === auth()->id();
+                                    } else {
+                                        // Fallback if no specific relation loaded or missing project request, try to match by client email
+                                        $isMine = $queue->client_email === auth()->user()->email;
+                                    }
+                                    
+                                    $rowClass = $isMine ? 'bg-primary-light' : '';
+                                    $textClass = $isMine ? 'font-weight-bold text-primary' : 'text-dark';
+                                    $iconClass = $isMine ? '<i class="fas fa-star text-warning mr-1"></i> ' : '';
+                                    $projectName = $isMine ? "Project Anda: " . $queue->project_name : "Project Klien Lain / Internal";
+                                @endphp
+                                <tr class="{{ $rowClass }}" {!! $isMine ? 'style="background-color: rgba(0, 123, 255, 0.05); border-left: 3px solid #007bff;"' : '' !!}>
+                                    <td class="pl-4">
+                                        <div class="d-inline-flex align-items-center justify-content-center bg-{{ $isMine ? 'primary text-white' : 'light' }} rounded-circle" style="width: 32px; height: 32px; font-weight: 600;">
+                                            {{ $index + 1 }}
+                                        </div>
+                                    </td>
+                                    <td class="{{ $textClass }}">
+                                        {!! $iconClass !!}{{ $projectName }}
+                                        @if($isMine)
+                                            <span class="badge badge-primary ml-2">Milik Anda</span>
+                                        @endif
+                                    </td>
+                                    <td>
+                                        <span class="badge badge-{{ $queue->status === 'In Progress' ? 'primary' : 'warning' }}">
+                                            @if($queue->status === 'In Progress')
+                                                <i class="fas fa-spinner fa-spin mr-1"></i> Diproses
+                                            @else
+                                                <i class="fas fa-clock mr-1"></i> Menunggu
+                                            @endif
+                                        </span>
+                                    </td>
+                                    <td>
+                                        @if($queue->assignedTo)
+                                            <div class="d-flex align-items-center">
+                                                <div class="avatar avatar-xs bg-light text-primary rounded-circle mr-2 d-flex align-items-center justify-content-center" style="width: 28px; height: 28px;">
+                                                    <span class="font-weight-bold text-uppercase small">{{ substr($queue->assignedTo->name, 0, 1) }}</span>
+                                                </div>
+                                                <div>
+                                                    <span class="d-block font-weight-500" style="font-size: 0.9rem;">{{ $queue->assignedTo->name }}</span>
+                                                    <small class="text-muted" style="font-size: 0.75rem;">Tim IT</small>
+                                                </div>
+                                            </div>
+                                        @else
+                                            <span class="text-muted small font-italic">Belum Ditugaskan</span>
+                                        @endif
+                                    </td>
+                                    <td class="pr-4 text-right text-muted small">
+                                        {{ $queue->created_at->diffForHumans() }}
+                                    </td>
+                                </tr>
+                            @empty
+                                <tr>
+                                    <td colspan="5" class="text-center py-4 text-muted">
+                                        <div class="mb-2"><i class="fas fa-calendar-check fa-2x text-success" style="opacity: 0.5;"></i></div>
+                                        Saat ini tidak ada antrian. Tim IT sedang tidak memiliki antrian aktif.
+                                    </td>
+                                </tr>
+                            @endforelse
+                        </tbody>
+                    </table>
+                </div>
+            </div>
+        </div>
+    </div>
+</div>
+
+<div class="row">
+    <div class="col-md-12">
         <div class="card support-shell-card mb-4">
             <div class="card-header border-0 bg-white pt-4 px-4 pb-2 d-flex justify-content-between align-items-center">
                 <h3 class="card-title mb-0 font-weight-bold" style="font-size: 1.15rem;">Permintaan Terbaru</h3>

@@ -24,7 +24,20 @@ Route::redirect('/', '/login');
 
 Route::get('/dashboard', function () {
     $user = auth()->user();
-    return view('dashboard', compact('user'));
+    
+    // Default variables
+    $viewData = ['user' => $user];
+    
+    // For clients, fetch global active queues to show IT workload/queue position
+    if ($user->isClient()) {
+        $viewData['globalQueues'] = \App\Models\Queue::with(['assignedTo'])
+            ->whereIn('status', ['Pending', 'In Progress'])
+            ->orderByRaw("FIELD(status, 'In Progress', 'Pending')") // In Progress first
+            ->orderBy('created_at', 'asc') // FIFO by creation time
+            ->get();
+    }
+    
+    return view('dashboard', $viewData);
 })->middleware(['auth', 'verified'])->name('dashboard');
 
 Route::middleware('auth')->group(function () {
