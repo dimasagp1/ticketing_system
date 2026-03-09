@@ -30,7 +30,7 @@ Route::get('/dashboard', function () {
     
     // For clients, fetch global active queues to show IT workload/queue position
     if ($user->isClient()) {
-        $viewData['globalQueues'] = \App\Models\Queue::with(['assignedTo'])
+        $viewData['globalQueues'] = \App\Models\Queue::with(['assignedTo', 'progressLogs.updatedBy'])
             ->whereIn('status', ['Pending', 'In Progress'])
             ->orderByRaw("FIELD(status, 'In Progress', 'Pending')") // In Progress first
             ->orderBy('created_at', 'asc') // FIFO by creation time

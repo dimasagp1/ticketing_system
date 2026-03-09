@@ -181,18 +181,31 @@
                                         </span>
                                     </td>
                                     <td>
-                                        @if($queue->assignedTo)
+                                        @php
+                                            $assignee = $queue->assignedTo;
+                                            if (!$assignee && $queue->progressLogs->isNotEmpty()) {
+                                                $assignee = $queue->progressLogs->sortByDesc('created_at')->first()->updatedBy;
+                                            }
+                                        @endphp
+                                        
+                                        @if($assignee)
                                             <div class="d-flex align-items-center">
                                                 <div class="avatar avatar-xs bg-light text-primary rounded-circle mr-2 d-flex align-items-center justify-content-center" style="width: 28px; height: 28px;">
-                                                    <span class="font-weight-bold text-uppercase small">{{ substr($queue->assignedTo->name, 0, 1) }}</span>
+                                                    <span class="font-weight-bold text-uppercase small">{{ substr($assignee->name, 0, 1) }}</span>
                                                 </div>
                                                 <div>
-                                                    <span class="d-block font-weight-500" style="font-size: 0.9rem;">{{ $queue->assignedTo->name }}</span>
+                                                    <span class="d-block font-weight-500" style="font-size: 0.9rem;">{{ $assignee->name }}</span>
                                                     <small class="text-muted" style="font-size: 0.75rem;">Tim IT</small>
                                                 </div>
                                             </div>
                                         @else
-                                            <span class="text-muted small font-italic">Belum Ditugaskan</span>
+                                            <span class="text-muted small font-italic">
+                                                @if($queue->status === 'In Progress')
+                                                    Menunggu Update
+                                                @else
+                                                    Belum Ditugaskan
+                                                @endif
+                                            </span>
                                         @endif
                                     </td>
                                     <td class="pr-4 text-right text-muted small">
