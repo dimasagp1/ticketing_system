@@ -188,7 +188,7 @@
                     </a>
                 @endif
 
-                @if(auth()->user()->hasRole(['admin', 'super_admin']) && in_array($projectRequest->ticket_status, ['open', 'in_progress', 'pending_user']))
+                @if(auth()->user()->hasRole(['admin', 'super_admin']) && $projectRequest->status !== 'draft' && in_array($projectRequest->ticket_status, ['open', 'in_progress', 'pending_user']))
                     <form action="{{ route('project-requests.resolve', $projectRequest) }}" method="POST" class="mt-2">
                         @csrf
                         <button type="submit" class="btn btn-success btn-block">

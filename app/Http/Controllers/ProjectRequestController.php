@@ -333,6 +333,10 @@ class ProjectRequestController extends Controller
             return back()->with('error', 'Ticket hanya bisa di-resolve dari status aktif.');
         }
 
+        if ($projectRequest->status === 'draft') {
+            return back()->with('error', 'Ticket draft tidak bisa diselesaikan.');
+        }
+
         $projectRequest->update([
             'ticket_status' => 'resolved',
             'resolved_at' => now(),
