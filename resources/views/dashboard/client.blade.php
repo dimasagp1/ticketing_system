@@ -121,48 +121,8 @@
                 </div>
             </div>
         </div>
-    </div>
 
-    <div class="col-lg-4">
-        <div class="card support-shell-card mb-3">
-            <div class="card-header border-0 bg-white pt-4 px-4 pb-2">
-                <h3 class="card-title mb-0 font-weight-bold" style="font-size: 1.15rem;">Ringkasan Permintaan</h3>
-            </div>
-            <div class="card-body px-4 pb-4 pt-2">
-                <div class="mb-3">
-                    <div class="d-flex justify-content-between mb-1"><small class="text-muted font-weight-600">Disetujui</small><small class="font-weight-600">{{ round(($approvedRequests / $requestBase) * 100) }}%</small></div>
-                    <div class="progress progress-xs"><div class="progress-bar bg-success" style="width: {{ round(($approvedRequests / $requestBase) * 100) }}%"></div></div>
-                </div>
-                <div class="mb-3">
-                    <div class="d-flex justify-content-between mb-1"><small class="text-muted font-weight-600">Pending</small><small class="font-weight-600">{{ round(($pendingRequests / $requestBase) * 100) }}%</small></div>
-                    <div class="progress progress-xs"><div class="progress-bar bg-warning" style="width: {{ round(($pendingRequests / $requestBase) * 100) }}%"></div></div>
-                </div>
-                <div class="mb-3">
-                    <div class="d-flex justify-content-between mb-1"><small class="text-muted font-weight-600">Tiket Aktif</small><small class="font-weight-600">{{ round(($activeTickets / $requestBase) * 100) }}%</small></div>
-                    <div class="progress progress-xs"><div class="progress-bar bg-primary" style="width: {{ round(($activeTickets / $requestBase) * 100) }}%"></div></div>
-                </div>
-                <div class="mb-0">
-                    <div class="d-flex justify-content-between mb-1"><small class="text-muted font-weight-600">Aktivitas Chat</small><small class="font-weight-600">{{ $activeChats }}</small></div>
-                    <div class="progress progress-xs"><div class="progress-bar bg-info" style="width: {{ max(min($activeChats * 10, 100), 0) }}%"></div></div>
-                </div>
-            </div>
-        </div>
-
-        <div class="card support-shell-card mb-3">
-            <div class="card-header border-0 bg-white pt-4 px-4 pb-2">
-                <h3 class="card-title mb-0 font-weight-bold" style="font-size: 1.15rem;">Aksi Cepat</h3>
-            </div>
-            <div class="card-body px-4 pb-4 pt-2">
-                <a href="{{ route('project-requests.create') }}" class="btn btn-light btn-block mb-2 font-weight-500 text-left px-3"><i class="fas fa-plus text-primary mr-2" style="width: 20px;"></i> Buat Tiket Baru</a>
-                <a href="{{ route('chat.index') }}" class="btn btn-light btn-block font-weight-500 text-left px-3"><i class="fas fa-comments text-info mr-2" style="width: 20px;"></i> Buka Ruang Chat</a>
-            </div>
-        </div>
-    </div>
-</div>
-
-<div class="row">
-    <div class="col-md-12">
-        <div class="card support-shell-card mb-4" style="border-left: 4px solid #17a2b8;">
+        <div class="card support-shell-card mb-3" style="border-left: 4px solid #17a2b8;">
             <div class="card-header border-0 bg-white pt-4 px-4 pb-2 d-flex justify-content-between align-items-center">
                 <div>
                     <h3 class="card-title mb-0 font-weight-bold text-info" style="font-size: 1.15rem;">
@@ -253,7 +213,45 @@
             </div>
         </div>
     </div>
+
+    <div class="col-lg-4">
+        <div class="card support-shell-card mb-3">
+            <div class="card-header border-0 bg-white pt-4 px-4 pb-2">
+                <h3 class="card-title mb-0 font-weight-bold" style="font-size: 1.15rem;">Ringkasan Permintaan</h3>
+            </div>
+            <div class="card-body px-4 pb-4 pt-2">
+                <div class="mb-3">
+                    <div class="d-flex justify-content-between mb-1"><small class="text-muted font-weight-600">Disetujui</small><small class="font-weight-600">{{ round(($approvedRequests / $requestBase) * 100) }}%</small></div>
+                    <div class="progress progress-xs"><div class="progress-bar bg-success" style="width: {{ round(($approvedRequests / $requestBase) * 100) }}%"></div></div>
+                </div>
+                <div class="mb-3">
+                    <div class="d-flex justify-content-between mb-1"><small class="text-muted font-weight-600">Pending</small><small class="font-weight-600">{{ round(($pendingRequests / $requestBase) * 100) }}%</small></div>
+                    <div class="progress progress-xs"><div class="progress-bar bg-warning" style="width: {{ round(($pendingRequests / $requestBase) * 100) }}%"></div></div>
+                </div>
+                <div class="mb-3">
+                    <div class="d-flex justify-content-between mb-1"><small class="text-muted font-weight-600">Tiket Aktif</small><small class="font-weight-600">{{ round(($activeTickets / $requestBase) * 100) }}%</small></div>
+                    <div class="progress progress-xs"><div class="progress-bar bg-primary" style="width: {{ round(($activeTickets / $requestBase) * 100) }}%"></div></div>
+                </div>
+                <div class="mb-0">
+                    <div class="d-flex justify-content-between mb-1"><small class="text-muted font-weight-600">Aktivitas Chat</small><small class="font-weight-600">{{ $activeChats }}</small></div>
+                    <div class="progress progress-xs"><div class="progress-bar bg-info" style="width: {{ max(min($activeChats * 10, 100), 0) }}%"></div></div>
+                </div>
+            </div>
+        </div>
+
+        <div class="card support-shell-card mb-3">
+            <div class="card-header border-0 bg-white pt-4 px-4 pb-2">
+                <h3 class="card-title mb-0 font-weight-bold" style="font-size: 1.15rem;">Aksi Cepat</h3>
+            </div>
+            <div class="card-body px-4 pb-4 pt-2">
+                <a href="{{ route('project-requests.create') }}" class="btn btn-light btn-block mb-2 font-weight-500 text-left px-3"><i class="fas fa-plus text-primary mr-2" style="width: 20px;"></i> Buat Tiket Baru</a>
+                <a href="{{ route('chat.index') }}" class="btn btn-light btn-block font-weight-500 text-left px-3"><i class="fas fa-comments text-info mr-2" style="width: 20px;"></i> Buka Ruang Chat</a>
+            </div>
+        </div>
+    </div>
 </div>
+
+
 
 <div class="row">
     <div class="col-md-12">
