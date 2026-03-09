@@ -8,7 +8,7 @@
     $requestBase = max($totalRequests, 1);
 @endphp
 
-<div class="d-flex justify-content-between align-items-center mb-4 mt-2">
+<div class="d-flex justify-content-between align-items-center mb-4 mt-4">
     <div>
         <p class="text-muted mb-0 font-weight-500">Pantau tiket, progres antrian, dan komunikasi dukungan Anda.</p>
     </div>
