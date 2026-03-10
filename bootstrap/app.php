@@ -15,6 +15,41 @@ $app = new Illuminate\Foundation\Application(
     $_ENV['APP_BASE_PATH'] ?? dirname(__DIR__)
 );
 
+// Support shared hosting setups where web root is not "public" (e.g. public_html).
+$publicPath = env('PUBLIC_PATH')
+    ?: ($_ENV['PUBLIC_PATH'] ?? null)
+    ?: ($_SERVER['PUBLIC_PATH'] ?? null)
+    ?: getenv('PUBLIC_PATH');
+
+if (!empty($publicPath)) {
+    $isAbsolutePath = preg_match('/^(?:[A-Za-z]:\\|\/)/', $publicPath) === 1;
+
+    $resolvedPublicPath = $isAbsolutePath
+        ? $publicPath
+        : $app->basePath($publicPath);
+
+    if (is_dir($resolvedPublicPath)) {
+        $app->bind('path.public', fn () => $resolvedPublicPath);
+    }
+}
+
+if (!$app->bound('path.public')) {
+    $scriptFilename = $_SERVER['SCRIPT_FILENAME'] ?? null;
+
+    if (!empty($scriptFilename)) {
+        $scriptDir = dirname($scriptFilename);
+        $scriptDirName = basename($scriptDir);
+
+        if (in_array($scriptDirName, ['public', 'public_html'], true) && is_dir($scriptDir)) {
+            $app->bind('path.public', fn () => $scriptDir);
+        }
+    }
+}
+
+if (!$app->bound('path.public') && !is_dir($app->basePath('public')) && is_dir($app->basePath('public_html'))) {
+    $app->bind('path.public', fn () => $app->basePath('public_html'));
+}
+
 /*
 |--------------------------------------------------------------------------
 | Bind Important Interfaces
