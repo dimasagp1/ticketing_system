@@ -73,6 +73,9 @@ class ReportController extends Controller
             'generator' => auth()->user()->name
         ];
 
+        // Fix for "Cannot resolve public path" on hosting
+        config(['dompdf.settings.public_path' => public_path()]);
+
         $pdf = Pdf::loadView('reports.project-pdf', $data);
 
         // Optional: set paper to landscape if needed
