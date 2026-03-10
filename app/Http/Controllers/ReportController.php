@@ -74,7 +74,10 @@ class ReportController extends Controller
         ];
 
         // Fix for "Cannot resolve public path" on hosting
-        config(['dompdf.settings.public_path' => public_path()]);
+        config([
+            'dompdf.public_path' => public_path(),
+            'dompdf.options.chroot' => base_path(),
+        ]);
 
         $pdf = Pdf::loadView('reports.project-pdf', $data);
 
