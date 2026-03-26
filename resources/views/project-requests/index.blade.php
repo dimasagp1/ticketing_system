@@ -128,7 +128,7 @@
                                     </td>
                                     <td>
                                         @if($request->sla_resolution_due_at)
-                                            <span class="{{ $request->sla_resolution_due_at->isPast() && in_array($request->ticket_status, ['open', 'in_progress', 'pending_user']) ? 'text-danger font-weight-bold' : '' }}">
+                                            <span class="{{ $request->sla_resolution_due_at->isPast() && in_array($request->ticket_status, \App\Models\ProjectRequest::slaTrackedTicketStatuses(), true) ? 'text-danger font-weight-bold' : '' }}">
                                                 {{ $request->sla_resolution_due_at->format('d M Y H:i') }}
                                             </span>
                                         @else
@@ -137,20 +137,35 @@
                                     </td>
                                     <td class="d-none d-lg-table-cell">{{ $request->submitted_at ? $request->submitted_at->format('d M Y') : '-' }}</td>
                                     <td>
-                                        <a href="{{ route('project-requests.show', $request) }}" class="btn btn-light text-info btn-sm" title="Lihat">
-                                            <i class="fas fa-eye"></i>
+                                        <a href="{{ route('project-requests.show', $request) }}" class="btn btn-light text-info btn-sm mr-1 mb-1" title="Lihat" aria-label="Lihat tiket">
+                                            <i class="fas fa-eye"></i><span class="d-none d-xl-inline ml-1">Lihat</span>
                                         </a>
+                                        @if(auth()->user()->hasRole(['admin', 'super_admin']) && $request->status !== 'draft' && in_array($request->ticket_status, \App\Models\ProjectRequest::pausableTicketStatuses(), true))
+                                            <form action="{{ route('project-requests.pause', $request) }}" method="POST" style="display: inline;" id="pause-form-{{ $request->id }}">
+                                                @csrf
+                                                <button type="button" class="btn btn-warning text-dark btn-sm mr-1 mb-1" title="Pause Tiket" aria-label="Pause tiket" onclick="confirmAction('pause-form-{{ $request->id }}', 'Pause tiket?', 'Tiket akan dijeda sementara sampai dijalankan kembali.', 'Ya, pause', '#f97316', 'warning')">
+                                                    <i class="fas fa-pause"></i><span class="d-none d-xl-inline ml-1">Pause</span>
+                                                </button>
+                                            </form>
+                                        @elseif(auth()->user()->hasRole(['admin', 'super_admin']) && $request->status !== 'draft' && in_array($request->ticket_status, \App\Models\ProjectRequest::playableTicketStatuses(), true))
+                                            <form action="{{ route('project-requests.play', $request) }}" method="POST" style="display: inline;" id="play-form-{{ $request->id }}">
+                                                @csrf
+                                                <button type="button" class="btn btn-success btn-sm mr-1 mb-1" title="Play Tiket" aria-label="Play tiket" onclick="confirmAction('play-form-{{ $request->id }}', 'Jalankan kembali tiket?', 'Tiket akan dilanjutkan kembali ke proses kerja aktif.', 'Ya, jalankan', '#10b981', 'question')">
+                                                    <i class="fas fa-play"></i><span class="d-none d-xl-inline ml-1">Play</span>
+                                                </button>
+                                            </form>
+                                        @endif
                                         @if(auth()->user()->isClient() && in_array($request->status, ['draft', 'revision_requested']))
-                                            <a href="{{ route('project-requests.edit', $request) }}" class="btn btn-warning btn-sm" title="Ubah">
-                                                <i class="fas fa-edit"></i>
+                                            <a href="{{ route('project-requests.edit', $request) }}" class="btn btn-warning btn-sm mr-1 mb-1" title="Ubah" aria-label="Ubah tiket">
+                                                <i class="fas fa-edit"></i><span class="d-none d-xl-inline ml-1">Ubah</span>
                                             </a>
                                         @endif
                                         @if(auth()->user()->isClient() && $request->status == 'draft')
                                             <form action="{{ route('project-requests.destroy', $request) }}" method="POST" style="display: inline;" id="delete-form-{{ $request->id }}">
                                                 @csrf
                                                 @method('DELETE')
-                                                <button type="button" class="btn btn-danger btn-sm" onclick="confirmDelete('delete-form-{{ $request->id }}')" title="Hapus">
-                                                    <i class="fas fa-trash"></i>
+                                                <button type="button" class="btn btn-danger btn-sm mb-1" onclick="confirmDelete('delete-form-{{ $request->id }}')" title="Hapus" aria-label="Hapus tiket">
+                                                    <i class="fas fa-trash"></i><span class="d-none d-xl-inline ml-1">Hapus</span>
                                                 </button>
                                             </form>
                                         @endif

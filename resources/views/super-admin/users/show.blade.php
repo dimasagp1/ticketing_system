@@ -1,7 +1,7 @@
 @extends('layouts.app')
 
 @section('breadcrumb')
-    <li class="breadcrumb-item"><a href="{{ route('super-admin.dashboard') }}">Super Admin</a></li>
+    <li class="breadcrumb-item"><a href="{{ auth()->user()->isSuperAdmin() ? route('super-admin.dashboard') : route('dashboard') }}">{{ auth()->user()->isSuperAdmin() ? 'Super Admin' : 'Dasbor' }}</a></li>
     <li class="breadcrumb-item"><a href="{{ route('super-admin.users.index') }}">Pengguna</a></li>
     <li class="breadcrumb-item active">{{ $user->name }}</li>
 @endsection
@@ -46,9 +46,20 @@
                     </li>
                 </ul>
 
+                @if(auth()->user()->isSuperAdmin())
                 <a href="{{ route('super-admin.users.edit', $user) }}" class="btn btn-primary btn-block font-weight-500 shadow-sm mt-4" style="border-radius: 0.5rem;">
                     <i class="fas fa-edit mr-2"></i> Ubah Pengguna
                 </a>
+                @endif
+
+                @if(auth()->user()->canActivateUsers() && $user->status !== 'active' && !(auth()->user()->isAdmin() && $user->isSuperAdmin()))
+                <form action="{{ route('super-admin.users.activate', $user) }}" method="POST" class="mt-2" id="activate-form-{{ $user->id }}">
+                    @csrf
+                    <button type="button" class="btn btn-success btn-block font-weight-500 shadow-sm" style="border-radius: 0.5rem;" onclick="confirmAction('activate-form-{{ $user->id }}', 'Aktifkan akun?', 'Akun ini akan diaktifkan kembali agar dapat masuk ke sistem.', 'Ya, aktifkan', '#10b981', 'question')">
+                        <i class="fas fa-user-check mr-2"></i> Aktifkan Akun
+                    </button>
+                </form>
+                @endif
             </div>
         </div>
     </div>

@@ -172,6 +172,22 @@
                     <span class="badge badge-{{ $projectRequest->ticket_status_badge_class }}">{{ $projectRequest->ticket_status_label }}</span>
                 </div>
 
+                @if(auth()->user()->hasRole(['admin', 'super_admin']) && $projectRequest->status !== 'draft' && in_array($projectRequest->ticket_status, \App\Models\ProjectRequest::pausableTicketStatuses(), true))
+                    <form action="{{ route('project-requests.pause', $projectRequest) }}" method="POST" class="mt-2" id="pause-form-{{ $projectRequest->id }}">
+                        @csrf
+                        <button type="button" class="btn btn-warning text-dark btn-block font-weight-500 shadow-sm" style="border-radius: 0.5rem;" onclick="confirmAction('pause-form-{{ $projectRequest->id }}', 'Pause tiket?', 'Tiket akan dijeda sementara sampai dijalankan kembali.', 'Ya, pause', '#f97316', 'warning')">
+                            <i class="fas fa-pause-circle"></i> Pause Tiket
+                        </button>
+                    </form>
+                @elseif(auth()->user()->hasRole(['admin', 'super_admin']) && $projectRequest->status !== 'draft' && in_array($projectRequest->ticket_status, \App\Models\ProjectRequest::playableTicketStatuses(), true))
+                    <form action="{{ route('project-requests.play', $projectRequest) }}" method="POST" class="mt-2" id="play-form-{{ $projectRequest->id }}">
+                        @csrf
+                        <button type="button" class="btn btn-success btn-block font-weight-500 shadow-sm" style="border-radius: 0.5rem;" onclick="confirmAction('play-form-{{ $projectRequest->id }}', 'Jalankan kembali tiket?', 'Tiket akan dilanjutkan kembali ke proses kerja aktif.', 'Ya, jalankan', '#10b981', 'question')">
+                            <i class="fas fa-play-circle"></i> Play Tiket
+                        </button>
+                    </form>
+                @endif
+
                 @if(in_array($projectRequest->status, ['draft', 'revision_requested']) && auth()->user()->isClient())
                     <form action="{{ route('project-requests.submit', $projectRequest) }}" method="POST">
                         @csrf
@@ -188,7 +204,7 @@
                     </a>
                 @endif
 
-                @if(auth()->user()->hasRole(['admin', 'super_admin']) && $projectRequest->status !== 'draft' && in_array($projectRequest->ticket_status, ['open', 'in_progress', 'pending_user']))
+                @if(auth()->user()->hasRole(['admin', 'super_admin']) && $projectRequest->status !== 'draft' && in_array($projectRequest->ticket_status, \App\Models\ProjectRequest::resolvableTicketStatuses(), true))
                     <form action="{{ route('project-requests.resolve', $projectRequest) }}" method="POST" class="mt-2">
                         @csrf
                         <button type="submit" class="btn btn-success btn-block">

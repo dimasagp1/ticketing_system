@@ -3,7 +3,7 @@
     $totalRequests = $requests->count();
     $approvedRequests = auth()->user()->projectRequests()->where('status', 'approved')->count();
     $pendingRequests = auth()->user()->projectRequests()->whereIn('status', ['draft', 'submitted', 'revision_requested'])->count();
-    $activeTickets = auth()->user()->projectRequests()->whereIn('ticket_status', ['open', 'in_progress', 'pending_user'])->count();
+    $activeTickets = auth()->user()->projectRequests()->whereIn('ticket_status', \App\Models\ProjectRequest::activeTicketStatuses())->count();
     $activeChats = auth()->user()->clientConversations()->where('status', 'active')->count();
     $requestBase = max($totalRequests, 1);
 @endphp

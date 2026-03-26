@@ -115,6 +115,10 @@ class User extends Authenticatable
 
     public function hasRole($role)
     {
+        if ($this->isSuperAdmin()) {
+            return true;
+        }
+
         if (is_array($role)) {
             return in_array($this->role, $role);
         }
@@ -129,6 +133,16 @@ class User extends Authenticatable
     public function canManageUsers()
     {
         return $this->role === 'super_admin';
+    }
+
+    public function canViewUsers()
+    {
+        return in_array($this->role, ['admin', 'super_admin']);
+    }
+
+    public function canActivateUsers()
+    {
+        return in_array($this->role, ['admin', 'super_admin']);
     }
 
     public function canAccessSuperAdmin()

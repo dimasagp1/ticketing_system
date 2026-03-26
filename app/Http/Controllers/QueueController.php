@@ -3,6 +3,7 @@
 namespace App\Http\Controllers;
 
 use App\Models\Queue;
+use App\Models\ProjectRequest;
 use Illuminate\Http\Request;
 
 class QueueController extends Controller
@@ -51,13 +52,13 @@ class QueueController extends Controller
 
                 if ($request->sla_filter === 'overdue') {
                     $requestQuery->where('sla_resolution_due_at', '<', now())
-                        ->whereIn('ticket_status', ['open', 'in_progress', 'pending_user']);
+                        ->whereIn('ticket_status', ProjectRequest::slaTrackedTicketStatuses());
                 } elseif ($request->sla_filter === 'today') {
                     $requestQuery->whereDate('sla_resolution_due_at', now()->toDateString())
-                        ->whereIn('ticket_status', ['open', 'in_progress', 'pending_user']);
+                        ->whereIn('ticket_status', ProjectRequest::slaTrackedTicketStatuses());
                 } elseif ($request->sla_filter === 'at_risk_24h') {
                     $requestQuery->whereBetween('sla_resolution_due_at', [now(), now()->copy()->addHours(24)])
-                        ->whereIn('ticket_status', ['open', 'in_progress', 'pending_user']);
+                        ->whereIn('ticket_status', ProjectRequest::slaTrackedTicketStatuses());
                 }
             });
         }

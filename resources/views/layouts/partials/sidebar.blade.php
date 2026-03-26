@@ -142,6 +142,16 @@
                     </li>
                 @endif
 
+                @if(auth()->user()->isAdmin())
+                    <li class="nav-header">ADMIN</li>
+                    <li class="nav-item">
+                        <a href="{{ route('super-admin.users.index') }}" class="nav-link {{ request()->routeIs('super-admin.users.*') ? 'active' : '' }}">
+                            <i class="nav-icon fas fa-user-check"></i>
+                            <p>Aktivasi Pengguna</p>
+                        </a>
+                    </li>
+                @endif
+
                 <!-- Common Menu -->
                 <li class="nav-header">AKUN</li>
                 <li class="nav-item">

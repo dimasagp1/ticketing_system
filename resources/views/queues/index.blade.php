@@ -107,7 +107,7 @@
                                 </td>
                                 <td>
                                     @if($queue->projectRequest?->sla_resolution_due_at)
-                                        <span class="{{ $queue->projectRequest->sla_resolution_due_at->isPast() && in_array($queue->projectRequest->ticket_status, ['open', 'in_progress', 'pending_user']) ? 'text-danger font-weight-bold' : '' }}">
+                                        <span class="{{ $queue->projectRequest->sla_resolution_due_at->isPast() && in_array($queue->projectRequest->ticket_status, \App\Models\ProjectRequest::slaTrackedTicketStatuses(), true) ? 'text-danger font-weight-bold' : '' }}">
                                             {{ $queue->projectRequest->sla_resolution_due_at->format('d M Y H:i') }}
                                         </span>
                                     @else

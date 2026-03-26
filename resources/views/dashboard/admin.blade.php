@@ -4,7 +4,7 @@
     $inProgressTickets = \App\Models\ProjectRequest::where('ticket_status', 'in_progress')->count();
     $pendingUserTickets = \App\Models\ProjectRequest::where('ticket_status', 'pending_user')->count();
     $resolvedTickets = \App\Models\ProjectRequest::where('ticket_status', 'resolved')->count();
-    $overdueTickets = \App\Models\ProjectRequest::whereIn('ticket_status', ['open', 'in_progress', 'pending_user'])
+    $overdueTickets = \App\Models\ProjectRequest::whereIn('ticket_status', \App\Models\ProjectRequest::slaTrackedTicketStatuses())
         ->whereNotNull('sla_resolution_due_at')
         ->where('sla_resolution_due_at', '<', now())
         ->count();
@@ -233,7 +233,7 @@
                             </tr>
                         </thead>
                         <tbody>
-                            @forelse(\App\Models\ProjectRequest::with('client')->whereIn('ticket_status', ['open', 'in_progress', 'pending_user'])->whereNotNull('sla_resolution_due_at')->orderBy('sla_resolution_due_at')->take(6)->get() as $ticket)
+                            @forelse(\App\Models\ProjectRequest::with('client')->whereIn('ticket_status', \App\Models\ProjectRequest::slaTrackedTicketStatuses())->whereNotNull('sla_resolution_due_at')->orderBy('sla_resolution_due_at')->take(6)->get() as $ticket)
                                 <tr>
                                     <td class="pl-4"><a href="{{ route('project-requests.show', $ticket) }}" class="font-weight-600 text-dark">{{ $ticket->ticket_number ?? ('#' . $ticket->id) }}</a></td>
                                     <td>{{ $ticket->client?->name ?? '-' }}</td>

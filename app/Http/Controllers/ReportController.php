@@ -60,7 +60,7 @@ class ReportController extends Controller
         $stats = [
             'total' => $projects->count(),
             'completed' => $projects->whereIn('ticket_status', ['resolved', 'closed'])->count(),
-            'in_progress' => $projects->whereIn('ticket_status', ['in_progress', 'pending_user'])->count(),
+            'in_progress' => $projects->whereIn('ticket_status', ['in_progress', 'pending_user', 'paused'])->count(),
             'pending' => $projects->where('ticket_status', 'open')->count()
         ];
 

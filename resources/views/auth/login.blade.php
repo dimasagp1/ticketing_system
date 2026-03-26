@@ -147,6 +147,16 @@
             padding: 2.5rem;
             box-shadow: 0 25px 50px -12px rgba(0, 0, 0, 0.5);
             transition: transform 0.3s ease, box-shadow 0.3s ease;
+            position: relative;
+            overflow: hidden;
+        }
+
+        .glass-card::before {
+            content: '';
+            position: absolute;
+            inset: 0;
+            background: linear-gradient(135deg, rgba(59, 130, 246, 0.18), transparent 55%);
+            pointer-events: none;
         }
 
         .glass-card:hover {
@@ -165,6 +175,16 @@
             font-size: 0.9rem;
             color: var(--text-muted);
             margin-bottom: 2rem;
+        }
+
+        .mobile-kicker {
+            display: none;
+            font-family: 'Fira Code', monospace;
+            font-size: 0.72rem;
+            letter-spacing: 1.4px;
+            text-transform: uppercase;
+            color: #bfdbfe;
+            margin-bottom: 0.6rem;
         }
 
         /* Custom Inputs */
@@ -330,17 +350,157 @@
         @media (max-width: 900px) {
             .login-wrapper {
                 flex-direction: column;
+                min-height: 100svh;
             }
+
+            body {
+                background:
+                    radial-gradient(circle at 15% 10%, rgba(14, 165, 233, 0.2), transparent 38%),
+                    radial-gradient(circle at 85% 85%, rgba(59, 130, 246, 0.22), transparent 42%),
+                    var(--bg-dark);
+            }
+
             .form-section {
                 width: 100%;
                 border-left: none;
                 border-top: 1px solid var(--glass-border);
+                order: -1;
+                padding: 1.25rem 1rem;
+                background: transparent;
+                backdrop-filter: none;
+                -webkit-backdrop-filter: none;
             }
             .brand-section {
-                padding: 3rem 2rem;
+                padding: 1.5rem 1rem 2rem;
+                justify-content: flex-start;
             }
+
+            .brand-content {
+                background: rgba(15, 23, 42, 0.55);
+                border: 1px solid rgba(148, 163, 184, 0.24);
+                border-radius: 1rem;
+                padding: 1rem;
+            }
+
             .brand-title {
                 font-size: 2.5rem;
+            }
+
+            .glass-card {
+                max-width: 560px;
+                padding: 1.5rem;
+                border-radius: 1rem;
+            }
+
+            .checkbox-wrapper {
+                flex-wrap: wrap;
+                gap: 0.75rem;
+            }
+
+            .btn-login {
+                min-height: 48px;
+            }
+        }
+
+        @media (max-width: 640px) {
+            .brand-content {
+                max-width: 100%;
+            }
+
+            .mobile-kicker {
+                display: inline-block;
+            }
+
+            .brand-logo-image {
+                max-height: 56px;
+                max-width: 220px;
+            }
+
+            .sys-badge {
+                font-size: 0.72rem;
+                letter-spacing: 1.2px;
+                margin-bottom: 0.9rem;
+            }
+
+            .brand-title {
+                font-size: 1.75rem;
+                margin-bottom: 0.75rem;
+            }
+
+            .brand-desc {
+                font-size: 0.92rem;
+                line-height: 1.45;
+                margin-bottom: 0.9rem;
+            }
+
+            .typewriter-text {
+                font-size: 0.76rem;
+            }
+
+            .form-title {
+                font-size: 1.4rem;
+                margin-bottom: 0.35rem;
+            }
+
+            .form-subtitle {
+                font-size: 0.82rem;
+                margin-bottom: 1.25rem;
+            }
+
+            .glass-card {
+                box-shadow: 0 22px 40px -26px rgba(2, 6, 23, 0.95), 0 0 0 1px rgba(148, 163, 184, 0.2);
+            }
+
+            .form-group {
+                margin-bottom: 1rem;
+            }
+
+            .form-control {
+                font-size: 0.95rem;
+                min-height: 48px;
+                padding: 0.85rem 0.9rem 0.85rem 2.65rem;
+            }
+
+            .input-icon {
+                left: 1rem;
+            }
+
+            .password-toggle {
+                right: 0.7rem;
+                font-size: 1rem;
+                min-width: 32px;
+                min-height: 32px;
+            }
+
+            #particles-js {
+                display: none;
+            }
+        }
+
+        @media (max-width: 420px) {
+            .form-section {
+                padding: 0.9rem 0.65rem;
+            }
+
+            .glass-card {
+                padding: 1.1rem;
+            }
+
+            .brand-section {
+                padding: 1.1rem 0.85rem 1.5rem;
+            }
+
+            .brand-desc {
+                display: none;
+            }
+
+            .typewriter-text {
+                display: none;
+            }
+
+            .brand-content {
+                padding: 0.75rem 0.8rem;
+                border-radius: 0.85rem;
             }
         }
     </style>
@@ -384,6 +544,7 @@
         <!-- Right Form Section -->
         <div class="form-section">
             <div class="glass-card">
+                <div class="mobile-kicker">Secure Mobile Access</div>
                 
                 <h2 class="form-title">Secure Access</h2>
                 <p class="form-subtitle">Enter your credentials to proceed</p>

@@ -69,6 +69,7 @@
         .status-open { background-color: #dc3545; }
         .status-in-progress { background-color: #17a2b8; }
         .status-pending-user { background-color: #ffc107; color: #000; }
+        .status-paused { background-color: #343a40; }
         .status-resolved { background-color: #28a745; }
         .status-closed { background-color: #6c757d; }
         .footer {
@@ -125,6 +126,7 @@
                                 case 'open': $badgeClass = 'status-open'; $statusLabel = 'Open'; break;
                                 case 'in_progress': $badgeClass = 'status-in-progress'; $statusLabel = 'In Progress'; break;
                                 case 'pending_user': $badgeClass = 'status-pending-user'; $statusLabel = 'Pending User'; break;
+                                case 'paused': $badgeClass = 'status-paused'; $statusLabel = 'Paused'; break;
                                 case 'resolved': $badgeClass = 'status-resolved'; $statusLabel = 'Resolved'; break;
                                 case 'closed': $badgeClass = 'status-closed'; $statusLabel = 'Closed'; break;
                                 default: $badgeClass = 'status-open'; $statusLabel = $project->ticket_status; break;

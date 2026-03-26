@@ -183,9 +183,52 @@ class ProjectRequest extends Model
             'open' => 'Terbuka',
             'in_progress' => 'Diproses',
             'pending_user' => 'Menunggu User',
+            'paused' => 'Dijeda',
             'resolved' => 'Terselesaikan',
             'closed' => 'Ditutup',
             'cancelled' => 'Dibatalkan',
+        ];
+    }
+
+    public static function activeTicketStatuses(): array
+    {
+        return [
+            'open',
+            'in_progress',
+            'pending_user',
+            'paused',
+        ];
+    }
+
+    public static function slaTrackedTicketStatuses(): array
+    {
+        return [
+            'open',
+            'in_progress',
+            'pending_user',
+        ];
+    }
+
+    public static function pausableTicketStatuses(): array
+    {
+        return [
+            'open',
+            'in_progress',
+            'pending_user',
+        ];
+    }
+
+    public static function playableTicketStatuses(): array
+    {
+        return ['paused'];
+    }
+
+    public static function resolvableTicketStatuses(): array
+    {
+        return [
+            'open',
+            'in_progress',
+            'pending_user',
         ];
     }
 
@@ -202,6 +245,7 @@ class ProjectRequest extends Model
             'open' => 'primary',
             'in_progress' => 'info',
             'pending_user' => 'warning',
+            'paused' => 'dark',
             'resolved' => 'success',
             'closed' => 'secondary',
             default => 'danger',

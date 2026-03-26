@@ -61,13 +61,13 @@ class ProjectRequestController extends Controller
 
             if ($request->sla_filter === 'overdue') {
                 $query->where('sla_resolution_due_at', '<', now())
-                    ->whereIn('ticket_status', ['open', 'in_progress', 'pending_user']);
+                    ->whereIn('ticket_status', ProjectRequest::slaTrackedTicketStatuses());
             } elseif ($request->sla_filter === 'today') {
                 $query->whereDate('sla_resolution_due_at', now()->toDateString())
-                    ->whereIn('ticket_status', ['open', 'in_progress', 'pending_user']);
+                    ->whereIn('ticket_status', ProjectRequest::slaTrackedTicketStatuses());
             } elseif ($request->sla_filter === 'at_risk_24h') {
                 $query->whereBetween('sla_resolution_due_at', [now(), now()->copy()->addHours(24)])
-                    ->whereIn('ticket_status', ['open', 'in_progress', 'pending_user']);
+                    ->whereIn('ticket_status', ProjectRequest::slaTrackedTicketStatuses());
             }
         }
 
@@ -329,7 +329,7 @@ class ProjectRequestController extends Controller
             abort(403);
         }
 
-        if (!in_array($projectRequest->ticket_status, ['open', 'in_progress', 'pending_user'])) {
+        if (!in_array($projectRequest->ticket_status, ProjectRequest::resolvableTicketStatuses(), true)) {
             return back()->with('error', 'Ticket hanya bisa di-resolve dari status aktif.');
         }
 
@@ -356,6 +356,65 @@ class ProjectRequestController extends Controller
         );
 
         return back()->with('success', 'Ticket berhasil di-resolve.');
+    }
+
+    public function pauseTicket(ProjectRequest $projectRequest)
+    {
+        $user = auth()->user();
+
+        if (!$user->hasRole(['admin', 'super_admin'])) {
+            abort(403);
+        }
+
+        if (!in_array($projectRequest->ticket_status, ProjectRequest::pausableTicketStatuses(), true)) {
+            return back()->with('error', 'Ticket hanya bisa di-pause dari status aktif.');
+        }
+
+        if ($projectRequest->status === 'draft') {
+            return back()->with('error', 'Ticket draft tidak bisa di-pause.');
+        }
+
+        $projectRequest->update(['ticket_status' => 'paused']);
+
+        if ($projectRequest->queue) {
+            $projectRequest->queue->update(['status' => 'On Hold']);
+        }
+
+        ActivityLog::log('pause_ticket', 'Paused ticket: ' . ($projectRequest->ticket_number ?? $projectRequest->project_name), $projectRequest);
+
+        return back()->with('success', 'Ticket berhasil di-pause.');
+    }
+
+    public function playTicket(ProjectRequest $projectRequest)
+    {
+        $user = auth()->user();
+
+        if (!$user->hasRole(['admin', 'super_admin'])) {
+            abort(403);
+        }
+
+        if (!in_array($projectRequest->ticket_status, ProjectRequest::playableTicketStatuses(), true)) {
+            return back()->with('error', 'Ticket hanya bisa di-play dari status pause.');
+        }
+
+        if ($projectRequest->status === 'draft') {
+            return back()->with('error', 'Ticket draft tidak bisa di-play.');
+        }
+
+        $projectRequest->update([
+            'ticket_status' => 'in_progress',
+            'first_responded_at' => $projectRequest->first_responded_at ?? now(),
+        ]);
+
+        if ($projectRequest->queue) {
+            $projectRequest->queue->update([
+                'status' => $projectRequest->queue->assigned_to ? 'In Progress' : 'Pending',
+            ]);
+        }
+
+        ActivityLog::log('play_ticket', 'Resumed ticket: ' . ($projectRequest->ticket_number ?? $projectRequest->project_name), $projectRequest);
+
+        return back()->with('success', 'Ticket berhasil dijalankan kembali.');
     }
 
     public function closeTicket(ProjectRequest $projectRequest)

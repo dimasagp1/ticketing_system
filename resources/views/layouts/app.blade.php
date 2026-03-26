@@ -1190,6 +1190,23 @@
                 }
             });
         }
+
+        function confirmAction(formId, title, text, confirmText, confirmButtonColor = '#2563eb', icon = 'question') {
+            Swal.fire({
+                title: title,
+                text: text,
+                icon: icon,
+                showCancelButton: true,
+                confirmButtonColor: confirmButtonColor,
+                cancelButtonColor: '#64748b',
+                confirmButtonText: confirmText,
+                cancelButtonText: 'Batal'
+            }).then((result) => {
+                if (result.isConfirmed) {
+                    document.getElementById(formId).submit();
+                }
+            });
+        }
     </script>
 
     <!-- Dark Mode Logic -->

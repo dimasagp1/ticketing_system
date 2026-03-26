@@ -6,7 +6,7 @@
     $pendingApprovals = \App\Models\ProjectApproval::pending()->count();
     $activeQueues = \App\Models\Queue::where('status', 'In Progress')->count();
     $totalQueues = \App\Models\Queue::count();
-    $overdueTickets = \App\Models\ProjectRequest::whereIn('ticket_status', ['open', 'in_progress', 'pending_user'])
+    $overdueTickets = \App\Models\ProjectRequest::whereIn('ticket_status', \App\Models\ProjectRequest::slaTrackedTicketStatuses())
         ->whereNotNull('sla_resolution_due_at')
         ->where('sla_resolution_due_at', '<', now())
         ->count();

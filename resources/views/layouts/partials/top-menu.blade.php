@@ -55,6 +55,11 @@
                             <span>Chat</span>
                         </a>
                     </li>
+                    <li>
+                        <a href="{{ route('super-admin.users.index') }}" class="top-menu-link {{ request()->routeIs('super-admin.users.*') ? 'active' : '' }}">
+                            <span>Pengguna</span>
+                        </a>
+                    </li>
                 @elseif(auth()->user()->isDeveloper())
                     <li>
                         <a href="{{ route('project-requests.index') }}" class="top-menu-link {{ request()->routeIs('project-requests.*') ? 'active' : '' }}">

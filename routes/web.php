@@ -53,6 +53,10 @@ Route::middleware(['auth'])->group(function () {
         ->name('project-requests.submit');
     Route::post('project-requests/{projectRequest}/resolve', [ProjectRequestController::class, 'resolveTicket'])
         ->name('project-requests.resolve');
+    Route::post('project-requests/{projectRequest}/pause', [ProjectRequestController::class, 'pauseTicket'])
+        ->name('project-requests.pause');
+    Route::post('project-requests/{projectRequest}/play', [ProjectRequestController::class, 'playTicket'])
+        ->name('project-requests.play');
     Route::post('project-requests/{projectRequest}/close', [ProjectRequestController::class, 'closeTicket'])
         ->name('project-requests.close');
     Route::post('project-requests/{projectRequest}/upload-requirements', [ProjectRequestController::class, 'uploadRequirements'])
@@ -101,6 +105,13 @@ Route::middleware(['auth'])->prefix('chat')->name('chat.')->group(function () {
     Route::get('/{conversation}/messages', [ChatController::class, 'getMessages'])->name('messages');
 });
 
+Route::middleware(['auth', 'role:admin,super_admin'])->prefix('super-admin')->name('super-admin.')->group(function () {
+    Route::resource('users', UserManagementController::class);
+    Route::post('/users/{user}/activate', [UserManagementController::class, 'activate'])->name('users.activate');
+    Route::post('/users/{user}/deactivate', [UserManagementController::class, 'deactivate'])->name('users.deactivate');
+    Route::post('/users/{user}/suspend', [UserManagementController::class, 'suspend'])->name('users.suspend');
+});
+
 // Super Admin Routes
 Route::middleware(['auth', 'super_admin'])->prefix('super-admin')->name('super-admin.')->group(function () {
     Route::get('/dashboard', [SuperAdminController::class, 'dashboard'])->name('dashboard');
@@ -109,12 +120,6 @@ Route::middleware(['auth', 'super_admin'])->prefix('super-admin')->name('super-a
     Route::post('/settings', [SuperAdminController::class, 'updateSettings'])->name('settings.update');
     Route::get('/reports', [SuperAdminController::class, 'reports'])->name('reports');
     Route::get('/reports/export', [SuperAdminController::class, 'exportMonthlyCumulativeReport'])->name('reports.export');
-    
-    // User Management
-    Route::resource('users', UserManagementController::class);
-    Route::post('/users/{user}/activate', [UserManagementController::class, 'activate'])->name('users.activate');
-    Route::post('/users/{user}/deactivate', [UserManagementController::class, 'deactivate'])->name('users.deactivate');
-    Route::post('/users/{user}/suspend', [UserManagementController::class, 'suspend'])->name('users.suspend');
 });
 
 // Chat API Routes for Popup Widget

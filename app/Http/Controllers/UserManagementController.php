@@ -10,6 +10,26 @@ use Illuminate\Validation\Rules;
 
 class UserManagementController extends Controller
 {
+    protected function ensureSuperAdminAccess(): void
+    {
+        if (!auth()->user()->isSuperAdmin()) {
+            abort(403, 'Aksi ini hanya boleh dilakukan oleh Super Admin.');
+        }
+    }
+
+    protected function ensureCanActivateUser(User $user): void
+    {
+        $currentUser = auth()->user();
+
+        if (!$currentUser->canActivateUsers()) {
+            abort(403, 'Anda tidak memiliki akses untuk mengaktifkan akun.');
+        }
+
+        if ($currentUser->isAdmin() && $user->isSuperAdmin()) {
+            abort(403, 'Admin tidak dapat mengubah status akun Super Admin.');
+        }
+    }
+
     public function index(Request $request)
     {
         $query = User::query();
@@ -39,11 +59,15 @@ class UserManagementController extends Controller
 
     public function create()
     {
+        $this->ensureSuperAdminAccess();
+
         return view('super-admin.users.create');
     }
 
     public function store(Request $request)
     {
+        $this->ensureSuperAdminAccess();
+
         $validated = $request->validate([
             'name' => 'required|string|max:255',
             'email' => 'required|string|email|max:255|unique:users',
@@ -87,11 +111,15 @@ class UserManagementController extends Controller
 
     public function edit(User $user)
     {
+        $this->ensureSuperAdminAccess();
+
         return view('super-admin.users.edit', compact('user'));
     }
 
     public function update(Request $request, User $user)
     {
+        $this->ensureSuperAdminAccess();
+
         $validated = $request->validate([
             'name' => 'required|string|max:255',
             'email' => 'required|string|email|max:255|unique:users,email,' . $user->id,
@@ -127,6 +155,8 @@ class UserManagementController extends Controller
 
     public function destroy(User $user)
     {
+        $this->ensureSuperAdminAccess();
+
         // Prevent deleting own account
         if ($user->id === auth()->id()) {
             return back()->with('error', 'You cannot delete your own account!');
@@ -142,6 +172,8 @@ class UserManagementController extends Controller
 
     public function activate(User $user)
     {
+        $this->ensureCanActivateUser($user);
+
         $user->activate();
 
         ActivityLog::log('activate_user', 'Activated user: ' . $user->name, $user);
@@ -151,6 +183,8 @@ class UserManagementController extends Controller
 
     public function deactivate(User $user)
     {
+        $this->ensureSuperAdminAccess();
+
         // Prevent deactivating own account
         if ($user->id === auth()->id()) {
             return back()->with('error', 'You cannot deactivate your own account!');
@@ -165,6 +199,8 @@ class UserManagementController extends Controller
 
     public function suspend(User $user)
     {
+        $this->ensureSuperAdminAccess();
+
         // Prevent suspending own account
         if ($user->id === auth()->id()) {
             return back()->with('error', 'You cannot suspend your own account!');

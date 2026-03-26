@@ -50,6 +50,7 @@ class SuperAdminController extends Controller
             'open' => (clone $flowBaseQuery)->where('ticket_status', 'open')->count(),
             'in_progress' => (clone $flowBaseQuery)->where('ticket_status', 'in_progress')->count(),
             'pending_user' => (clone $flowBaseQuery)->where('ticket_status', 'pending_user')->count(),
+            'paused' => (clone $flowBaseQuery)->where('ticket_status', 'paused')->count(),
             'resolved' => (clone $flowBaseQuery)->where('ticket_status', 'resolved')->count(),
             'closed' => (clone $flowBaseQuery)->where('ticket_status', 'closed')->count(),
             'cancelled' => (clone $flowBaseQuery)->where('ticket_status', 'cancelled')->count(),
@@ -79,12 +80,13 @@ class SuperAdminController extends Controller
             'open_tickets' => ProjectRequest::where('ticket_status', 'open')->count(),
             'in_progress_tickets' => ProjectRequest::where('ticket_status', 'in_progress')->count(),
             'pending_user_tickets' => ProjectRequest::where('ticket_status', 'pending_user')->count(),
+            'paused_tickets' => ProjectRequest::where('ticket_status', 'paused')->count(),
             'resolved_tickets' => ProjectRequest::where('ticket_status', 'resolved')->count(),
-            'overdue_tickets' => ProjectRequest::whereIn('ticket_status', ['open', 'in_progress', 'pending_user'])
+            'overdue_tickets' => ProjectRequest::whereIn('ticket_status', ProjectRequest::slaTrackedTicketStatuses())
                 ->whereNotNull('sla_resolution_due_at')
                 ->where('sla_resolution_due_at', '<', now())
                 ->count(),
-            'due_today_tickets' => ProjectRequest::whereIn('ticket_status', ['open', 'in_progress', 'pending_user'])
+            'due_today_tickets' => ProjectRequest::whereIn('ticket_status', ProjectRequest::slaTrackedTicketStatuses())
                 ->whereDate('sla_resolution_due_at', now()->toDateString())
                 ->count(),
         ];
@@ -109,7 +111,7 @@ class SuperAdminController extends Controller
         $recentUsers = User::latest()->take(5)->get();
 
         $slaWatchlist = ProjectRequest::with('client')
-            ->whereIn('ticket_status', ['open', 'in_progress', 'pending_user'])
+            ->whereIn('ticket_status', ProjectRequest::slaTrackedTicketStatuses())
             ->whereNotNull('sla_resolution_due_at')
             ->orderBy('sla_resolution_due_at')
             ->take(10)

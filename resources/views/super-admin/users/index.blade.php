@@ -1,7 +1,7 @@
 @extends('layouts.app')
 
 @section('breadcrumb')
-    <li class="breadcrumb-item"><a href="{{ route('super-admin.dashboard') }}">Super Admin</a></li>
+    <li class="breadcrumb-item"><a href="{{ auth()->user()->isSuperAdmin() ? route('super-admin.dashboard') : route('dashboard') }}">{{ auth()->user()->isSuperAdmin() ? 'Super Admin' : 'Dasbor' }}</a></li>
     <li class="breadcrumb-item active">Pengguna</li>
 @endsection
 
@@ -16,13 +16,15 @@
                     </div>
                     <div>
                         <h3 class="card-title mb-0 font-weight-bold" style="font-size: 1.25rem;">Semua Pengguna</h3>
-                        <p class="text-muted mb-0 small mt-1">Kelola data klien dan admin</p>
+                        <p class="text-muted mb-0 small mt-1">{{ auth()->user()->isSuperAdmin() ? 'Kelola seluruh akun sistem' : 'Lihat akun pengguna dan aktifkan akun yang diperlukan' }}</p>
                     </div>
                 </div>
                 <div class="card-tools m-0">
+                    @if(auth()->user()->isSuperAdmin())
                     <a href="{{ route('super-admin.users.create') }}" class="btn btn-primary shadow-sm" style="border-radius: 0.5rem; font-weight: 500;">
                         <i class="fas fa-plus mr-1"></i> <span class="d-none d-sm-inline">Tambah Pengguna</span>
                     </a>
+                    @endif
                 </div>
             </div>
             <div class="card-body p-0">
@@ -35,6 +37,7 @@
                                 <option value="client" {{ request('role') == 'client' ? 'selected' : '' }}>Client</option>
                                 {{-- <option value="developer" {{ request('role') == 'developer' ? 'selected' : '' }}>Developer</option> --}}
                                 <option value="admin" {{ request('role') == 'admin' ? 'selected' : '' }}>Admin</option>
+                                <option value="developer" {{ request('role') == 'developer' ? 'selected' : '' }}>Developer</option>
                                 <option value="super_admin" {{ request('role') == 'super_admin' ? 'selected' : '' }}>Super Admin</option>
                             </select>
                         </div>
@@ -101,9 +104,20 @@
                                             <a href="{{ route('super-admin.users.show', $user) }}" class="btn btn-light" title="Lihat">
                                                 <i class="fas fa-eye text-info"></i>
                                             </a>
+                                            @if(auth()->user()->isSuperAdmin())
                                             <a href="{{ route('super-admin.users.edit', $user) }}" class="btn btn-light" title="Ubah">
                                                 <i class="fas fa-edit text-warning"></i>
                                             </a>
+                                            @endif
+                                            @if(auth()->user()->canActivateUsers() && $user->status !== 'active' && !(auth()->user()->isAdmin() && $user->isSuperAdmin()))
+                                                <form action="{{ route('super-admin.users.activate', $user) }}" method="POST" style="display: inline;" id="activate-form-{{ $user->id }}">
+                                                    @csrf
+                                                    <button type="button" class="btn btn-light" onclick="confirmAction('activate-form-{{ $user->id }}', 'Aktifkan akun?', 'Akun ini akan diaktifkan kembali agar dapat masuk ke sistem.', 'Ya, aktifkan', '#10b981', 'question')" title="Aktifkan">
+                                                        <i class="fas fa-user-check text-success"></i>
+                                                    </button>
+                                                </form>
+                                            @endif
+                                            @if(auth()->user()->isSuperAdmin())
                                             @if($user->id != auth()->id())
                                                 <form action="{{ route('super-admin.users.destroy', $user) }}" method="POST" style="display: inline;" id="delete-form-{{ $user->id }}">
                                                     @csrf
@@ -112,6 +126,7 @@
                                                         <i class="fas fa-trash text-danger"></i>
                                                     </button>
                                                 </form>
+                                            @endif
                                             @endif
                                         </div>
                                     </td>

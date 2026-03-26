@@ -300,7 +300,7 @@
                 @php
                     $totalFlowTickets = max($flowTotalTickets, 1);
                     $doneTickets = $flowCounts['resolved'] + $flowCounts['closed'];
-                    $activeTickets = $flowCounts['open'] + $flowCounts['in_progress'] + $flowCounts['pending_user'];
+                    $activeTickets = $flowCounts['open'] + $flowCounts['in_progress'] + $flowCounts['pending_user'] + $flowCounts['paused'];
                     $approvalStageTickets = $flowCounts['submitted'] + $flowCounts['under_review'] + $flowCounts['revision_requested'];
                     $blockedOutcomeTickets = $flowCounts['rejected'] + $flowCounts['cancelled'];
 
@@ -317,8 +317,9 @@
                         ['label' => '5. Open (Queue)', 'icon' => 'fas fa-inbox', 'badge' => 'primary', 'count' => $flowCounts['open'], 'desc' => 'Masuk antrean kerja.'],
                         ['label' => '6. Diproses', 'icon' => 'fas fa-cogs', 'badge' => 'info', 'count' => $flowCounts['in_progress'], 'desc' => 'Tim mengerjakan tiket.'],
                         ['label' => '7. Menunggu User', 'icon' => 'fas fa-user-clock', 'badge' => 'warning', 'count' => $flowCounts['pending_user'], 'desc' => 'Menunggu feedback/konfirmasi user.'],
-                        ['label' => '8. Terselesaikan', 'icon' => 'fas fa-flag-checkered', 'badge' => 'success', 'count' => $flowCounts['resolved'], 'desc' => 'Pekerjaan selesai.'],
-                        ['label' => '9. Ditutup', 'icon' => 'fas fa-lock', 'badge' => 'secondary', 'count' => $flowCounts['closed'], 'desc' => 'Tiket ditutup menjadi arsip.'],
+                        ['label' => '8. Dijeda', 'icon' => 'fas fa-pause-circle', 'badge' => 'dark', 'count' => $flowCounts['paused'], 'desc' => 'Pengerjaan dihentikan sementara.'],
+                        ['label' => '9. Terselesaikan', 'icon' => 'fas fa-flag-checkered', 'badge' => 'success', 'count' => $flowCounts['resolved'], 'desc' => 'Pekerjaan selesai.'],
+                        ['label' => '10. Ditutup', 'icon' => 'fas fa-lock', 'badge' => 'secondary', 'count' => $flowCounts['closed'], 'desc' => 'Tiket ditutup menjadi arsip.'],
                     ];
 
                     $outcomeFlow = [
