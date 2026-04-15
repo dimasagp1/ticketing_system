@@ -129,9 +129,15 @@
                         </a>
                     </li>
                     <li class="nav-item">
-                        <a href="{{ route('super-admin.reports') }}" class="nav-link {{ request()->routeIs('super-admin.reports') ? 'active' : '' }}">
+                        <a href="{{ route('super-admin.reports') }}" class="nav-link {{ request()->routeIs('super-admin.reports*') ? 'active' : '' }}">
                             <i class="nav-icon fas fa-chart-bar"></i>
                             <p>Laporan</p>
+                        </a>
+                    </li>
+                    <li class="nav-item">
+                        <a href="{{ route('super-admin.reports.technical') }}" class="nav-link {{ request()->routeIs('super-admin.reports.technical') ? 'active' : '' }}">
+                            <i class="nav-icon fas fa-server"></i>
+                            <p>Laporan Teknis</p>
                         </a>
                     </li>
                     <li class="nav-item">

@@ -43,7 +43,16 @@
                         <div class="col-md-2 mb-2">
                             <select name="ticket_category" class="form-control">
                                 <option value="">Kategori</option>
-                                @foreach(['incident' => 'Incident', 'service_request' => 'Service Request', 'access' => 'Access', 'bug' => 'Bug', 'other' => 'Other'] as $value => $label)
+                                @foreach(
+                                    [
+                                        'incident' => 'Insiden',
+                                        'service_request' => 'Permintaan Layanan',
+                                        'access' => 'Akses',
+                                        'bug' => 'Bug',
+                                        'technical_support' => 'Dukungan Teknis',
+                                        'other' => 'Lainnya',
+                                    ] as $value => $label
+                                )
                                     <option value="{{ $value }}" {{ request('ticket_category') === $value ? 'selected' : '' }}>{{ $label }}</option>
                                 @endforeach
                             </select>
@@ -115,7 +124,7 @@
                                     @if(!auth()->user()->isClient())
                                         <td class="d-none d-lg-table-cell">{{ $request->client->name }}</td>
                                     @endif
-                                    <td class="d-none d-lg-table-cell">{{ ucfirst(str_replace('_', ' ', $request->ticket_category ?? 'incident')) }}</td>
+                                    <td class="d-none d-lg-table-cell">{{ $request->ticket_category_label }}</td>
                                     <td class="d-none d-xl-table-cell">
                                         <span class="badge badge-light">{{ strtoupper($request->impact ?? 'medium') }}</span>
                                         <span class="badge badge-light">{{ strtoupper($request->urgency ?? 'medium') }}</span>

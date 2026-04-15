@@ -92,21 +92,35 @@ class ProjectRequestController extends Controller
     {
         $validated = $request->validate([
             'project_name' => 'required|string|max:255',
-            'ticket_category' => 'required|in:incident,service_request,access,bug,other',
+            'ticket_category' => 'required|in:incident,service_request,access,bug,technical_support,other',
+            'technical_subcategory' => 'nullable|required_if:ticket_category,technical_support|in:wifi,printer,komputer,software_install,supporting',
             'description' => 'required|string',
+            'location_detail' => 'nullable|string|max:255',
+            'asset_code' => 'nullable|string|max:255',
+            'affected_users_count' => 'nullable|integer|min:1|max:10000',
             'estimated_duration' => 'nullable|integer|min:1',
             'impact' => 'required|in:low,medium,high,critical',
             'urgency' => 'required|in:low,medium,high,critical',
             'requirements.*' => 'nullable|file|max:10240', // 10MB max
         ]);
 
-        $slaTargets = $this->computeSlaTargets($validated['impact'], $validated['urgency']);
+        $slaTargets = $this->computeSlaTargets(
+            $validated['impact'],
+            $validated['urgency'],
+            $validated['ticket_category']
+        );
+
+        $isTechnicalSupport = $validated['ticket_category'] === 'technical_support';
 
         $projectRequest = ProjectRequest::create([
             'ticket_number' => $this->generateTicketNumber(),
             'project_name' => $validated['project_name'],
             'ticket_category' => $validated['ticket_category'],
+            'technical_subcategory' => $isTechnicalSupport ? ($validated['technical_subcategory'] ?? null) : null,
             'description' => $validated['description'],
+            'location_detail' => $isTechnicalSupport ? ($validated['location_detail'] ?? null) : null,
+            'asset_code' => $isTechnicalSupport ? ($validated['asset_code'] ?? null) : null,
+            'affected_users_count' => $isTechnicalSupport ? (int) ($validated['affected_users_count'] ?? 1) : 1,
             'estimated_duration' => $validated['estimated_duration'] ?? null,
             'client_id' => auth()->id(),
             'impact' => $validated['impact'],
@@ -137,7 +151,7 @@ class ProjectRequestController extends Controller
         ActivityLog::logCreate($projectRequest, 'Created new project request: ' . $projectRequest->project_name);
 
         return redirect()->route('project-requests.show', $projectRequest)
-            ->with('success', 'Project request created successfully!');
+            ->with('success', 'Permintaan proyek berhasil dibuat.');
     }
 
     public function show(ProjectRequest $projectRequest)
@@ -157,7 +171,7 @@ class ProjectRequestController extends Controller
         // Only allow editing if draft or revision requested
         if (!in_array($projectRequest->status, ['draft', 'revision_requested'])) {
             return redirect()->route('project-requests.show', $projectRequest)
-                ->with('error', 'This project request cannot be edited.');
+                ->with('error', 'Permintaan proyek ini tidak dapat diubah.');
         }
 
         // Authorization check
@@ -172,20 +186,34 @@ class ProjectRequestController extends Controller
     {
         $validated = $request->validate([
             'project_name' => 'required|string|max:255',
-            'ticket_category' => 'required|in:incident,service_request,access,bug,other',
+            'ticket_category' => 'required|in:incident,service_request,access,bug,technical_support,other',
+            'technical_subcategory' => 'nullable|required_if:ticket_category,technical_support|in:wifi,printer,komputer,software_install,supporting',
             'description' => 'required|string',
+            'location_detail' => 'nullable|string|max:255',
+            'asset_code' => 'nullable|string|max:255',
+            'affected_users_count' => 'nullable|integer|min:1|max:10000',
             'estimated_duration' => 'nullable|integer|min:1',
             'impact' => 'required|in:low,medium,high,critical',
             'urgency' => 'required|in:low,medium,high,critical',
             'requirements.*' => 'nullable|file|max:10240',
         ]);
 
-        $slaTargets = $this->computeSlaTargets($validated['impact'], $validated['urgency']);
+        $slaTargets = $this->computeSlaTargets(
+            $validated['impact'],
+            $validated['urgency'],
+            $validated['ticket_category']
+        );
+
+        $isTechnicalSupport = $validated['ticket_category'] === 'technical_support';
 
         $updateData = [
             'project_name' => $validated['project_name'],
             'ticket_category' => $validated['ticket_category'],
+            'technical_subcategory' => $isTechnicalSupport ? ($validated['technical_subcategory'] ?? null) : null,
             'description' => $validated['description'],
+            'location_detail' => $isTechnicalSupport ? ($validated['location_detail'] ?? null) : null,
+            'asset_code' => $isTechnicalSupport ? ($validated['asset_code'] ?? null) : null,
+            'affected_users_count' => $isTechnicalSupport ? (int) ($validated['affected_users_count'] ?? 1) : 1,
             'estimated_duration' => $validated['estimated_duration'] ?? null,
             'impact' => $validated['impact'],
             'urgency' => $validated['urgency'],
@@ -199,6 +227,12 @@ class ProjectRequestController extends Controller
             $updateData['submitted_at'] = now();
             $updateData['ticket_status'] = 'in_progress';
             // Also reset approval status if needed, but the approvals table handle checks
+
+            if (in_array($projectRequest->ticket_status, ['resolved', 'closed'], true)) {
+                $updateData['reopened_count'] = ((int) $projectRequest->reopened_count) + 1;
+                $updateData['closed_at'] = null;
+                $updateData['resolved_at'] = null;
+            }
         }
 
         $projectRequest->update($updateData);
@@ -228,7 +262,7 @@ class ProjectRequestController extends Controller
         ActivityLog::logUpdate($projectRequest, 'Updated project request: ' . $projectRequest->project_name);
 
         return redirect()->route('project-requests.show', $projectRequest)
-            ->with('success', 'Project request updated successfully!');
+            ->with('success', 'Permintaan proyek berhasil diperbarui.');
     }
 
     public function destroy(ProjectRequest $projectRequest)
@@ -236,7 +270,7 @@ class ProjectRequestController extends Controller
         // Only allow deletion if draft
         if ($projectRequest->status !== 'draft') {
             return redirect()->route('project-requests.index')
-                ->with('error', 'Only draft requests can be deleted.');
+                ->with('error', 'Hanya permintaan berstatus draf yang dapat dihapus.');
         }
 
         // Authorization check
@@ -249,20 +283,20 @@ class ProjectRequestController extends Controller
         $projectRequest->delete();
 
         return redirect()->route('project-requests.index')
-            ->with('success', 'Project request deleted successfully!');
+            ->with('success', 'Permintaan proyek berhasil dihapus.');
     }
 
     public function submitForApproval(ProjectRequest $projectRequest)
     {
         if ($projectRequest->status !== 'draft' && $projectRequest->status !== 'revision_requested') {
             return redirect()->route('project-requests.show', $projectRequest)
-                ->with('error', 'This request cannot be submitted.');
+                ->with('error', 'Permintaan ini tidak dapat diajukan.');
         }
 
         // Check if has requirements
         if ($projectRequest->requirements()->count() === 0) {
             return redirect()->route('project-requests.show', $projectRequest)
-                ->with('error', 'Please upload at least one requirement file before submitting.');
+                ->with('error', 'Silakan unggah minimal satu berkas kebutuhan sebelum mengajukan.');
         }
 
         $projectRequest->update([
@@ -318,7 +352,7 @@ class ProjectRequestController extends Controller
         );
 
         return redirect()->route('project-requests.show', $projectRequest)
-            ->with('success', 'Project request submitted for approval!');
+            ->with('success', 'Permintaan proyek berhasil diajukan untuk persetujuan.');
     }
 
     public function resolveTicket(ProjectRequest $projectRequest)
@@ -330,16 +364,16 @@ class ProjectRequestController extends Controller
         }
 
         if (!in_array($projectRequest->ticket_status, ProjectRequest::resolvableTicketStatuses(), true)) {
-            return back()->with('error', 'Ticket hanya bisa di-resolve dari status aktif.');
+            return back()->with('error', 'Tiket hanya bisa diselesaikan dari status aktif.');
         }
 
         if ($projectRequest->status === 'draft') {
-            return back()->with('error', 'Ticket draft tidak bisa diselesaikan.');
+            return back()->with('error', 'Tiket draf tidak bisa diselesaikan.');
         }
 
         $projectRequest->update([
             'ticket_status' => 'resolved',
-            'resolved_at' => now(),
+            'resolved_at' => $projectRequest->resolved_at ?? now(),
         ]);
 
         ActivityLog::log('resolve_ticket', 'Resolved ticket: ' . ($projectRequest->ticket_number ?? $projectRequest->project_name), $projectRequest);
@@ -355,7 +389,7 @@ class ProjectRequestController extends Controller
             'Silakan berikan konfirmasi jika hasil sudah sesuai.'
         );
 
-        return back()->with('success', 'Ticket berhasil di-resolve.');
+        return back()->with('success', 'Tiket berhasil diselesaikan.');
     }
 
     public function pauseTicket(ProjectRequest $projectRequest)
@@ -367,11 +401,11 @@ class ProjectRequestController extends Controller
         }
 
         if (!in_array($projectRequest->ticket_status, ProjectRequest::pausableTicketStatuses(), true)) {
-            return back()->with('error', 'Ticket hanya bisa di-pause dari status aktif.');
+            return back()->with('error', 'Tiket hanya bisa dijeda dari status aktif.');
         }
 
         if ($projectRequest->status === 'draft') {
-            return back()->with('error', 'Ticket draft tidak bisa di-pause.');
+            return back()->with('error', 'Tiket draf tidak bisa dijeda.');
         }
 
         $projectRequest->update(['ticket_status' => 'paused']);
@@ -382,7 +416,7 @@ class ProjectRequestController extends Controller
 
         ActivityLog::log('pause_ticket', 'Paused ticket: ' . ($projectRequest->ticket_number ?? $projectRequest->project_name), $projectRequest);
 
-        return back()->with('success', 'Ticket berhasil di-pause.');
+        return back()->with('success', 'Tiket berhasil dijeda.');
     }
 
     public function playTicket(ProjectRequest $projectRequest)
@@ -394,11 +428,11 @@ class ProjectRequestController extends Controller
         }
 
         if (!in_array($projectRequest->ticket_status, ProjectRequest::playableTicketStatuses(), true)) {
-            return back()->with('error', 'Ticket hanya bisa di-play dari status pause.');
+            return back()->with('error', 'Tiket hanya bisa dilanjutkan dari status jeda.');
         }
 
         if ($projectRequest->status === 'draft') {
-            return back()->with('error', 'Ticket draft tidak bisa di-play.');
+            return back()->with('error', 'Tiket draf tidak bisa dilanjutkan.');
         }
 
         $projectRequest->update([
@@ -414,7 +448,7 @@ class ProjectRequestController extends Controller
 
         ActivityLog::log('play_ticket', 'Resumed ticket: ' . ($projectRequest->ticket_number ?? $projectRequest->project_name), $projectRequest);
 
-        return back()->with('success', 'Ticket berhasil dijalankan kembali.');
+        return back()->with('success', 'Tiket berhasil dilanjutkan kembali.');
     }
 
     public function closeTicket(ProjectRequest $projectRequest)
@@ -427,12 +461,12 @@ class ProjectRequestController extends Controller
         }
 
         if (!in_array($projectRequest->ticket_status, ['resolved', 'cancelled'])) {
-            return back()->with('error', 'Ticket hanya bisa ditutup jika sudah resolved atau cancelled.');
+            return back()->with('error', 'Tiket hanya bisa ditutup jika sudah terselesaikan atau dibatalkan.');
         }
 
         $projectRequest->update([
             'ticket_status' => 'closed',
-            'closed_at' => now(),
+            'closed_at' => $projectRequest->closed_at ?? now(),
         ]);
 
         ActivityLog::log('close_ticket', 'Closed ticket: ' . ($projectRequest->ticket_number ?? $projectRequest->project_name), $projectRequest);
@@ -448,7 +482,7 @@ class ProjectRequestController extends Controller
             'Email ini sebagai konfirmasi penutupan tiket.'
         );
 
-        return back()->with('success', 'Ticket berhasil ditutup.');
+        return back()->with('success', 'Tiket berhasil ditutup.');
     }
 
     public function uploadRequirements(Request $request, ProjectRequest $projectRequest)
@@ -477,7 +511,7 @@ class ProjectRequestController extends Controller
             }
         }
 
-        return back()->with('success', 'Requirements uploaded successfully!');
+        return back()->with('success', 'Berkas kebutuhan berhasil diunggah.');
     }
 
     public function downloadRequirement(ProjectRequirement $requirement)
@@ -506,12 +540,12 @@ class ProjectRequestController extends Controller
     {
         // Only allow if project is draft
         if ($requirement->projectRequest->status !== 'draft') {
-            return back()->with('error', 'Cannot delete requirements from submitted projects.');
+            return back()->with('error', 'Berkas kebutuhan dari proyek yang sudah diajukan tidak dapat dihapus.');
         }
 
         $requirement->delete();
 
-        return back()->with('success', 'Requirement file deleted successfully!');
+        return back()->with('success', 'Berkas kebutuhan berhasil dihapus.');
     }
 
     private function generateTicketNumber(): string
@@ -532,7 +566,7 @@ class ProjectRequestController extends Controller
         return $prefix . str_pad((string) $nextNumber, 6, '0', STR_PAD_LEFT);
     }
 
-    private function computeSlaTargets(string $impact, string $urgency): array
+    private function computeSlaTargets(string $impact, string $urgency, ?string $ticketCategory = null): array
     {
         $weights = [
             'low' => 1,
@@ -540,6 +574,27 @@ class ProjectRequestController extends Controller
             'high' => 3,
             'critical' => 4,
         ];
+
+        if ($ticketCategory === 'technical_support') {
+            $technicalResponseMinutes = match (true) {
+                $impact === 'critical' && $urgency === 'critical' => 15,
+                $impact === 'high' || $urgency === 'high' || $impact === 'critical' || $urgency === 'critical' => 30,
+                $impact === 'medium' || $urgency === 'medium' => 120,
+                default => 240,
+            };
+
+            $technicalResolutionHours = match (true) {
+                $impact === 'critical' && $urgency === 'critical' => 4,
+                $impact === 'high' || $urgency === 'high' || $impact === 'critical' || $urgency === 'critical' => 8,
+                $impact === 'medium' || $urgency === 'medium' => 24,
+                default => 72,
+            };
+
+            return [
+                'response_due_at' => now()->addMinutes($technicalResponseMinutes),
+                'resolution_due_at' => now()->addHours($technicalResolutionHours),
+            ];
+        }
 
         $score = ($weights[$impact] ?? 2) + ($weights[$urgency] ?? 2);
 

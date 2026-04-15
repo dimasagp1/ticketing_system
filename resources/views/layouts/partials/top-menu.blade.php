@@ -15,8 +15,13 @@
                         </a>
                     </li>
                     <li>
-                        <a href="{{ route('super-admin.reports') }}" class="top-menu-link {{ request()->routeIs('super-admin.reports') ? 'active' : '' }}">
+                        <a href="{{ route('super-admin.reports') }}" class="top-menu-link {{ request()->routeIs('super-admin.reports*') ? 'active' : '' }}">
                             <span>Laporan</span>
+                        </a>
+                    </li>
+                    <li>
+                        <a href="{{ route('super-admin.reports.technical') }}" class="top-menu-link {{ request()->routeIs('super-admin.reports.technical') ? 'active' : '' }}">
+                            <span>Laporan Teknis</span>
                         </a>
                     </li>
                     <li>

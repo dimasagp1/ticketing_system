@@ -33,7 +33,7 @@
                     </tr>
                     <tr>
                         <th>Kategori:</th>
-                        <td>{{ ucfirst(str_replace('_', ' ', $projectRequest->ticket_category ?? 'incident')) }}</td>
+                        <td>{{ $projectRequest->ticket_category_label }}</td>
                     </tr>
                     <tr>
                         <th>Klien:</th>
@@ -42,8 +42,8 @@
                     <tr>
                         <th>Dampak / Urgensi:</th>
                         <td>
-                            <span class="badge badge-light">{{ strtoupper($projectRequest->impact ?? 'medium') }}</span>
-                            <span class="badge badge-light">{{ strtoupper($projectRequest->urgency ?? 'medium') }}</span>
+                            <span class="badge badge-light">{{ $projectRequest->impact_label }}</span>
+                            <span class="badge badge-light">{{ $projectRequest->urgency_label }}</span>
                         </td>
                     </tr>
                     <tr>
@@ -74,7 +74,7 @@
             </div>
         </div>
 
-        <!-- Requirements Files -->
+        <!-- Berkas Kebutuhan -->
         <div class="card support-shell-card mb-4">
             <div class="card-header border-0 bg-white pt-4 px-4 pb-2">
                 <h3 class="card-title mb-0 font-weight-bold" style="font-size: 1.15rem;">Berkas Kebutuhan</h3>

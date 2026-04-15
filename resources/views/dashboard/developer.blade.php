@@ -35,7 +35,7 @@
                 <small class="text-info">Berjalan</small>
             </div>
             <div class="support-stat-value">{{ $inProgressCount }}</div>
-            <div class="support-stat-label">In Progress</div>
+            <div class="support-stat-label">Sedang Dikerjakan</div>
         </div>
     </div>
     <div class="col-lg-3 col-sm-6 mb-3">
@@ -45,7 +45,7 @@
                 <small class="text-success">Selesai</small>
             </div>
             <div class="support-stat-value">{{ $completedCount }}</div>
-            <div class="support-stat-label">Completed</div>
+            <div class="support-stat-label">Terselesaikan</div>
         </div>
     </div>
     <div class="col-lg-3 col-sm-6 mb-3">
@@ -64,7 +64,7 @@
     <div class="col-lg-8">
         <div class="card support-shell-card mb-3">
             <div class="card-header border-0 d-flex justify-content-between align-items-center bg-white">
-                <h3 class="card-title mb-0">Project Tugas Saya</h3>
+                <h3 class="card-title mb-0">Proyek Tugas Saya</h3>
                 <a href="{{ route('queues.index') }}" class="btn btn-link btn-sm">Lihat Antrian</a>
             </div>
             <div class="card-body p-0">
@@ -72,10 +72,10 @@
                     <table class="table table-hover mb-0">
                         <thead class="bg-light">
                             <tr>
-                                <th class="pl-4 border-bottom-0">Nama Project</th>
+                                <th class="pl-4 border-bottom-0">Nama Proyek</th>
                                 <th class="d-none d-md-table-cell border-bottom-0">Client</th>
                                 <th class="border-bottom-0">Status</th>
-                                <th class="border-bottom-0">Progress</th>
+                                <th class="border-bottom-0">Progres</th>
                                 <th class="border-bottom-0">Deadline</th>
                                 <th class="pr-4 border-bottom-0 text-right">Aksi</th>
                             </tr>
@@ -100,12 +100,12 @@
                                         </td>
                                         <td class="text-muted small"><i class="far fa-clock mr-1"></i> {{ $queue->deadline ? $queue->deadline->format('d M Y') : '-' }}</td>
                                         <td class="pr-4 text-right">
-                                            <a href="{{ route('progress.show', $queue) }}" class="btn btn-sm btn-light text-info" title="Lihat Progress"><i class="fas fa-eye"></i></a>
+                                            <a href="{{ route('progress.show', $queue) }}" class="btn btn-sm btn-light text-info" title="Lihat Progres"><i class="fas fa-eye"></i></a>
                                         </td>
                                     </tr>
                             @empty
                                 <tr>
-                                    <td colspan="6" class="text-center py-4 text-muted">Belum ada project yang ditugaskan.</td>
+                                    <td colspan="6" class="text-center py-4 text-muted">Belum ada proyek yang ditugaskan.</td>
                                 </tr>
                             @endforelse
                         </tbody>
@@ -122,15 +122,15 @@
             </div>
             <div class="card-body px-4 pb-4 pt-2">
                 <div class="mb-3">
-                    <div class="d-flex justify-content-between mb-1"><small class="text-muted font-weight-600">In Progress</small><small class="font-weight-600">{{ round(($inProgressCount / $workloadBase) * 100) }}%</small></div>
+                    <div class="d-flex justify-content-between mb-1"><small class="text-muted font-weight-600">Sedang Dikerjakan</small><small class="font-weight-600">{{ round(($inProgressCount / $workloadBase) * 100) }}%</small></div>
                     <div class="progress progress-xs"><div class="progress-bar bg-primary" style="width: {{ round(($inProgressCount / $workloadBase) * 100) }}%"></div></div>
                 </div>
                 <div class="mb-3">
-                    <div class="d-flex justify-content-between mb-1"><small class="text-muted font-weight-600">Pending</small><small class="font-weight-600">{{ round(($pendingCount / $workloadBase) * 100) }}%</small></div>
+                    <div class="d-flex justify-content-between mb-1"><small class="text-muted font-weight-600">Menunggu</small><small class="font-weight-600">{{ round(($pendingCount / $workloadBase) * 100) }}%</small></div>
                     <div class="progress progress-xs"><div class="progress-bar bg-warning" style="width: {{ round(($pendingCount / $workloadBase) * 100) }}%"></div></div>
                 </div>
                 <div class="mb-3">
-                    <div class="d-flex justify-content-between mb-1"><small class="text-muted font-weight-600">Completed</small><small class="font-weight-600">{{ round(($completedCount / $workloadBase) * 100) }}%</small></div>
+                    <div class="d-flex justify-content-between mb-1"><small class="text-muted font-weight-600">Terselesaikan</small><small class="font-weight-600">{{ round(($completedCount / $workloadBase) * 100) }}%</small></div>
                     <div class="progress progress-xs"><div class="progress-bar bg-success" style="width: {{ round(($completedCount / $workloadBase) * 100) }}%"></div></div>
                 </div>
                 <div class="mb-0">
@@ -145,7 +145,7 @@
                 <h3 class="card-title mb-0 font-weight-bold" style="font-size: 1.15rem;">Aksi Cepat</h3>
             </div>
             <div class="card-body px-4 pb-4 pt-2">
-                <a href="{{ route('queues.index') }}" class="btn btn-light btn-block mb-2 font-weight-500 text-left px-3"><i class="fas fa-list text-primary mr-2" style="width: 20px;"></i> Buka Queue Board</a>
+                <a href="{{ route('queues.index') }}" class="btn btn-light btn-block mb-2 font-weight-500 text-left px-3"><i class="fas fa-list text-primary mr-2" style="width: 20px;"></i> Buka Papan Antrian</a>
                 <a href="{{ route('chat.index') }}" class="btn btn-light btn-block font-weight-500 text-left px-3"><i class="fas fa-comments text-info mr-2" style="width: 20px;"></i> Balas Chat</a>
             </div>
         </div>

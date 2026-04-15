@@ -62,6 +62,83 @@
     <div class="col-lg-8">
         <div class="card support-shell-card mb-3">
             <div class="card-header border-0 d-flex justify-content-between align-items-center bg-white">
+                <div>
+                    <h3 class="card-title mb-0">Ringkasan Tiket Teknis Harian</h3>
+                    <small class="text-muted">Periode {{ $technicalSummary['date_label'] }} (kategori dukungan teknis)</small>
+                </div>
+                <a href="{{ route('super-admin.reports.technical', ['date' => now()->toDateString()]) }}" class="btn btn-outline-primary btn-sm">Buka Laporan Teknis</a>
+            </div>
+            <div class="card-body">
+                <div class="row text-center">
+                    <div class="col-md-3 col-6 mb-3">
+                        <small class="d-block text-muted">Total</small>
+                        <span class="h5 font-weight-bold mb-0">{{ $technicalSummary['total'] }}</span>
+                    </div>
+                    <div class="col-md-3 col-6 mb-3">
+                        <small class="d-block text-muted">Terselesaikan</small>
+                        <span class="h5 font-weight-bold text-success mb-0">{{ $technicalSummary['resolved'] }}</span>
+                    </div>
+                    <div class="col-md-3 col-6 mb-3">
+                        <small class="d-block text-muted">Antrean Aktif</small>
+                        <span class="h5 font-weight-bold text-warning mb-0">{{ $technicalSummary['backlog'] }}</span>
+                    </div>
+                    <div class="col-md-3 col-6 mb-3">
+                        <small class="d-block text-muted">Melewati SLA</small>
+                        <span class="h5 font-weight-bold text-danger mb-0">{{ $technicalSummary['overdue'] }}</span>
+                    </div>
+                </div>
+                <div class="row text-center border-top pt-3 mt-1">
+                    <div class="col-md-4 col-12 mb-2 mb-md-0">
+                        <small class="text-muted d-block">Rata-rata FRT (menit)</small>
+                        <strong>{{ number_format($technicalSummary['frt_minutes'], 2) }}</strong>
+                    </div>
+                    <div class="col-md-4 col-12 mb-2 mb-md-0">
+                        <small class="text-muted d-block">Rata-rata MTTR (jam)</small>
+                        <strong>{{ number_format($technicalSummary['mttr_hours'], 2) }}</strong>
+                    </div>
+                    <div class="col-md-4 col-12">
+                        <small class="text-muted d-block">Kepatuhan SLA</small>
+                        <strong class="text-primary">{{ number_format($technicalSummary['sla_compliance_rate'], 2) }}%</strong>
+                    </div>
+                </div>
+            </div>
+        </div>
+    </div>
+
+    <div class="col-lg-4">
+        <div class="card support-shell-card mb-3">
+            <div class="card-header border-0 bg-white">
+                <h3 class="card-title mb-0">Subkategori Teknis Teratas</h3>
+            </div>
+            <div class="card-body">
+                @php
+                    $totalTechnical = max($technicalSummary['total'], 1);
+                @endphp
+                @forelse($technicalSubcategoryBreakdown->take(5) as $item)
+                    @php
+                        $percentage = (int) round(($item->total / $totalTechnical) * 100);
+                    @endphp
+                    <div class="mb-2">
+                        <div class="d-flex justify-content-between align-items-center">
+                            <small>{{ \App\Models\ProjectRequest::technicalSubcategoryLabels()[$item->label] ?? ucfirst(str_replace('_', ' ', $item->label)) }}</small>
+                            <small class="font-weight-600">{{ $item->total }} ({{ $percentage }}%)</small>
+                        </div>
+                        <div class="progress progress-xs mt-1">
+                            <div class="progress-bar bg-info" style="width: {{ $percentage }}%"></div>
+                        </div>
+                    </div>
+                @empty
+                    <p class="text-muted mb-0">Belum ada tiket teknis hari ini.</p>
+                @endforelse
+            </div>
+        </div>
+    </div>
+</div>
+
+<div class="row">
+    <div class="col-lg-8">
+        <div class="card support-shell-card mb-3">
+            <div class="card-header border-0 d-flex justify-content-between align-items-center bg-white">
                 <h3 class="card-title mb-0">Tiket Terbaru</h3>
                 <a href="{{ route('project-requests.index') }}" class="btn btn-link btn-sm">Lihat Semua</a>
             </div>
@@ -88,7 +165,7 @@
                                     <td class="text-muted">{{ $ticket->client?->name ?? '-' }}</td>
                                     <td>
                                         <span class="badge badge-{{ ($ticket->impact === 'critical' || $ticket->urgency === 'critical' || $ticket->impact === 'high' || $ticket->urgency === 'high') ? 'danger' : (($ticket->impact === 'medium' || $ticket->urgency === 'medium') ? 'warning' : 'secondary') }}">
-                                            {{ strtoupper($ticket->impact ?? 'MED') }}
+                                            {{ strtoupper($ticket->impact_label ?? 'SEDANG') }}
                                         </span>
                                     </td>
                                     <td>
@@ -117,9 +194,9 @@
                 @php
                     $totalCategory = max(\App\Models\ProjectRequest::count(), 1);
                     $categoryData = [
-                        'Incident/Bug' => \App\Models\ProjectRequest::whereIn('ticket_category', ['incident', 'bug'])->count(),
-                        'Service Request' => \App\Models\ProjectRequest::where('ticket_category', 'service_request')->count(),
-                        'Access' => \App\Models\ProjectRequest::where('ticket_category', 'access')->count(),
+                        'Insiden/Bug' => \App\Models\ProjectRequest::whereIn('ticket_category', ['incident', 'bug'])->count(),
+                        'Permintaan Layanan' => \App\Models\ProjectRequest::where('ticket_category', 'service_request')->count(),
+                        'Akses' => \App\Models\ProjectRequest::where('ticket_category', 'access')->count(),
                         'Lainnya' => \App\Models\ProjectRequest::where('ticket_category', 'other')->count(),
                     ];
                 @endphp
@@ -160,7 +237,7 @@
                         <div class="progress progress-xs mt-1"><div class="progress-bar bg-primary" style="width: {{ round(($inProgress / $totalWork) * 100) }}%"></div></div>
                     </div>
                     <div class="col-md-3 mb-2">
-                        <small class="d-block text-muted">Open</small>
+                        <small class="d-block text-muted">Terbuka</small>
                         <span class="font-weight-bold">{{ round(($open / $totalWork) * 100) }}%</span>
                         <div class="progress progress-xs mt-1"><div class="progress-bar bg-warning" style="width: {{ round(($open / $totalWork) * 100) }}%"></div></div>
                     </div>
@@ -262,12 +339,12 @@
             </div>
             <div class="card-body">
                 <div class="mb-3">
-                    <small class="text-muted d-block">Queue Aktif</small>
+                    <small class="text-muted d-block">Antrean Aktif</small>
                     <strong>{{ $stats['active_queues'] }}</strong>
                     <div class="progress progress-xs mt-1"><div class="progress-bar bg-primary" style="width: {{ $stats['total_queues'] > 0 ? round(($stats['active_queues'] / $stats['total_queues']) * 100) : 0 }}%"></div></div>
                 </div>
                 <div class="mb-3">
-                    <small class="text-muted d-block">Approval Pending</small>
+                    <small class="text-muted d-block">Persetujuan Menunggu</small>
                     <strong>{{ $stats['pending_requests'] }}</strong>
                     <div class="progress progress-xs mt-1"><div class="progress-bar bg-warning" style="width: {{ $stats['total_requests'] > 0 ? round(($stats['pending_requests'] / $stats['total_requests']) * 100) : 0 }}%"></div></div>
                 </div>
@@ -314,7 +391,7 @@
                         ['label' => '2. Ditinjau', 'icon' => 'fas fa-search', 'badge' => 'info', 'count' => $flowCounts['under_review'], 'desc' => 'Admin menilai kebutuhan dan prioritas.'],
                         ['label' => '3. Revisi Diminta', 'icon' => 'fas fa-pen', 'badge' => 'primary', 'count' => $flowCounts['revision_requested'], 'desc' => 'Menunggu perbaikan data dari pemohon.'],
                         ['label' => '4. Disetujui', 'icon' => 'fas fa-check-circle', 'badge' => 'success', 'count' => $flowCounts['approved'], 'desc' => 'Approval selesai, siap masuk operasional.'],
-                        ['label' => '5. Open (Queue)', 'icon' => 'fas fa-inbox', 'badge' => 'primary', 'count' => $flowCounts['open'], 'desc' => 'Masuk antrean kerja.'],
+                        ['label' => '5. Terbuka (Antrean)', 'icon' => 'fas fa-inbox', 'badge' => 'primary', 'count' => $flowCounts['open'], 'desc' => 'Masuk antrean kerja.'],
                         ['label' => '6. Diproses', 'icon' => 'fas fa-cogs', 'badge' => 'info', 'count' => $flowCounts['in_progress'], 'desc' => 'Tim mengerjakan tiket.'],
                         ['label' => '7. Menunggu User', 'icon' => 'fas fa-user-clock', 'badge' => 'warning', 'count' => $flowCounts['pending_user'], 'desc' => 'Menunggu feedback/konfirmasi user.'],
                         ['label' => '8. Dijeda', 'icon' => 'fas fa-pause-circle', 'badge' => 'dark', 'count' => $flowCounts['paused'], 'desc' => 'Pengerjaan dihentikan sementara.'],

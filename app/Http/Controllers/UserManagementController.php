@@ -93,7 +93,7 @@ class UserManagementController extends Controller
         ActivityLog::logCreate($user, 'Created new user: ' . $user->name);
 
         return redirect()->route('super-admin.users.index')
-            ->with('success', 'User created successfully!');
+            ->with('success', 'Pengguna berhasil dibuat.');
     }
 
     public function show(User $user)
@@ -150,7 +150,7 @@ class UserManagementController extends Controller
         ActivityLog::logUpdate($user, 'Updated user: ' . $user->name);
 
         return redirect()->route('super-admin.users.index')
-            ->with('success', 'User updated successfully!');
+            ->with('success', 'Pengguna berhasil diperbarui.');
     }
 
     public function destroy(User $user)
@@ -159,7 +159,7 @@ class UserManagementController extends Controller
 
         // Prevent deleting own account
         if ($user->id === auth()->id()) {
-            return back()->with('error', 'You cannot delete your own account!');
+            return back()->with('error', 'Anda tidak dapat menghapus akun sendiri.');
         }
 
         ActivityLog::logDelete($user, 'Deleted user: ' . $user->name);
@@ -167,7 +167,7 @@ class UserManagementController extends Controller
         $user->delete();
 
         return redirect()->route('super-admin.users.index')
-            ->with('success', 'User deleted successfully!');
+            ->with('success', 'Pengguna berhasil dihapus.');
     }
 
     public function activate(User $user)
@@ -178,7 +178,7 @@ class UserManagementController extends Controller
 
         ActivityLog::log('activate_user', 'Activated user: ' . $user->name, $user);
 
-        return back()->with('success', 'User activated successfully!');
+        return back()->with('success', 'Pengguna berhasil diaktifkan.');
     }
 
     public function deactivate(User $user)
@@ -187,14 +187,14 @@ class UserManagementController extends Controller
 
         // Prevent deactivating own account
         if ($user->id === auth()->id()) {
-            return back()->with('error', 'You cannot deactivate your own account!');
+            return back()->with('error', 'Anda tidak dapat menonaktifkan akun sendiri.');
         }
 
         $user->deactivate();
 
         ActivityLog::log('deactivate_user', 'Deactivated user: ' . $user->name, $user);
 
-        return back()->with('success', 'User deactivated successfully!');
+        return back()->with('success', 'Pengguna berhasil dinonaktifkan.');
     }
 
     public function suspend(User $user)
@@ -203,13 +203,13 @@ class UserManagementController extends Controller
 
         // Prevent suspending own account
         if ($user->id === auth()->id()) {
-            return back()->with('error', 'You cannot suspend your own account!');
+            return back()->with('error', 'Anda tidak dapat menangguhkan akun sendiri.');
         }
 
         $user->suspend();
 
         ActivityLog::log('suspend_user', 'Suspended user: ' . $user->name, $user);
 
-        return back()->with('success', 'User suspended successfully!');
+        return back()->with('success', 'Pengguna berhasil ditangguhkan.');
     }
 }

@@ -91,9 +91,9 @@
         <table>
             <tr>
                 <td><strong>Total Proyek:</strong> {{ $stats['total'] }}</td>
-                <td><strong>Menunggu (Open):</strong> {{ $stats['pending'] }}</td>
+                <td><strong>Menunggu (Terbuka):</strong> {{ $stats['pending'] }}</td>
                 <td><strong>Sedang Dikerjakan:</strong> {{ $stats['in_progress'] }}</td>
-                <td><strong>Selesai (Resolved/Closed):</strong> {{ $stats['completed'] }}</td>
+                <td><strong>Selesai (Terselesaikan/Ditutup):</strong> {{ $stats['completed'] }}</td>
             </tr>
         </table>
     </div>
@@ -123,12 +123,12 @@
                             $badgeClass = '';
                             $statusLabel = '';
                             switch($project->ticket_status) {
-                                case 'open': $badgeClass = 'status-open'; $statusLabel = 'Open'; break;
-                                case 'in_progress': $badgeClass = 'status-in-progress'; $statusLabel = 'In Progress'; break;
-                                case 'pending_user': $badgeClass = 'status-pending-user'; $statusLabel = 'Pending User'; break;
-                                case 'paused': $badgeClass = 'status-paused'; $statusLabel = 'Paused'; break;
-                                case 'resolved': $badgeClass = 'status-resolved'; $statusLabel = 'Resolved'; break;
-                                case 'closed': $badgeClass = 'status-closed'; $statusLabel = 'Closed'; break;
+                                case 'open': $badgeClass = 'status-open'; $statusLabel = 'Terbuka'; break;
+                                case 'in_progress': $badgeClass = 'status-in-progress'; $statusLabel = 'Sedang Dikerjakan'; break;
+                                case 'pending_user': $badgeClass = 'status-pending-user'; $statusLabel = 'Menunggu Pengguna'; break;
+                                case 'paused': $badgeClass = 'status-paused'; $statusLabel = 'Dijeda'; break;
+                                case 'resolved': $badgeClass = 'status-resolved'; $statusLabel = 'Terselesaikan'; break;
+                                case 'closed': $badgeClass = 'status-closed'; $statusLabel = 'Ditutup'; break;
                                 default: $badgeClass = 'status-open'; $statusLabel = $project->ticket_status; break;
                             }
                         @endphp

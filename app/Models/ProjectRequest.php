@@ -14,13 +14,20 @@ class ProjectRequest extends Model
         'ticket_number',
         'project_name',
         'ticket_category',
+        'technical_subcategory',
         'description',
+        'location_detail',
+        'asset_code',
+        'affected_users_count',
         'estimated_duration',
         'client_id',
         'impact',
         'urgency',
         'status',
         'ticket_status',
+        'escalation_level',
+        'escalated_at',
+        'reopened_count',
         'queue_id',
         'submitted_at',
         'sla_response_due_at',
@@ -38,6 +45,7 @@ class ProjectRequest extends Model
         'submitted_at' => 'datetime',
         'sla_response_due_at' => 'datetime',
         'sla_resolution_due_at' => 'datetime',
+        'escalated_at' => 'datetime',
         'first_responded_at' => 'datetime',
         'resolved_at' => 'datetime',
         'closed_at' => 'datetime',
@@ -237,6 +245,75 @@ class ProjectRequest extends Model
         $status = $this->ticket_status ?? 'open';
 
         return static::ticketStatusLabels()[$status] ?? ucfirst(str_replace('_', ' ', $status));
+    }
+
+    public static function ticketCategoryLabels(): array
+    {
+        return [
+            'incident' => 'Insiden',
+            'service_request' => 'Permintaan Layanan',
+            'access' => 'Akses',
+            'bug' => 'Bug',
+            'technical_support' => 'Dukungan Teknis',
+            'other' => 'Lainnya',
+        ];
+    }
+
+    public static function technicalSubcategoryLabels(): array
+    {
+        return [
+            'wifi' => 'Wifi',
+            'printer' => 'Printer',
+            'komputer' => 'Komputer',
+            'software_install' => 'Instalasi Software',
+            'supporting' => 'Dukungan Umum',
+        ];
+    }
+
+    public static function impactLabels(): array
+    {
+        return [
+            'low' => 'Rendah',
+            'medium' => 'Sedang',
+            'high' => 'Tinggi',
+            'critical' => 'Kritis',
+        ];
+    }
+
+    public static function urgencyLabels(): array
+    {
+        return [
+            'low' => 'Rendah',
+            'medium' => 'Sedang',
+            'high' => 'Tinggi',
+            'critical' => 'Kritis',
+        ];
+    }
+
+    public function getTicketCategoryLabelAttribute(): string
+    {
+        $category = $this->ticket_category ?? 'incident';
+
+        return static::ticketCategoryLabels()[$category] ?? ucfirst(str_replace('_', ' ', $category));
+    }
+
+    public function getTechnicalSubcategoryLabelAttribute(): ?string
+    {
+        if (!$this->technical_subcategory) {
+            return null;
+        }
+
+        return static::technicalSubcategoryLabels()[$this->technical_subcategory] ?? ucfirst(str_replace('_', ' ', $this->technical_subcategory));
+    }
+
+    public function getImpactLabelAttribute(): string
+    {
+        return static::impactLabels()[$this->impact] ?? ucfirst((string) $this->impact);
+    }
+
+    public function getUrgencyLabelAttribute(): string
+    {
+        return static::urgencyLabels()[$this->urgency] ?? ucfirst((string) $this->urgency);
     }
 
     public function getTicketStatusBadgeClassAttribute(): string

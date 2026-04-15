@@ -7,6 +7,7 @@ use App\Models\ProjectRequest;
 use App\Models\Queue;
 use App\Models\ChatConversation;
 use App\Models\ActivityLog;
+use Barryvdh\DomPDF\Facade\Pdf;
 use Illuminate\Http\Request;
 use Illuminate\Support\Facades\DB;
 use Illuminate\Support\Facades\File;
@@ -91,6 +92,51 @@ class SuperAdminController extends Controller
                 ->count(),
         ];
 
+        $technicalTodayStart = now()->startOfDay();
+        $technicalTodayEnd = now()->endOfDay();
+
+        $technicalTodayBase = ProjectRequest::query()
+            ->where('ticket_category', 'technical_support')
+            ->whereBetween('created_at', [$technicalTodayStart, $technicalTodayEnd]);
+
+        $technicalResolvedScope = (clone $technicalTodayBase)
+            ->whereNotNull('resolved_at')
+            ->whereNotNull('sla_resolution_due_at');
+
+        $technicalResolvedCount = (clone $technicalResolvedScope)->count();
+        $technicalSlaCompliant = (clone $technicalResolvedScope)
+            ->whereColumn('resolved_at', '<=', 'sla_resolution_due_at')
+            ->count();
+
+        $technicalSummary = [
+            'date_label' => $technicalTodayStart->translatedFormat('d M Y'),
+            'total' => (clone $technicalTodayBase)->count(),
+            'resolved' => (clone $technicalTodayBase)->whereIn('ticket_status', ['resolved', 'closed'])->count(),
+            'backlog' => (clone $technicalTodayBase)->whereIn('ticket_status', ProjectRequest::activeTicketStatuses())->count(),
+            'overdue' => (clone $technicalTodayBase)
+                ->whereIn('ticket_status', ProjectRequest::slaTrackedTicketStatuses())
+                ->whereNotNull('sla_resolution_due_at')
+                ->where('sla_resolution_due_at', '<', now())
+                ->count(),
+            'frt_minutes' => round((float) ((clone $technicalTodayBase)
+                ->whereNotNull('first_responded_at')
+                ->selectRaw('AVG(TIMESTAMPDIFF(MINUTE, created_at, first_responded_at)) as avg_minutes')
+                ->value('avg_minutes') ?? 0), 2),
+            'mttr_hours' => round((float) ((clone $technicalTodayBase)
+                ->whereNotNull('resolved_at')
+                ->selectRaw('AVG(TIMESTAMPDIFF(MINUTE, created_at, resolved_at)) / 60 as avg_hours')
+                ->value('avg_hours') ?? 0), 2),
+            'sla_compliance_rate' => $technicalResolvedCount > 0
+                ? round(($technicalSlaCompliant / $technicalResolvedCount) * 100, 2)
+                : 0,
+        ];
+
+        $technicalSubcategoryBreakdown = (clone $technicalTodayBase)
+            ->selectRaw("COALESCE(technical_subcategory, 'unclassified') as label, COUNT(*) as total")
+            ->groupBy('label')
+            ->orderByDesc('total')
+            ->get();
+
         // Recent activities
         $recentActivities = ActivityLog::with('user')
             ->latest()
@@ -138,6 +184,8 @@ class SuperAdminController extends Controller
             'recentUsers',
             'slaWatchlist',
             'supportAgents',
+            'technicalSummary',
+            'technicalSubcategoryBreakdown',
             'flowCounts',
             'flowTotalTickets',
             'flowRange',
@@ -244,7 +292,7 @@ class SuperAdminController extends Controller
         
         ActivityLog::log('update_settings', 'Updated system settings', null, $settings);
 
-        return back()->with('success', 'Settings updated successfully!');
+        return back()->with('success', 'Pengaturan berhasil diperbarui.');
     }
 
     public function reports(Request $request)
@@ -345,6 +393,94 @@ class SuperAdminController extends Controller
         ));
     }
 
+    public function technicalReports(Request $request)
+    {
+        $reportData = $this->buildTechnicalReportData($request);
+
+        return view('super-admin.reports-technical', compact(
+            'reportData'
+        ));
+    }
+
+    public function exportTechnicalReportCsv(Request $request)
+    {
+        $reportData = $this->buildTechnicalReportData($request);
+
+        $headers = [
+            'Content-Type' => 'text/csv; charset=UTF-8',
+        ];
+
+        $fileName = 'laporan-teknis-harian-' . $reportData['selectedDateInput'] . '.csv';
+
+        return response()->streamDownload(function () use ($reportData) {
+            $handle = fopen('php://output', 'w');
+
+            fwrite($handle, "\xEF\xBB\xBF");
+            fputcsv($handle, ['Laporan Operasional Ticket Teknis']);
+            fputcsv($handle, ['Tanggal', $reportData['selectedDateInput']]);
+            fputcsv($handle, ['Subkategori Filter', $reportData['selectedSubcategory']]);
+            fputcsv($handle, []);
+
+            fputcsv($handle, ['RINGKASAN KPI']);
+            fputcsv($handle, ['Total Ticket', $reportData['summary']['total_tickets']]);
+            fputcsv($handle, ['Resolved/Closed', $reportData['summary']['resolved_tickets']]);
+            fputcsv($handle, ['Backlog Aktif', $reportData['summary']['backlog_tickets']]);
+            fputcsv($handle, ['Overdue', $reportData['summary']['overdue_tickets']]);
+            fputcsv($handle, ['Average FRT (menit)', $reportData['summary']['frt_minutes']]);
+            fputcsv($handle, ['Average MTTR (jam)', $reportData['summary']['mttr_hours']]);
+            fputcsv($handle, ['SLA Compliance (%)', $reportData['summary']['sla_compliance_rate']]);
+            fputcsv($handle, []);
+
+            fputcsv($handle, ['BREAKDOWN SUBKATEGORI']);
+            fputcsv($handle, ['Subkategori', 'Total']);
+            foreach ($reportData['subcategoryBreakdown'] as $row) {
+                fputcsv($handle, [$row->label, $row->total]);
+            }
+            fputcsv($handle, []);
+
+            fputcsv($handle, ['PERFORMA TEKNISI']);
+            fputcsv($handle, ['Teknisi', 'Total Ticket', 'Resolved']);
+            foreach ($reportData['technicianPerformance'] as $row) {
+                fputcsv($handle, [$row->technician_name, $row->total_tickets, $row->resolved_tickets]);
+            }
+            fputcsv($handle, []);
+
+            fputcsv($handle, ['OVERDUE LIST']);
+            fputcsv($handle, ['Ticket Number', 'Judul', 'Subkategori', 'Status', 'SLA Due']);
+            foreach ($reportData['overdueList'] as $item) {
+                fputcsv($handle, [
+                    $item->ticket_number,
+                    $item->project_name,
+                    $item->technical_subcategory,
+                    $item->ticket_status,
+                    optional($item->sla_resolution_due_at)->format('Y-m-d H:i:s'),
+                ]);
+            }
+
+            fclose($handle);
+        }, $fileName, $headers);
+    }
+
+    public function exportTechnicalReportPdf(Request $request)
+    {
+        $reportData = $this->buildTechnicalReportData($request);
+
+        config([
+            'dompdf.public_path' => public_path(),
+            'dompdf.options.chroot' => base_path(),
+        ]);
+
+        $pdf = Pdf::loadView('reports.technical-pdf', [
+            'reportData' => $reportData,
+            'generatedAt' => now()->format('d M Y H:i:s'),
+            'generator' => auth()->user()->name,
+        ]);
+
+        $pdf->setPaper('A4', 'landscape');
+
+        return $pdf->download('Laporan_Teknis_Harian_' . now()->format('Ymd_His') . '.pdf');
+    }
+
     public function exportMonthlyCumulativeReport(Request $request)
     {
         $selectedYear = (int) $request->input('year', now()->year);
@@ -411,6 +547,123 @@ class SuperAdminController extends Controller
     private function settingsFilePath(): string
     {
         return storage_path('app/system-settings.json');
+    }
+
+    private function buildTechnicalReportData(Request $request): array
+    {
+        $selectedDateInput = (string) $request->input('date', now()->toDateString());
+        $allowedSubcategories = ['wifi', 'printer', 'komputer', 'software_install', 'supporting'];
+        $selectedSubcategory = (string) $request->input('subcategory', 'all');
+
+        if (!in_array($selectedSubcategory, array_merge(['all'], $allowedSubcategories), true)) {
+            $selectedSubcategory = 'all';
+        }
+
+        try {
+            $selectedDate = Carbon::parse($selectedDateInput)->startOfDay();
+        } catch (\Throwable $e) {
+            $selectedDate = now()->startOfDay();
+            $selectedDateInput = $selectedDate->toDateString();
+        }
+
+        $start = $selectedDate->copy()->startOfDay();
+        $end = $selectedDate->copy()->endOfDay();
+
+        $baseQuery = ProjectRequest::query()
+            ->where('ticket_category', 'technical_support')
+            ->whereBetween('created_at', [$start, $end]);
+
+        if ($selectedSubcategory !== 'all') {
+            $baseQuery->where('technical_subcategory', $selectedSubcategory);
+        }
+
+        $totalTickets = (clone $baseQuery)->count();
+        $resolvedTickets = (clone $baseQuery)->whereIn('ticket_status', ['resolved', 'closed'])->count();
+        $backlogTickets = (clone $baseQuery)->whereIn('ticket_status', ProjectRequest::activeTicketStatuses())->count();
+
+        $overdueTickets = (clone $baseQuery)
+            ->whereIn('ticket_status', ProjectRequest::slaTrackedTicketStatuses())
+            ->whereNotNull('sla_resolution_due_at')
+            ->where('sla_resolution_due_at', '<', now())
+            ->count();
+
+        $frtMinutes = (float) ((clone $baseQuery)
+            ->whereNotNull('first_responded_at')
+            ->selectRaw('AVG(TIMESTAMPDIFF(MINUTE, created_at, first_responded_at)) as avg_minutes')
+            ->value('avg_minutes') ?? 0);
+
+        $mttrHours = (float) ((clone $baseQuery)
+            ->whereNotNull('resolved_at')
+            ->selectRaw('AVG(TIMESTAMPDIFF(MINUTE, created_at, resolved_at)) / 60 as avg_hours')
+            ->value('avg_hours') ?? 0);
+
+        $slaResolvedScope = (clone $baseQuery)
+            ->whereNotNull('resolved_at')
+            ->whereNotNull('sla_resolution_due_at');
+
+        $slaResolvedCount = (clone $slaResolvedScope)->count();
+        $slaCompliantCount = (clone $slaResolvedScope)->whereColumn('resolved_at', '<=', 'sla_resolution_due_at')->count();
+
+        $slaComplianceRate = $slaResolvedCount > 0
+            ? round(($slaCompliantCount / $slaResolvedCount) * 100, 2)
+            : 0;
+
+        $subcategoryBreakdown = (clone $baseQuery)
+            ->selectRaw("COALESCE(technical_subcategory, 'unclassified') as label, COUNT(*) as total")
+            ->groupBy('label')
+            ->orderByDesc('total')
+            ->get();
+
+        $priorityBreakdown = (clone $baseQuery)
+            ->selectRaw('impact as label, COUNT(*) as total')
+            ->groupBy('label')
+            ->orderByRaw("FIELD(label, 'critical', 'high', 'medium', 'low')")
+            ->get();
+
+        $technicianPerformance = DB::table('project_requests as pr')
+            ->leftJoin('users as u', 'u.id', '=', 'pr.developer_id')
+            ->where('pr.ticket_category', 'technical_support')
+            ->whereBetween('pr.created_at', [$start, $end])
+            ->when($selectedSubcategory !== 'all', function ($query) use ($selectedSubcategory) {
+                $query->where('pr.technical_subcategory', $selectedSubcategory);
+            })
+            ->selectRaw("COALESCE(u.name, 'Belum Ditugaskan') as technician_name")
+            ->selectRaw('COUNT(*) as total_tickets')
+            ->selectRaw("SUM(CASE WHEN pr.ticket_status IN ('resolved', 'closed') THEN 1 ELSE 0 END) as resolved_tickets")
+            ->groupBy('technician_name')
+            ->orderByDesc('total_tickets')
+            ->limit(10)
+            ->get();
+
+        $overdueList = ProjectRequest::with(['client', 'developer'])
+            ->where('ticket_category', 'technical_support')
+            ->whereIn('ticket_status', ProjectRequest::slaTrackedTicketStatuses())
+            ->whereNotNull('sla_resolution_due_at')
+            ->where('sla_resolution_due_at', '<', now())
+            ->orderBy('sla_resolution_due_at')
+            ->take(10)
+            ->get();
+
+        $summary = [
+            'total_tickets' => $totalTickets,
+            'resolved_tickets' => $resolvedTickets,
+            'backlog_tickets' => $backlogTickets,
+            'overdue_tickets' => $overdueTickets,
+            'frt_minutes' => round($frtMinutes, 2),
+            'mttr_hours' => round($mttrHours, 2),
+            'sla_compliance_rate' => $slaComplianceRate,
+        ];
+
+        return [
+            'summary' => $summary,
+            'selectedDateInput' => $selectedDateInput,
+            'selectedSubcategory' => $selectedSubcategory,
+            'allowedSubcategories' => $allowedSubcategories,
+            'subcategoryBreakdown' => $subcategoryBreakdown,
+            'priorityBreakdown' => $priorityBreakdown,
+            'technicianPerformance' => $technicianPerformance,
+            'overdueList' => $overdueList,
+        ];
     }
 
     private function defaultSystemSettings(): array

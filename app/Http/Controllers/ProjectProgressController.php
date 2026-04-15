@@ -93,7 +93,7 @@ class ProjectProgressController extends Controller
             );
         }
 
-        return back()->with('success', 'Project progress updated successfully!');
+        return back()->with('success', 'Progres proyek berhasil diperbarui.');
     }
 
     public function logActivity(Request $request, Queue $queue)
@@ -109,7 +109,7 @@ class ProjectProgressController extends Controller
         $currentStage = $queue->getCurrentStage();
         
         if (!$currentStage) {
-            return back()->with('error', 'No active stage found. Please update project stage first.');
+            return back()->with('error', 'Tahap aktif tidak ditemukan. Silakan perbarui tahap proyek terlebih dahulu.');
         }
 
         // Add activity to current stage
@@ -119,7 +119,7 @@ class ProjectProgressController extends Controller
 
         ActivityLog::log('log_activity', 'Added activity log to project', $queue);
 
-        return back()->with('success', 'Activity logged successfully!');
+        return back()->with('success', 'Aktivitas berhasil dicatat.');
     }
 
     public function timeline(Queue $queue)

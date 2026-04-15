@@ -181,7 +181,7 @@ class ChatController extends Controller
         ActivityLog::log('create_conversation', 'Started new conversation', $conversation);
 
         return redirect()->route('chat.show', $conversation)
-            ->with('success', 'Conversation started successfully!');
+            ->with('success', 'Percakapan berhasil dimulai.');
     }
 
     public function sendMessage(Request $request, ChatConversation $conversation)
@@ -270,7 +270,7 @@ class ChatController extends Controller
             ]);
         }
 
-        return back()->with('success', 'Message sent!');
+        return back()->with('success', 'Pesan berhasil dikirim.');
     }
 
     public function uploadFile(Request $request, ChatConversation $conversation)
@@ -292,7 +292,7 @@ class ChatController extends Controller
             'is_read' => false,
         ]);
 
-        return back()->with('success', 'File uploaded successfully!');
+        return back()->with('success', 'Berkas berhasil diunggah.');
     }
 
     public function markAsRead(ChatConversation $conversation)
@@ -312,7 +312,7 @@ class ChatController extends Controller
 
         ActivityLog::log('close_conversation', 'Closed conversation', $conversation);
 
-        return back()->with('success', 'Conversation closed.');
+        return back()->with('success', 'Percakapan ditutup.');
     }
 
     public function reopen(ChatConversation $conversation)
@@ -321,7 +321,7 @@ class ChatController extends Controller
 
         ActivityLog::log('reopen_conversation', 'Reopened conversation', $conversation);
 
-        return back()->with('success', 'Conversation reopened.');
+        return back()->with('success', 'Percakapan dibuka kembali.');
     }
 
     public function getMessages(Request $request, ChatConversation $conversation)

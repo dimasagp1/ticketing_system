@@ -95,7 +95,7 @@ class ProjectApprovalController extends Controller
         );
 
         return redirect()->route('approvals.index')
-            ->with('success', 'Project request approved and added to queue!');
+            ->with('success', 'Permintaan proyek disetujui dan ditambahkan ke antrean.');
     }
 
     public function reject(Request $request, ProjectApproval $approval)
@@ -130,7 +130,7 @@ class ProjectApprovalController extends Controller
         );
 
         return redirect()->route('approvals.index')
-            ->with('success', 'Project request rejected.');
+            ->with('success', 'Permintaan proyek ditolak.');
     }
 
     public function requestRevision(Request $request, ProjectApproval $approval)
@@ -175,7 +175,7 @@ class ProjectApprovalController extends Controller
         );
 
         return redirect()->route('approvals.index')
-            ->with('success', 'Revision requested. Client will be notified.');
+            ->with('success', 'Permintaan revisi berhasil dikirim. Klien akan diberi notifikasi.');
     }
 
     private function mapTicketPriority(?string $impact, ?string $urgency): string

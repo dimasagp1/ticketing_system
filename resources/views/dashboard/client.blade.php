@@ -22,7 +22,7 @@
         <div class="support-stat-card">
             <div class="d-flex justify-content-between align-items-center mb-2">
                 <span class="badge badge-primary"><i class="fas fa-ticket-alt"></i></span>
-                <small class="text-muted">All</small>
+                <small class="text-muted">Semua</small>
             </div>
             <div class="support-stat-value">{{ $totalRequests }}</div>
             <div class="support-stat-label">Total Permintaan</div>
@@ -45,7 +45,7 @@
                 <small class="text-warning">Menunggu</small>
             </div>
             <div class="support-stat-value">{{ $pendingRequests }}</div>
-            <div class="support-stat-label">Pending</div>
+            <div class="support-stat-label">Menunggu</div>
         </div>
     </div>
     <div class="col-lg-3 col-sm-6 mb-3">
@@ -73,9 +73,9 @@
                         <thead class="bg-light">
                             <tr>
                                 <th class="pl-4 border-bottom-0">Tiket</th>
-                                <th class="border-bottom-0">Project</th>
+                                <th class="border-bottom-0">Proyek</th>
                                 <th class="border-bottom-0">Status</th>
-                                <th class="border-bottom-0">Progress</th>
+                                <th class="border-bottom-0">Progres</th>
                                 <th class="border-bottom-0">Estimasi Selesai</th>
                                 <th class="pr-4 border-bottom-0 text-right">Detail</th>
                             </tr>
@@ -107,7 +107,7 @@
                                             @endif
                                         </td>
                                         <td class="pr-4 text-right">
-                                            <a href="{{ route('progress.show', $req->queue) }}" class="btn btn-sm btn-light text-info" title="Lihat Progress"><i class="fas fa-eye"></i></a>
+                                            <a href="{{ route('progress.show', $req->queue) }}" class="btn btn-sm btn-light text-info" title="Lihat Progres"><i class="fas fa-eye"></i></a>
                                         </td>
                                     </tr>
                                 @endif
@@ -137,7 +137,7 @@
                         <thead class="bg-light">
                             <tr>
                                 <th class="pl-4 border-bottom-0" style="width: 80px;">Posisi</th>
-                                <th class="border-bottom-0">Project</th>
+                                <th class="border-bottom-0">Proyek</th>
                                 <th class="border-bottom-0">Status</th>
                                 <th class="border-bottom-0">Ditangani Oleh</th>
                                 <th class="pr-4 border-bottom-0 text-right">Ditambahkan</th>
@@ -157,7 +157,7 @@
                                     $rowClass = $isMine ? 'bg-primary-light' : '';
                                     $textClass = $isMine ? 'font-weight-bold text-primary' : 'text-dark';
                                     $iconClass = $isMine ? '<i class="fas fa-star text-warning mr-1"></i> ' : '';
-                                    $projectName = $isMine ? "Project Anda: " . $queue->project_name : "Project Klien Lain / Internal";
+                                    $projectName = $isMine ? "Proyek Anda: " . $queue->project_name : "Proyek Klien Lain / Internal";
                                 @endphp
                                 <tr class="{{ $rowClass }}" {!! $isMine ? 'style="background-color: rgba(0, 123, 255, 0.05); border-left: 3px solid #007bff;"' : '' !!}>
                                     <td class="pl-4">
@@ -238,7 +238,7 @@
                     <div class="progress progress-xs"><div class="progress-bar bg-success" style="width: {{ round(($approvedRequests / $requestBase) * 100) }}%"></div></div>
                 </div>
                 <div class="mb-3">
-                    <div class="d-flex justify-content-between mb-1"><small class="text-muted font-weight-600">Pending</small><small class="font-weight-600">{{ round(($pendingRequests / $requestBase) * 100) }}%</small></div>
+                    <div class="d-flex justify-content-between mb-1"><small class="text-muted font-weight-600">Menunggu</small><small class="font-weight-600">{{ round(($pendingRequests / $requestBase) * 100) }}%</small></div>
                     <div class="progress progress-xs"><div class="progress-bar bg-warning" style="width: {{ round(($pendingRequests / $requestBase) * 100) }}%"></div></div>
                 </div>
                 <div class="mb-3">
@@ -278,7 +278,7 @@
                     <table class="table table-hover mb-0 align-middle">
                         <thead class="bg-light">
                             <tr>
-                                <th class="pl-4 border-bottom-0">Nama Project</th>
+                                <th class="pl-4 border-bottom-0">Nama Proyek</th>
                                 <th class="border-bottom-0">Status</th>
                                 <th class="border-bottom-0">Diajukan</th>
                                 <th class="pr-4 border-bottom-0 text-right">Aksi</th>

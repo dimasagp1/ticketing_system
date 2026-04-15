@@ -24,7 +24,7 @@
         </div>
         <div class="dropdown mr-2">
             <button class="btn btn-primary btn-sm dropdown-toggle d-flex align-items-center shadow-sm" type="button" id="pdfDropdown" data-toggle="dropdown" aria-haspopup="true" aria-expanded="false" style="border-radius: 0.5rem; font-weight: 500;">
-                <i class="fas fa-file-pdf mr-2"></i> Download PDF
+                <i class="fas fa-file-pdf mr-2"></i> Unduh PDF
             </button>
             <div class="dropdown-menu dropdown-menu-right" aria-labelledby="pdfDropdown">
                 <a class="dropdown-item" href="{{ route('reports.projects.pdf', ['period' => 'daily']) }}"><i class="fas fa-calendar-day mr-2 text-muted"></i> Laporan Harian</a>
@@ -34,7 +34,7 @@
             </div>
         </div>
         <a href="{{ route('super-admin.reports.export', ['year' => $selectedYear]) }}" class="btn btn-success btn-sm d-flex align-items-center shadow-sm" style="border-radius: 0.5rem; font-weight: 500;">
-            <i class="fas fa-file-excel mr-2"></i> Export Excel
+            <i class="fas fa-file-excel mr-2"></i> Unduh Excel
         </a>
     </form>
 </div>
