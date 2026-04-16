@@ -16,7 +16,14 @@
                 </div>
             </div>
             <div class="card-body px-4 pb-4 pt-2 border-bottom bg-light">
-                <form action="{{ route('queues.index') }}" method="GET">
+                <div class="d-md-none mb-3">
+                    <button class="btn btn-outline-secondary btn-block shadow-sm" type="button" data-toggle="collapse" data-target="#filterCollapse" aria-expanded="false" aria-controls="filterCollapse">
+                        <i class="fas fa-filter mr-1"></i> {{ request()->anyFilled(['search', 'queue_status', 'priority', 'assigned', 'ticket_status', 'sla_filter']) ? 'Filter Aktif' : 'Tampilkan Filter' }}
+                    </button>
+                </div>
+
+                <div class="collapse d-md-block" id="filterCollapse">
+                    <form action="{{ route('queues.index') }}" method="GET">
                     <div class="form-row">
                         <div class="col-md-3 mb-2">
                             <input type="text" name="search" class="form-control" placeholder="Cari tiket/proyek/klien..." value="{{ request('search') }}">
@@ -68,6 +75,7 @@
                     </div>
                 </form>
             </div>
+            </div>
             <div class="card-body px-4 pb-4 pt-2 table-responsive p-0">
                 <table class="table table-hover align-middle mb-0">
                     <thead class="bg-light">
@@ -75,13 +83,13 @@
                             <th>ID</th>
                             <th>Ticket</th>
                             <th>Proyek</th>
-                            <th>Client</th>
-                            <th>Petugas</th>
+                            <th class="d-none d-lg-table-cell">Client</th>
+                            <th class="d-none d-md-table-cell">Petugas</th>
                             <th>Status</th>
-                            <th>Status Tiket</th>
-                            <th>SLA Jatuh Tempo</th>
-                            <th>Progress</th>
-                            <th>Batas Waktu</th>
+                            <th class="d-none d-md-table-cell">Status Tiket</th>
+                            <th class="d-none d-xl-table-cell">SLA Jatuh Tempo</th>
+                            <th class="d-none d-sm-table-cell">Progress</th>
+                            <th class="d-none d-lg-table-cell">Batas Waktu</th>
                             <th>Aksi</th>
                         </tr>
                     </thead>
@@ -91,21 +99,21 @@
                                 <td>{{ $queue->id }}</td>
                                 <td>{{ $queue->projectRequest?->ticket_number ?? '-' }}</td>
                                 <td>{{ $queue->project_name }}</td>
-                                <td>{{ $queue->client_name }}</td>
-                                <td>{{ $queue->assignedTo->name ?? 'Belum Ditugaskan' }}</td>
+                                <td class="d-none d-lg-table-cell">{{ $queue->client_name }}</td>
+                                <td class="d-none d-md-table-cell">{{ $queue->assignedTo->name ?? 'Belum Ditugaskan' }}</td>
                                 <td>
                                     <span class="badge badge-{{ $queue->status == 'Completed' ? 'success' : ($queue->status == 'In Progress' ? 'primary' : 'secondary') }}">
                                         {{ $queue->status }}
                                     </span>
                                 </td>
-                                <td>
+                                <td class="d-none d-md-table-cell">
                                     @if($queue->projectRequest)
                                         <span class="badge badge-{{ $queue->projectRequest->ticket_status_badge_class }}">{{ $queue->projectRequest->ticket_status_label }}</span>
                                     @else
                                         <span class="badge badge-secondary">-</span>
                                     @endif
                                 </td>
-                                <td>
+                                <td class="d-none d-xl-table-cell">
                                     @if($queue->projectRequest?->sla_resolution_due_at)
                                         <span class="{{ $queue->projectRequest->sla_resolution_due_at->isPast() && in_array($queue->projectRequest->ticket_status, \App\Models\ProjectRequest::slaTrackedTicketStatuses(), true) ? 'text-danger font-weight-bold' : '' }}">
                                             {{ $queue->projectRequest->sla_resolution_due_at->format('d M Y H:i') }}
@@ -114,13 +122,13 @@
                                         -
                                     @endif
                                 </td>
-                                <td>
+                                <td class="d-none d-sm-table-cell">
                                     <div class="progress progress-xs">
                                         <div class="progress-bar bg-success" style="width: {{ $queue->progress }}%"></div>
                                     </div>
                                     <small>{{ $queue->progress }}%</small>
                                 </td>
-                                <td>{{ $queue->deadline ? $queue->deadline->format('d M Y') : '-' }}</td>
+                                <td class="d-none d-lg-table-cell">{{ $queue->deadline ? $queue->deadline->format('d M Y') : '-' }}</td>
                                 <td>
                                     <a href="{{ route('progress.show', $queue) }}" class="btn btn-sm btn-info">
                                         <i class="fas fa-eye"></i> Lihat

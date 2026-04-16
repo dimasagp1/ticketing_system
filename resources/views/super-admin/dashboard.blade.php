@@ -5,10 +5,10 @@
 @endsection
 
 @section('content')
-<div class="d-flex justify-content-between align-items-start align-items-md-center flex-column flex-md-row mb-4 mt-2">
+<div class="d-flex justify-content-between align-items-start align-items-md-center flex-column flex-md-row mb-4 mt-md-2">
     <div>
         <h3 class="mb-1 font-weight-bold text-dark">Ringkasan Dukungan</h3>
-        <p class="text-muted mb-0 font-weight-500">Selamat datang kembali, {{ auth()->user()->name }}. Berikut kondisi operasional hari ini.</p>
+        <p class="text-muted mb-0 font-weight-500">Selamat datang kembali, {{ auth()->user()->name }}. </p>
     </div>
     <a href="{{ route('project-requests.create') }}" class="btn btn-primary px-4 shadow-sm mt-3 mt-md-0 d-flex align-items-center" style="border-radius: 0.5rem; font-weight: 500;">
         <i class="fas fa-plus mr-2"></i> Tiket Baru
@@ -149,10 +149,10 @@
                             <tr>
                                 <th class="pl-4 border-bottom-0">ID</th>
                                 <th class="border-bottom-0">Subjek</th>
-                                <th class="border-bottom-0">Pemohon</th>
+                                <th class="border-bottom-0 d-none d-md-table-cell">Pemohon</th>
                                 <th class="border-bottom-0">Prioritas</th>
                                 <th class="border-bottom-0">Status</th>
-                                <th class="pr-4 border-bottom-0">Diperbarui</th>
+                                <th class="pr-4 border-bottom-0 d-none d-sm-table-cell">Diperbarui</th>
                             </tr>
                         </thead>
                         <tbody>
@@ -160,9 +160,9 @@
                                 <tr>
                                     <td class="pl-4"><strong>{{ $ticket->ticket_number ?? ('#' . $ticket->id) }}</strong></td>
                                     <td>
-                                        <a href="{{ route('project-requests.show', $ticket) }}" class="font-weight-600 text-dark">{{ \Illuminate\Support\Str::limit($ticket->project_name, 32) }}</a>
+                                        <a href="{{ route('project-requests.show', $ticket) }}" class="font-weight-600 text-dark">{{ \Illuminate\Support\Str::limit($ticket->project_name, 24) }}</a>
                                     </td>
-                                    <td class="text-muted">{{ $ticket->client?->name ?? '-' }}</td>
+                                    <td class="text-muted d-none d-md-table-cell">{{ $ticket->client?->name ?? '-' }}</td>
                                     <td>
                                         <span class="badge badge-{{ ($ticket->impact === 'critical' || $ticket->urgency === 'critical' || $ticket->impact === 'high' || $ticket->urgency === 'high') ? 'danger' : (($ticket->impact === 'medium' || $ticket->urgency === 'medium') ? 'warning' : 'secondary') }}">
                                             {{ strtoupper($ticket->impact_label ?? 'SEDANG') }}
@@ -171,7 +171,7 @@
                                     <td>
                                         <span class="badge badge-{{ $ticket->ticket_status_badge_class }}">{{ $ticket->ticket_status_label }}</span>
                                     </td>
-                                    <td class="pr-4 text-muted small">{{ $ticket->updated_at->diffForHumans() }}</td>
+                                    <td class="pr-4 text-muted small d-none d-sm-table-cell">{{ $ticket->updated_at->diffForHumans() }}</td>
                                 </tr>
                             @empty
                                 <tr>

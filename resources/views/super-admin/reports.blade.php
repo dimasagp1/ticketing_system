@@ -11,32 +11,36 @@
         <h3 class="mb-1 font-weight-bold text-dark">Laporan Bulanan Kumulatif</h3>
         <p class="text-muted mb-0 font-weight-500">Analitik tiket tahunan dengan tren bulanan dan pertumbuhan kumulatif.</p>
     </div>
-    <form action="{{ route('super-admin.reports') }}" method="GET" class="d-flex align-items-center mt-3 mt-md-0 bg-white p-2 rounded shadow-sm border border-light">
-        <div class="input-group input-group-sm mr-2">
-            <div class="input-group-prepend">
-                <span class="input-group-text bg-light border-0"><i class="far fa-calendar-alt text-muted"></i></span>
+    <div class="d-flex flex-wrap align-items-center mt-3 mt-md-0 bg-white p-2 rounded shadow-sm border border-light w-100 w-md-auto">
+        <form action="{{ route('super-admin.reports') }}" method="GET" class="d-flex align-items-center flex-grow-1 mr-md-2 mb-2 mb-md-0">
+            <div class="input-group input-group-sm w-100">
+                <div class="input-group-prepend">
+                    <span class="input-group-text bg-light border-0"><i class="far fa-calendar-alt text-muted"></i></span>
+                </div>
+                <select name="year" class="form-control form-control-sm border-0 bg-light font-weight-600" onchange="this.form.submit()" style="border-radius: 0 4px 4px 0; min-width: 90px;">
+                    @foreach($availableYears as $year)
+                        <option value="{{ $year }}" {{ (int) $selectedYear === (int) $year ? 'selected' : '' }}>{{ $year }}</option>
+                    @endforeach
+                </select>
             </div>
-            <select name="year" class="form-control form-control-sm border-0 bg-light font-weight-600" onchange="this.form.submit()" style="border-radius: 0 4px 4px 0; min-width: 90px;">
-                @foreach($availableYears as $year)
-                    <option value="{{ $year }}" {{ (int) $selectedYear === (int) $year ? 'selected' : '' }}>{{ $year }}</option>
-                @endforeach
-            </select>
-        </div>
-        <div class="dropdown mr-2">
-            <button class="btn btn-primary btn-sm dropdown-toggle d-flex align-items-center shadow-sm" type="button" id="pdfDropdown" data-toggle="dropdown" aria-haspopup="true" aria-expanded="false" style="border-radius: 0.5rem; font-weight: 500;">
-                <i class="fas fa-file-pdf mr-2"></i> Unduh PDF
-            </button>
-            <div class="dropdown-menu dropdown-menu-right" aria-labelledby="pdfDropdown">
-                <a class="dropdown-item" href="{{ route('reports.projects.pdf', ['period' => 'daily']) }}"><i class="fas fa-calendar-day mr-2 text-muted"></i> Laporan Harian</a>
-                <a class="dropdown-item" href="{{ route('reports.projects.pdf', ['period' => 'weekly']) }}"><i class="fas fa-calendar-week mr-2 text-muted"></i> Laporan Mingguan</a>
-                <a class="dropdown-item" href="{{ route('reports.projects.pdf', ['period' => 'monthly']) }}"><i class="fas fa-calendar-alt mr-2 text-muted"></i> Laporan Bulanan</a>
-                <a class="dropdown-item" href="{{ route('reports.projects.pdf', ['period' => 'yearly']) }}"><i class="fas fa-calendar mr-2 text-muted"></i> Laporan Tahunan</a>
+        </form>
+        <div class="d-flex w-100 w-md-auto justify-content-between">
+            <div class="dropdown mr-2 flex-grow-1">
+                <button class="btn btn-primary btn-sm btn-block dropdown-toggle d-flex align-items-center justify-content-center shadow-sm" type="button" id="pdfDropdown" data-toggle="dropdown" aria-haspopup="true" aria-expanded="false" style="border-radius: 0.5rem; font-weight: 500;">
+                    <i class="fas fa-file-pdf mr-2"></i> PDF
+                </button>
+                <div class="dropdown-menu dropdown-menu-right" aria-labelledby="pdfDropdown">
+                    <a class="dropdown-item" href="{{ route('reports.projects.pdf', ['period' => 'daily']) }}"><i class="fas fa-calendar-day mr-2 text-muted"></i> Harian</a>
+                    <a class="dropdown-item" href="{{ route('reports.projects.pdf', ['period' => 'weekly']) }}"><i class="fas fa-calendar-week mr-2 text-muted"></i> Mingguan</a>
+                    <a class="dropdown-item" href="{{ route('reports.projects.pdf', ['period' => 'monthly']) }}"><i class="fas fa-calendar-alt mr-2 text-muted"></i> Bulanan</a>
+                    <a class="dropdown-item" href="{{ route('reports.projects.pdf', ['period' => 'yearly']) }}"><i class="fas fa-calendar mr-2 text-muted"></i> Tahunan</a>
+                </div>
             </div>
+            <a href="{{ route('super-admin.reports.export', ['year' => $selectedYear]) }}" class="btn btn-success btn-sm flex-grow-1 d-flex align-items-center justify-content-center shadow-sm" style="border-radius: 0.5rem; font-weight: 500;">
+                <i class="fas fa-file-excel mr-2"></i> Excel
+            </a>
         </div>
-        <a href="{{ route('super-admin.reports.export', ['year' => $selectedYear]) }}" class="btn btn-success btn-sm d-flex align-items-center shadow-sm" style="border-radius: 0.5rem; font-weight: 500;">
-            <i class="fas fa-file-excel mr-2"></i> Unduh Excel
-        </a>
-    </form>
+    </div>
 </div>
 
 <div class="row">

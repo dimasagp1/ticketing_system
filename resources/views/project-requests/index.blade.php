@@ -18,7 +18,14 @@
                 @endif
             </div>
             <div class="card-body px-4 pb-4">
-                <form method="GET" action="{{ route('project-requests.index') }}" class="mb-4 p-3 bg-light rounded" style="border: 1px solid #e2e8f0;">
+                <div class="d-md-none mb-3">
+                    <button class="btn btn-outline-secondary btn-block shadow-sm" type="button" data-toggle="collapse" data-target="#filterCollapse" aria-expanded="false" aria-controls="filterCollapse">
+                        <i class="fas fa-filter mr-1"></i> {{ request()->anyFilled(['search', 'status', 'ticket_status', 'ticket_category', 'impact', 'urgency', 'sla_filter']) ? 'Filter Aktif' : 'Tampilkan Filter' }}
+                    </button>
+                </div>
+
+                <div class="collapse d-md-block" id="filterCollapse">
+                    <form method="GET" action="{{ route('project-requests.index') }}" class="mb-4 p-3 bg-light rounded shadow-sm" style="border: 1px solid #e2e8f0;">
                     <div class="form-row">
                         <div class="col-md-3 mb-2">
                             <input type="text" name="search" class="form-control" placeholder="Cari tiket/proyek/klien..." value="{{ request('search') }}">
@@ -93,6 +100,7 @@
                         </div>
                     </div>
                 </form>
+            </div>
 
                 <div class="table-responsive">
                     <table class="table table-hover align-middle data-table mb-0">

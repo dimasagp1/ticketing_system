@@ -73,10 +73,12 @@ class ReportController extends Controller
             'generator' => auth()->user()->name
         ];
 
-        // Fix for "Cannot resolve public path" on hosting
+        $dompdfPublicPath = $this->resolveDompdfPublicPath();
+
+        // Fix for "Cannot resolve public path" on hosting/shared hosting.
         config([
-            'dompdf.public_path' => public_path(),
-            'dompdf.options.chroot' => base_path(),
+            'dompdf.public_path' => $dompdfPublicPath,
+            'dompdf.options.chroot' => realpath(dirname($dompdfPublicPath)) ?: base_path(),
         ]);
 
         $pdf = Pdf::loadView('reports.project-pdf', $data);
@@ -85,5 +87,39 @@ class ReportController extends Controller
         $pdf->setPaper('A4', 'landscape');
 
         return $pdf->download('Laporan_Proyek_' . ucfirst($filter) . '_' . date('Ymd') . '.pdf');
+    }
+
+    private function resolveDompdfPublicPath(): string
+    {
+        $candidates = [];
+
+        if (app()->bound('path.public')) {
+            $candidates[] = (string) app('path.public');
+        }
+
+        $candidates[] = base_path('public');
+        $candidates[] = base_path('public_html');
+
+        if (!empty($_SERVER['DOCUMENT_ROOT'])) {
+            $candidates[] = (string) $_SERVER['DOCUMENT_ROOT'];
+        }
+
+        if (!empty($_SERVER['SCRIPT_FILENAME'])) {
+            $candidates[] = dirname((string) $_SERVER['SCRIPT_FILENAME']);
+        }
+
+        foreach ($candidates as $candidate) {
+            if (!$candidate) {
+                continue;
+            }
+
+            $resolved = realpath($candidate) ?: $candidate;
+
+            if (is_dir($resolved)) {
+                return $resolved;
+            }
+        }
+
+        return base_path();
     }
 }

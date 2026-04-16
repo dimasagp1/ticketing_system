@@ -466,6 +466,27 @@
             .notification-item-message {
                 margin-left: 1.2rem;
             }
+
+            .content-wrapper {
+                padding-top: 10px !important;
+            }
+            
+            .content .card-body {
+                padding: 0.75rem !important;
+            }
+            
+            .content .card-footer, 
+            .content .card-header {
+                padding: 0.75rem 1rem !important;
+            }
+
+            .support-stat-card {
+                padding: 0.75rem !important;
+            }
+            
+            .support-stat-value {
+                font-size: 1.25rem;
+            }
         }
 
         @media (max-width: 992px) {
@@ -541,11 +562,22 @@
             }
 
             .table-responsive .table {
-                min-width: 620px;
+                min-width: 0 !important;
+            }
+            
+            .table-responsive .table thead th {
+                font-size: 0.75rem;
+                padding: 0.5rem;
+            }
+            
+            .table-responsive .table td {
+                padding: 0.5rem;
+                font-size: 0.85rem;
             }
 
             .content .badge {
                 white-space: normal;
+                font-size: 0.7rem;
             }
         }
 
@@ -588,7 +620,7 @@
         }
 
         .table-responsive .table {
-            min-width: 720px;
+            min-width: 0;
         }
 
         .table.table-borderless {
@@ -1086,8 +1118,6 @@
             </section>
         </div>
 
-        <!-- Footer -->
-        @include('layouts.partials.footer')
         
         <!-- Chat Widget -->
         @include('layouts.partials.chat-widget')

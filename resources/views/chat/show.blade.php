@@ -27,8 +27,8 @@
                 </div>
             </div>
 
-            <div class="card-body px-4 pb-4 pt-2">
-                <div class="direct-chat-messages" id="chat-messages" style="height: 400px; padding: 10px;">
+            <div class="card-body px-2 px-sm-4 pb-4 pt-2">
+                <div class="direct-chat-messages" id="chat-messages" style="height: 50vh; min-height: 300px; padding: 10px;">
                     @foreach($messages as $message)
                         <div class="direct-chat-msg {{ $message->user_id == auth()->id() ? 'right' : '' }}" data-message-id="{{ $message->id }}">
                             <div class="direct-chat-infos clearfix">
@@ -56,26 +56,29 @@
 
             @if($conversation->status == 'active')
                 <div class="card-footer bg-light" style="border-radius: 0 0 1.25rem 1.25rem;">
-                    <form action="{{ route('chat.send', $conversation) }}" method="POST" id="chat-form">
+                    <form action="{{ route('chat.send', $conversation) }}" method="POST" id="chat-form" class="mb-2">
                         @csrf
                         <div class="input-group">
                             <input type="text" name="message" placeholder="Type Message ..." class="form-control" style="border-radius: 0.5rem 0 0 0.5rem;" required>
                             <span class="input-group-append">
-                                <button type="submit" class="btn btn-primary" style="border-radius: 0 0.5rem 0.5rem 0; font-weight: 500;">Send</button>
+                                <button type="submit" class="btn btn-primary" style="border-radius: 0 0.5rem 0.5rem 0; font-weight: 500;">
+                                    <i class="fas fa-paper-plane d-sm-none"></i>
+                                    <span class="d-none d-sm-inline">Send</span>
+                                </button>
                             </span>
                         </div>
                     </form>
                     
-                    <form action="{{ route('chat.upload', $conversation) }}" method="POST" enctype="multipart/form-data" class="mt-2">
+                    <form action="{{ route('chat.upload', $conversation) }}" method="POST" enctype="multipart/form-data">
                         @csrf
                         <div class="input-group">
                             <div class="custom-file">
                                 <input type="file" name="file" class="custom-file-input" id="file-upload" required>
-                                <label class="custom-file-label" for="file-upload">Choose file</label>
+                                <label class="custom-file-label text-truncate" for="file-upload">File</label>
                             </div>
                             <div class="input-group-append">
                                 <button type="submit" class="btn btn-secondary">
-                                    <i class="fas fa-paperclip"></i> Upload
+                                    <i class="fas fa-paperclip"></i>
                                 </button>
                             </div>
                         </div>

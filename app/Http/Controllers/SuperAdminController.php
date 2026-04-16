@@ -465,9 +465,11 @@ class SuperAdminController extends Controller
     {
         $reportData = $this->buildTechnicalReportData($request);
 
+        $dompdfPublicPath = $this->resolveDompdfPublicPath();
+
         config([
-            'dompdf.public_path' => public_path(),
-            'dompdf.options.chroot' => base_path(),
+            'dompdf.public_path' => $dompdfPublicPath,
+            'dompdf.options.chroot' => realpath(dirname($dompdfPublicPath)) ?: base_path(),
         ]);
 
         $pdf = Pdf::loadView('reports.technical-pdf', [
@@ -547,6 +549,40 @@ class SuperAdminController extends Controller
     private function settingsFilePath(): string
     {
         return storage_path('app/system-settings.json');
+    }
+
+    private function resolveDompdfPublicPath(): string
+    {
+        $candidates = [];
+
+        if (app()->bound('path.public')) {
+            $candidates[] = (string) app('path.public');
+        }
+
+        $candidates[] = base_path('public');
+        $candidates[] = base_path('public_html');
+
+        if (!empty($_SERVER['DOCUMENT_ROOT'])) {
+            $candidates[] = (string) $_SERVER['DOCUMENT_ROOT'];
+        }
+
+        if (!empty($_SERVER['SCRIPT_FILENAME'])) {
+            $candidates[] = dirname((string) $_SERVER['SCRIPT_FILENAME']);
+        }
+
+        foreach ($candidates as $candidate) {
+            if (!$candidate) {
+                continue;
+            }
+
+            $resolved = realpath($candidate) ?: $candidate;
+
+            if (is_dir($resolved)) {
+                return $resolved;
+            }
+        }
+
+        return base_path();
     }
 
     private function buildTechnicalReportData(Request $request): array

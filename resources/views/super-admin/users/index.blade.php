@@ -15,8 +15,8 @@
                         <i class="fas fa-users fa-lg"></i>
                     </div>
                     <div>
-                        <h3 class="card-title mb-0 font-weight-bold" style="font-size: 1.25rem;">Semua Pengguna</h3>
-                        <p class="text-muted mb-0 small mt-1">{{ auth()->user()->isSuperAdmin() ? 'Kelola seluruh akun sistem' : 'Lihat akun pengguna dan aktifkan akun yang diperlukan' }}</p>
+                        <h3 class="card-title mb-0 font-weight-bold" style="font-size: 1.15rem;">Semua Pengguna</h3>
+                        <p class="text-muted mb-0 small mt-1 d-none d-sm-block">{{ auth()->user()->isSuperAdmin() ? 'Kelola seluruh akun sistem' : 'Lihat akun pengguna' }}</p>
                     </div>
                 </div>
                 <div class="card-tools m-0">
@@ -28,7 +28,13 @@
                 </div>
             </div>
             <div class="card-body p-0">
-                <div class="bg-light px-4 py-3 border-bottom border-light">
+                <div class="d-md-none px-4 pt-2">
+                    <button class="btn btn-outline-secondary btn-block shadow-sm mb-3" type="button" data-toggle="collapse" data-target="#userFilterCollapse" aria-expanded="false" aria-controls="userFilterCollapse">
+                        <i class="fas fa-filter mr-1"></i> Tampilkan Filter
+                    </button>
+                </div>
+
+                <div class="collapse d-md-block bg-light px-4 py-3 border-bottom border-light" id="userFilterCollapse">
                     <form method="GET" class="m-0">
                     <div class="row">
                         <div class="col-md-3 mb-2">

@@ -8,8 +8,8 @@
     $requestBase = max($totalRequests, 1);
 @endphp
 
-<div class="d-flex justify-content-between align-items-center mb-4 mt-5 pt-3">
-    <div>
+<div class="d-flex flex-column flex-sm-row justify-content-between align-items-sm-center mb-4 mt-md-5 pt-md-3">
+    <div class="mb-3 mb-sm-0">
         <p class="text-muted mb-0 font-weight-500">Pantau tiket, progres antrian, dan komunikasi dukungan Anda.</p>
     </div>
     <a href="{{ route('project-requests.create') }}" class="btn btn-primary px-4 shadow-sm" style="border-radius: 0.5rem; font-weight: 500;">
@@ -74,9 +74,9 @@
                             <tr>
                                 <th class="pl-4 border-bottom-0">Tiket</th>
                                 <th class="border-bottom-0">Proyek</th>
-                                <th class="border-bottom-0">Status</th>
+                                <th class="border-bottom-0 d-none d-sm-table-cell">Status</th>
                                 <th class="border-bottom-0">Progres</th>
-                                <th class="border-bottom-0">Estimasi Selesai</th>
+                                <th class="border-bottom-0 d-none d-md-table-cell">Estimasi Selesai</th>
                                 <th class="pr-4 border-bottom-0 text-right">Detail</th>
                             </tr>
                         </thead>
@@ -86,7 +86,7 @@
                                     <tr>
                                         <td class="pl-4"><strong class="text-dark">{{ $req->ticket_number ?? ('#' . $req->id) }}</strong></td>
                                         <td class="font-weight-600 text-dark">{{ $req->project_name }}</td>
-                                        <td>
+                                        <td class="d-none d-sm-table-cell">
                                             <span class="badge badge-{{ $req->queue->status === 'Completed' ? 'success' : ($req->queue->status === 'In Progress' ? 'primary' : ($req->queue->status === 'Pending' ? 'warning' : 'secondary')) }}">
                                                 {{ $req->queue->status }}
                                             </span>
@@ -99,7 +99,7 @@
                                                 <small class="font-weight-600">{{ $req->queue->progress }}%</small>
                                             </div>
                                         </td>
-                                        <td class="text-muted small">
+                                        <td class="text-muted small d-none d-md-table-cell">
                                             @if($req->queue->deadline)
                                                 <i class="far fa-clock mr-1"></i> {{ $req->queue->deadline->diffForHumans() }}
                                             @else
@@ -139,8 +139,8 @@
                                 <th class="pl-4 border-bottom-0" style="width: 80px;">Posisi</th>
                                 <th class="border-bottom-0">Proyek</th>
                                 <th class="border-bottom-0">Status</th>
-                                <th class="border-bottom-0">Ditangani Oleh</th>
-                                <th class="pr-4 border-bottom-0 text-right">Ditambahkan</th>
+                                <th class="border-bottom-0 d-none d-md-table-cell">Ditangani Oleh</th>
+                                <th class="pr-4 border-bottom-0 text-right d-none d-sm-table-cell">Ditambahkan</th>
                             </tr>
                         </thead>
                         <tbody>
@@ -180,7 +180,7 @@
                                             @endif
                                         </span>
                                     </td>
-                                    <td>
+                                    <td class="d-none d-md-table-cell">
                                         @php
                                             $assignee = $queue->assignedTo;
                                             if (!$assignee && $queue->progressLogs->isNotEmpty()) {
@@ -208,7 +208,7 @@
                                             </span>
                                         @endif
                                     </td>
-                                    <td class="pr-4 text-right text-muted small">
+                                    <td class="pr-4 text-right text-muted small d-none d-sm-table-cell">
                                         {{ $queue->created_at->diffForHumans() }}
                                     </td>
                                 </tr>

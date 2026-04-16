@@ -20,7 +20,7 @@
                                 <th class="pl-4 border-bottom-0">ID</th>
                                 <th class="border-bottom-0">Ticket</th>
                                 <th class="border-bottom-0">Nama Proyek</th>
-                                <th class="border-bottom-0">Client</th>
+                                <th class="d-none d-md-table-cell border-bottom-0">Client</th>
                                 <th class="border-bottom-0">Status Tiket</th>
                                 <th class="d-none d-lg-table-cell border-bottom-0">Diajukan</th>
                                 <th class="pr-4 border-bottom-0">Aksi</th>
@@ -32,7 +32,7 @@
                                     <td class="pl-4">{{ $approval->projectRequest->id }}</td>
                                     <td><span class="badge badge-dark">{{ $approval->projectRequest->ticket_number ?? '-' }}</span></td>
                                     <td>{{ $approval->projectRequest->project_name }}</td>
-                                    <td>{{ $approval->projectRequest->client->name }}</td>
+                                    <td class="d-none d-md-table-cell">{{ $approval->projectRequest->client->name }}</td>
                                     <td>
                                         <span class="badge badge-{{ $approval->projectRequest->ticket_status_badge_class }}">{{ $approval->projectRequest->ticket_status_label }}</span>
                                     </td>
