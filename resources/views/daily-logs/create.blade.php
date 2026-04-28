@@ -11,93 +11,78 @@
     .form-section {
         border: 1px solid #e2e8f0;
         border-radius: .85rem;
-        padding: 1.25rem 1.5rem;
-        margin-bottom: 1.25rem;
+        padding: 1.1rem 1.25rem;
+        margin-bottom: 1rem;
         background: #fff;
     }
     .form-section-title {
-        font-size: .82rem;
+        font-size: .78rem;
         font-weight: 700;
         text-transform: uppercase;
         letter-spacing: .06em;
         color: #64748b;
-        margin-bottom: 1rem;
+        margin-bottom: .85rem;
         display: flex;
         align-items: center;
         gap: .4rem;
     }
     .form-label-custom {
-        font-size: .85rem;
+        font-size: .84rem;
         font-weight: 600;
         color: #374151;
-        margin-bottom: .35rem;
+        margin-bottom: .3rem;
+        display: block;
     }
-    .source-option {
-        display: none;
-    }
+    .source-option { display: none; }
     .source-label {
         display: flex;
         flex-direction: column;
         align-items: center;
         justify-content: center;
-        gap: .3rem;
+        gap: .25rem;
         border: 2px solid #e2e8f0;
-        border-radius: .75rem;
-        padding: .85rem .5rem;
+        border-radius: .65rem;
+        padding: .7rem .4rem;
         cursor: pointer;
         transition: all .2s ease;
-        font-size: .78rem;
+        font-size: .72rem;
         font-weight: 600;
         color: #64748b;
         text-align: center;
-        min-height: 80px;
+        min-height: 70px;
     }
-    .source-label i {
-        font-size: 1.35rem;
-    }
-    .source-label:hover {
-        border-color: var(--theme-blue);
-        color: var(--theme-blue);
-        background: rgba(37,99,235,.05);
-    }
-    .source-option:checked + .source-label {
-        border-color: var(--theme-blue);
-        background: rgba(37,99,235,.08);
-        color: var(--theme-blue);
-    }
-    .status-option {
-        display: none;
-    }
+    .source-label i { font-size: 1.25rem; }
+    .source-label:hover { border-color: var(--theme-blue); color: var(--theme-blue); background: rgba(37,99,235,.05); }
+    .source-option:checked + .source-label { border-color: var(--theme-blue); background: rgba(37,99,235,.08); color: var(--theme-blue); }
+    .status-option { display: none; }
     .status-label {
         display: flex;
         align-items: center;
-        gap: .5rem;
+        gap: .45rem;
         border: 2px solid #e2e8f0;
-        border-radius: .65rem;
-        padding: .65rem 1rem;
+        border-radius: .6rem;
+        padding: .6rem .85rem;
         cursor: pointer;
         font-weight: 600;
-        font-size: .88rem;
+        font-size: .84rem;
         color: #64748b;
         transition: all .2s ease;
+        white-space: nowrap;
     }
     .status-label:hover { border-color: #94a3b8; }
-    .status-option:checked + .status-label.status-selesai {
-        border-color: var(--theme-green);
-        background: rgba(16,185,129,.08);
-        color: var(--theme-green);
+    .status-option:checked + .status-label.status-selesai  { border-color: var(--theme-green);  background: rgba(16,185,129,.08);  color: var(--theme-green);  }
+    .status-option:checked + .status-label.status-pending   { border-color: var(--theme-orange); background: rgba(249,115,22,.08); color: var(--theme-orange); }
+    .status-option:checked + .status-label.status-eskalasi  { border-color: #dc2626;             background: rgba(220,38,38,.08);  color: #dc2626;             }
+    .char-counter { font-size: .73rem; color: #94a3b8; text-align: right; margin-top: .15rem; }
+    .form-action-bar { display: flex; justify-content: flex-end; gap: .5rem; }
+    @media (max-width: 575px) {
+        .form-section { padding: .85rem .9rem; }
+        .form-action-bar { flex-direction: column-reverse; }
+        .form-action-bar .btn { width: 100%; }
+        .status-group { flex-direction: column; }
+        .status-group > div { width: 100%; }
+        .status-group .status-label { width: 100%; }
     }
-    .status-option:checked + .status-label.status-pending {
-        border-color: var(--theme-orange);
-        background: rgba(249,115,22,.08);
-        color: var(--theme-orange);
-    }
-    .status-option:checked + .status-label.status-eskalasi {
-        border-color: #dc2626;
-        background: rgba(220,38,38,.08);
-        color: #dc2626;
-    }
-    .char-counter { font-size: .75rem; color: #94a3b8; text-align: right; margin-top: .2rem; }
 </style>
 @endpush
 
@@ -228,10 +213,10 @@
                     <i class="fas fa-check-circle text-primary"></i> Status & Durasi
                 </div>
                 <div class="form-row">
-                    <div class="col-md-8 mb-3">
+                    <div class="col-12 col-md-8 mb-3">
                         <label class="form-label-custom">Status Penyelesaian <span class="text-danger">*</span></label>
                         @error('status')<div class="alert alert-danger py-2 mb-2" style="border-radius:.5rem;">{{ $message }}</div>@enderror
-                        <div class="d-flex flex-wrap" style="gap:.5rem;">
+                        <div class="d-flex flex-wrap status-group" style="gap:.5rem;">
                             <div>
                                 <input type="radio" name="status" id="status_selesai" value="Selesai" class="status-option"
                                        {{ old('status', 'Selesai') === 'Selesai' ? 'checked' : '' }}>
@@ -255,10 +240,8 @@
                             </div>
                         </div>
                     </div>
-                    <div class="col-md-4 mb-3">
-                        <label class="form-label-custom">
-                            Estimasi Durasi <span class="text-muted font-weight-normal">(menit)</span>
-                        </label>
+                    <div class="col-12 col-md-4 mb-3">
+                        <label class="form-label-custom">Estimasi Durasi <span class="text-muted font-weight-normal">(menit, opsional)</span></label>
                         <div class="input-group">
                             <input type="number" name="duration_minutes" id="duration_minutes"
                                    class="form-control @error('duration_minutes') is-invalid @enderror"
@@ -275,7 +258,7 @@
             </div>
 
             {{-- Action Buttons --}}
-            <div class="d-flex justify-content-end" style="gap:.5rem;">
+            <div class="form-action-bar">
                 <a href="{{ route('daily-logs.index') }}" class="btn btn-light border" style="border-radius:.6rem;">
                     Batal
                 </a>

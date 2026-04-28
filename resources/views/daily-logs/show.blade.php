@@ -11,17 +11,17 @@
     .detail-card {
         border: 1px solid #e2e8f0;
         border-radius: .85rem;
-        padding: 1.25rem 1.5rem;
-        margin-bottom: 1.25rem;
+        padding: 1.1rem 1.25rem;
+        margin-bottom: 1rem;
         background: #fff;
     }
     .detail-card-title {
-        font-size: .82rem;
+        font-size: .78rem;
         font-weight: 700;
         text-transform: uppercase;
         letter-spacing: .06em;
         color: #64748b;
-        margin-bottom: 1rem;
+        margin-bottom: .85rem;
         display: flex;
         align-items: center;
         gap: .4rem;
@@ -29,21 +29,21 @@
     .detail-row {
         display: flex;
         flex-wrap: wrap;
-        padding: .6rem 0;
+        padding: .55rem 0;
         border-bottom: 1px solid #f1f5f9;
     }
     .detail-row:last-child { border-bottom: 0; }
     .detail-label {
-        width: 175px;
+        width: 155px;
         flex-shrink: 0;
-        font-size: .83rem;
+        font-size: .8rem;
         font-weight: 600;
         color: #94a3b8;
-        padding-right: 1rem;
+        padding-right: .75rem;
     }
     .detail-value {
         flex: 1;
-        font-size: .88rem;
+        font-size: .86rem;
         color: #1f2d3d;
         min-width: 0;
     }
@@ -51,9 +51,9 @@
         display: inline-flex;
         align-items: center;
         gap: .4rem;
-        padding: .3em .75em;
+        padding: .3em .7em;
         border-radius: 2rem;
-        font-size: .82rem;
+        font-size: .8rem;
         font-weight: 600;
         background: #f1f5f9;
         color: #374151;
@@ -61,16 +61,26 @@
     .content-block {
         background: #f8fafc;
         border-radius: .6rem;
-        padding: .85rem 1rem;
-        font-size: .88rem;
+        padding: .75rem .9rem;
+        font-size: .86rem;
         line-height: 1.65;
         color: #374151;
         white-space: pre-wrap;
         word-break: break-word;
     }
-    @media (max-width: 576px) {
-        .detail-label { width: 100%; margin-bottom: .15rem; }
-        .detail-row { flex-direction: column; }
+    .show-header-actions {
+        display: flex;
+        gap: .4rem;
+        flex-shrink: 0;
+    }
+    @media (max-width: 575px) {
+        .detail-label { width: 100%; margin-bottom: .1rem; font-size: .75rem; }
+        .detail-row { flex-direction: column; padding: .5rem 0; }
+        .show-top-bar { flex-direction: column; align-items: stretch !important; }
+        .show-header-actions .btn { flex: 1; font-size: .82rem; }
+        .status-banner { flex-wrap: wrap; }
+        .status-banner .ml-auto { margin-left: 0 !important; width: 100%; margin-top: .4rem; }
+        .detail-card { padding: .85rem .9rem; }
     }
 </style>
 @endpush
@@ -80,19 +90,19 @@
     <div class="col-12 col-lg-10 col-xl-8">
 
         {{-- Header --}}
-        <div class="d-flex align-items-center justify-content-between mb-3 flex-wrap" style="gap:.75rem;">
-            <div class="d-flex align-items-center" style="gap:.75rem;">
-                <a href="{{ route('daily-logs.index') }}" class="btn btn-light border btn-sm" style="border-radius:.5rem;">
+        <div class="d-flex align-items-start justify-content-between mb-3 show-top-bar" style="gap:.65rem;">
+            <div class="d-flex align-items-center" style="gap:.65rem;">
+                <a href="{{ route('daily-logs.index') }}" class="btn btn-light border btn-sm" style="border-radius:.5rem;flex-shrink:0;">
                     <i class="fas fa-arrow-left"></i>
                 </a>
                 <div>
-                    <h4 class="mb-0 font-weight-bold" style="font-size:1.1rem;">Detail Log Harian</h4>
-                    <p class="text-muted mb-0" style="font-size:.82rem;">
+                    <h4 class="mb-0 font-weight-bold" style="font-size:1.05rem;">Detail Log Harian</h4>
+                    <p class="text-muted mb-0" style="font-size:.78rem;">
                         ID #{{ $dailyLog->id }} &nbsp;|&nbsp; Dicatat {{ $dailyLog->created_at->diffForHumans() }}
                     </p>
                 </div>
             </div>
-            <div class="d-flex" style="gap:.4rem;">
+            <div class="show-header-actions">
                 <a href="{{ route('daily-logs.edit', $dailyLog) }}" class="btn btn-warning btn-sm" style="border-radius:.55rem;">
                     <i class="fas fa-pencil-alt mr-1"></i> Edit
                 </a>
@@ -106,11 +116,11 @@
         </div>
 
         {{-- Status Banner --}}
-        <div class="alert
+        <div class="alert status-banner
             @if($dailyLog->status === 'Selesai') alert-success
             @elseif($dailyLog->status === 'Pending') alert-warning
             @else alert-danger
-            @endif mb-3 d-flex align-items-center" style="border-radius:.75rem; gap:.5rem;">
+            @endif mb-3 d-flex align-items-center" style="border-radius:.75rem; gap:.5rem;flex-wrap:wrap;">
             @if($dailyLog->status === 'Selesai')
                 <i class="fas fa-check-circle fa-lg"></i>
             @elseif($dailyLog->status === 'Pending')
