@@ -61,6 +61,11 @@
                         </a>
                     </li>
                     <li>
+                        <a href="{{ route('daily-logs.index') }}" class="top-menu-link {{ request()->routeIs('daily-logs.*') ? 'active' : '' }}">
+                            <span>Log Harian</span>
+                        </a>
+                    </li>
+                    <li>
                         <a href="{{ route('super-admin.users.index') }}" class="top-menu-link {{ request()->routeIs('super-admin.users.*') ? 'active' : '' }}">
                             <span>Pengguna</span>
                         </a>
@@ -74,6 +79,11 @@
                     <li>
                         <a href="{{ route('chat.index') }}" class="top-menu-link {{ request()->routeIs('chat.*') ? 'active' : '' }}">
                             <span>Chat</span>
+                        </a>
+                    </li>
+                    <li>
+                        <a href="{{ route('daily-logs.index') }}" class="top-menu-link {{ request()->routeIs('daily-logs.*') ? 'active' : '' }}">
+                            <span>Log Harian</span>
                         </a>
                     </li>
                 @elseif(auth()->user()->isClient())

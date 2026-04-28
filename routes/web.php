@@ -5,6 +5,7 @@ use App\Http\Controllers\ProjectRequestController;
 use App\Http\Controllers\ProjectApprovalController;
 use App\Http\Controllers\ProjectProgressController;
 use App\Http\Controllers\ChatController;
+use App\Http\Controllers\DailyLogController;
 use App\Http\Controllers\SuperAdminController;
 use App\Http\Controllers\UserManagementController;
 use Illuminate\Support\Facades\Route;
@@ -72,6 +73,11 @@ Route::middleware(['auth'])->group(function () {
 // Queue Routes
 Route::middleware(['auth'])->group(function () {
     Route::resource('queues', \App\Http\Controllers\QueueController::class)->only(['index']);
+});
+
+// Daily Log Routes (Authenticated Users - own logs only)
+Route::middleware(['auth'])->group(function () {
+    Route::resource('daily-logs', DailyLogController::class);
 });
 
 // Approval Routes (Admin and Super Admin only)
