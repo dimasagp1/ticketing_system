@@ -120,12 +120,15 @@
             @endif
             <span class="font-weight-bold">Status: {{ $dailyLog->status }}</span>
             @if($dailyLog->duration_minutes)
+                @php
+                    $dur = $dailyLog->duration_minutes;
+                    $durLabel = $dur >= 60
+                        ? floor($dur / 60) . ' jam ' . ($dur % 60) . ' menit'
+                        : $dur . ' menit';
+                @endphp
                 <span class="ml-auto" style="font-size:.82rem;">
                     <i class="fas fa-stopwatch mr-1"></i>
-                    Durasi:
-                    {{ $dailyLog->duration_minutes >= 60
-                        ? floor($dailyLog->duration_minutes/60).' jam '.$dailyLog->duration_minutes%60.' menit'
-                        : $dailyLog->duration_minutes.' menit' }}
+                    Durasi: {{ $durLabel }}
                 </span>
             @endif
         </div>
