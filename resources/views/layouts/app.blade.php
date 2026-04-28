@@ -468,7 +468,7 @@
             }
 
             .content-wrapper {
-                padding-top: 10px !important;
+                padding-top: 108px !important;
             }
             
             .content .card-body {
@@ -497,7 +497,7 @@
 
         @media (max-width: 768px) {
             .content-wrapper {
-                padding-top: .35rem;
+                padding-top: 108px !important;
             }
 
             .content-wrapper .container-fluid {
