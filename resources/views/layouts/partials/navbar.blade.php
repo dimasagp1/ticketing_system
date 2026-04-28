@@ -1,13 +1,20 @@
 <nav class="main-header navbar navbar-expand navbar-light elevation-0">
     <!-- Left area -->
     <ul class="navbar-nav">
+        {{-- Hamburger toggle — mobile only, opens the side drawer --}}
+        <li class="nav-item d-flex d-md-none align-items-center">
+            <button class="btn top-icon-btn p-1 ml-1" id="mobileMenuToggle"
+                    aria-label="Buka menu navigasi" style="font-size:1.15rem;line-height:1;border:0;background:none;">
+                <i class="fas fa-bars" id="mobileMenuIcon"></i>
+            </button>
+        </li>
         <li class="nav-item d-flex align-items-center">
             <a href="{{ route('dashboard') }}" class="brand-head ml-1 {{ \App\Helpers\SettingsHelper::get('app_logo') ? 'has-logo' : '' }}">
                 @if(\App\Helpers\SettingsHelper::get('app_logo'))
                     <span class="brand-icon"><img src="{{ asset('storage/' . \App\Helpers\SettingsHelper::get('app_logo')) }}" alt="Logo" style="height: 32px; width: auto; max-width: 160px; object-fit: contain;"></span>
                 @else
                     <span class="brand-icon"><i class="fas fa-life-ring"></i></span>
-                    <span>{{ \App\Helpers\SettingsHelper::get('app_name', config('app.name', 'Antrian Project')) }}</span>
+                    <span class="d-none d-md-inline">{{ \App\Helpers\SettingsHelper::get('app_name', config('app.name', 'Antrian Project')) }}</span>
                 @endif
             </a>
         </li>

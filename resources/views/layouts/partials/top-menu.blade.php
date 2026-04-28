@@ -1,17 +1,10 @@
 {{-- ══════════════════════════════════════════════════
      TOP MENU — Desktop: horizontal tab bar
-                Mobile : hamburger → full drawer
+                Mobile : label halaman aktif (hamburger ada di navbar)
 ══════════════════════════════════════════════════ --}}
 
-{{-- ── MOBILE: Hamburger button (injected into the bar) ── --}}
 <div class="top-menu-wrap">
     <div class="container-fluid">
-
-        {{-- Hamburger toggle (mobile only) --}}
-        <button class="d-md-none btn btn-sm top-icon-btn mr-2 p-1" id="mobileMenuToggle"
-                aria-label="Buka menu navigasi" style="font-size:1.1rem;line-height:1;">
-            <i class="fas fa-bars" id="mobileMenuIcon"></i>
-        </button>
 
         {{-- Desktop horizontal list --}}
         <div class="top-menu-scroll d-none d-md-block flex-grow-1">
