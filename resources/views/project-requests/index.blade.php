@@ -8,31 +8,37 @@
 @section('content')
 <div class="row">
     <div class="col-12">
-        <div class="card support-shell-card mb-4">
-            <div class="card-header border-0 bg-white pt-4 px-4 pb-2 d-flex justify-content-between align-items-center">
-                <h3 class="card-title mb-0 font-weight-bold" style="font-size: 1.15rem;">Semua Permintaan Proyek</h3>
+        <div class="card border-4 border-black dark:border-white rounded-3xl p-4 shadow-[6px_6px_0px_0px_rgba(0,0,0,1)] dark:shadow-[6px_6px_0px_0px_#FFE600] bg-white dark:bg-[#121212] mb-4">
+            
+            <!-- Card Header -->
+            <div class="d-flex justify-content-between align-items-center border-b-4 border-black dark:border-white pb-3 mb-3 flex-wrap gap-2">
+                <div class="d-flex items-center gap-3">
+                    <h3 class="font-fredoka font-black text-xl text-black dark:text-white uppercase mb-0">
+                        Semua Permintaan Proyek 🎫
+                    </h3>
+                    <!-- Filter Toggle Button -->
+                    <button class="btn bg-[#FFE600] text-black border-2 border-black font-fredoka font-black rounded-xl text-xs px-3 py-1 shadow-[2px_2px_0px_0px_rgba(0,0,0,1)] hover:bg-[#FF007A] hover:text-white transition-all" type="button" data-toggle="collapse" data-target="#filterCollapse" aria-expanded="false" aria-controls="filterCollapse">
+                        <i class="fas fa-filter mr-1"></i> Filter Tiket
+                    </button>
+                </div>
+
                 @if(auth()->user()->isClient())
-                    <a href="{{ route('project-requests.create') }}" class="btn btn-primary px-3 shadow-sm" style="border-radius: 0.5rem; font-weight: 500;">
+                    <a href="{{ route('project-requests.create') }}" class="btn bg-[#0055FF] text-white border-3 border-black font-fredoka font-black rounded-2xl px-4 py-2 text-sm shadow-[3px_3px_0px_0px_rgba(0,0,0,1)] hover:bg-[#FF007A] active:translate-x-1 active:translate-y-1 transition-all">
                         <i class="fas fa-plus mr-1"></i> Permintaan Baru
                     </a>
                 @endif
             </div>
-            <div class="card-body px-4 pb-4">
-                <div class="d-md-none mb-3">
-                    <button class="btn btn-outline-secondary btn-block shadow-sm" type="button" data-toggle="collapse" data-target="#filterCollapse" aria-expanded="false" aria-controls="filterCollapse">
-                        <i class="fas fa-filter mr-1"></i> {{ request()->anyFilled(['search', 'status', 'ticket_status', 'ticket_category', 'impact', 'urgency', 'sla_filter']) ? 'Filter Aktif' : 'Tampilkan Filter' }}
-                    </button>
-                </div>
 
-                <div class="collapse d-md-block" id="filterCollapse">
-                    <form method="GET" action="{{ route('project-requests.index') }}" class="mb-4 p-3 bg-light rounded shadow-sm" style="border: 1px solid #e2e8f0;">
+            <!-- Collapsible Filter Form (Only expands when clicked or when filters are active) -->
+            <div class="collapse {{ request()->anyFilled(['search', 'status', 'ticket_status', 'ticket_category', 'impact', 'urgency', 'sla_filter']) ? 'show' : '' }} mb-4" id="filterCollapse">
+                <form method="GET" action="{{ route('project-requests.index') }}" class="p-3 bg-[#FFFBEA] dark:bg-[#1a1a1a] border-3 border-black dark:border-white rounded-2xl shadow-[4px_4px_0px_0px_rgba(0,0,0,1)] font-jakarta font-extrabold text-sm">
                     <div class="form-row">
                         <div class="col-md-3 mb-2">
-                            <input type="text" name="search" class="form-control" placeholder="Cari tiket/proyek/klien..." value="{{ request('search') }}">
+                            <input type="text" name="search" class="form-control border-2 border-black rounded-xl" placeholder="Cari tiket/proyek/klien..." value="{{ request('search') }}">
                         </div>
                         <div class="col-md-2 mb-2">
                             @php($requestStatusOptions = \App\Models\ProjectRequest::requestStatusLabels())
-                            <select name="status" class="form-control">
+                            <select name="status" class="form-control border-2 border-black rounded-xl">
                                 <option value="">Status Permintaan</option>
                                 @foreach($requestStatusOptions as $value => $label)
                                     <option value="{{ $value }}" {{ request('status') === $value ? 'selected' : '' }}>{{ $label }}</option>
@@ -40,7 +46,7 @@
                             </select>
                         </div>
                         <div class="col-md-2 mb-2">
-                            <select name="ticket_status" class="form-control">
+                            <select name="ticket_status" class="form-control border-2 border-black rounded-xl">
                                 <option value="">Status Tiket</option>
                                 @foreach(\App\Models\ProjectRequest::ticketStatusLabels() as $value => $label)
                                     <option value="{{ $value }}" {{ request('ticket_status') === $value ? 'selected' : '' }}>{{ $label }}</option>
@@ -48,7 +54,7 @@
                             </select>
                         </div>
                         <div class="col-md-2 mb-2">
-                            <select name="ticket_category" class="form-control">
+                            <select name="ticket_category" class="form-control border-2 border-black rounded-xl">
                                 <option value="">Kategori</option>
                                 @foreach(
                                     [
@@ -65,7 +71,7 @@
                             </select>
                         </div>
                         <div class="col-md-1 mb-2">
-                            <select name="impact" class="form-control">
+                            <select name="impact" class="form-control border-2 border-black rounded-xl">
                                 <option value="">Dampak</option>
                                 @foreach(['low' => 'Rendah', 'medium' => 'Sedang', 'high' => 'Tinggi', 'critical' => 'Kritis'] as $value => $label)
                                     <option value="{{ $value }}" {{ request('impact') === $value ? 'selected' : '' }}>{{ $label }}</option>
@@ -73,7 +79,7 @@
                             </select>
                         </div>
                         <div class="col-md-1 mb-2">
-                            <select name="urgency" class="form-control">
+                            <select name="urgency" class="form-control border-2 border-black rounded-xl">
                                 <option value="">Urgensi</option>
                                 @foreach(['low' => 'Rendah', 'medium' => 'Sedang', 'high' => 'Tinggi', 'critical' => 'Kritis'] as $value => $label)
                                     <option value="{{ $value }}" {{ request('urgency') === $value ? 'selected' : '' }}>{{ $label }}</option>
@@ -81,7 +87,7 @@
                             </select>
                         </div>
                         <div class="col-md-1 mb-2">
-                            <select name="sla_filter" class="form-control">
+                            <select name="sla_filter" class="form-control border-2 border-black rounded-xl">
                                 <option value="">SLA</option>
                                 <option value="overdue" {{ request('sla_filter') === 'overdue' ? 'selected' : '' }}>Terlambat</option>
                                 <option value="today" {{ request('sla_filter') === 'today' ? 'selected' : '' }}>Jatuh Tempo Hari Ini</option>
@@ -89,12 +95,12 @@
                             </select>
                         </div>
                         <div class="col-md-2 mb-2">
-                            <div class="d-flex">
-                                <button type="submit" class="btn btn-primary btn-block mr-2">
+                            <div class="d-flex gap-2">
+                                <button type="submit" class="btn bg-[#0055FF] text-white border-2 border-black font-fredoka font-black rounded-xl px-3 py-1.5">
                                     <i class="fas fa-filter"></i> Terapkan
                                 </button>
-                                <a href="{{ route('project-requests.index') }}" class="btn btn-outline-secondary btn-block">
-                                    Atur Ulang
+                                <a href="{{ route('project-requests.index') }}" class="btn bg-gray-200 text-black border-2 border-black font-fredoka font-black rounded-xl px-3 py-1.5">
+                                    Reset
                                 </a>
                             </div>
                         </div>
@@ -102,99 +108,89 @@
                 </form>
             </div>
 
-                <div class="table-responsive">
-                    <table class="table table-hover align-middle data-table mb-0">
-                        <thead class="bg-light">
+            <!-- Table Container (Flush right below header) -->
+            <div class="table-responsive">
+                <table class="table table-hover align-middle data-table mb-0 border-3 border-black dark:border-white rounded-2xl w-100 font-jakarta font-extrabold text-sm">
+                    <thead>
+                        <tr class="bg-[#FFE600] text-black font-fredoka font-black uppercase border-b-3 border-black">
+                            <th>ID</th>
+                            <th>Ticket</th>
+                            <th>Nama Proyek</th>
+                            @if(!auth()->user()->isClient())
+                                <th class="d-none d-lg-table-cell">Client</th>
+                            @endif
+                            <th class="d-none d-lg-table-cell">Kategori</th>
+                            <th class="d-none d-xl-table-cell">Dampak/Urgensi</th>
+                            <th>Status</th>
+                            <th>Status Tiket</th>
+                            <th>SLA Due</th>
+                            <th class="d-none d-lg-table-cell">Diajukan</th>
+                            <th class="text-right">Aksi</th>
+                        </tr>
+                    </thead>
+                    <tbody>
+                        @forelse($requests as $request)
                             <tr>
-                                <th>ID</th>
-                                <th>Ticket</th>
-                                <th>Nama Proyek</th>
+                                <td><span class="badge bg-black text-white border-1 border-black font-fredoka font-black">#{{ $request->id }}</span></td>
+                                <td>
+                                    <span class="font-fredoka font-black text-sm text-[#0055FF] dark:text-[#FFE600]">{{ $request->ticket_number ?? '-' }}</span>
+                                </td>
+                                <td>
+                                    <a href="{{ route('project-requests.show', $request) }}" class="font-fredoka font-black text-black dark:text-white hover:text-[#FF007A]">
+                                        {{ $request->title }}
+                                    </a>
+                                </td>
                                 @if(!auth()->user()->isClient())
-                                    <th class="d-none d-lg-table-cell">Client</th>
+                                    <td class="d-none d-lg-table-cell">
+                                        <span class="font-jakarta font-bold text-xs">{{ $request->client->name ?? '-' }}</span>
+                                    </td>
                                 @endif
-                                <th class="d-none d-lg-table-cell">Kategori</th>
-                                <th class="d-none d-xl-table-cell">Dampak/Urgensi</th>
-                                <th>Status</th>
-                                <th>Status Tiket</th>
-                                <th>SLA Due</th>
-                                <th class="d-none d-lg-table-cell">Diajukan</th>
-                                <th>Aksi</th>
+                                <td class="d-none d-lg-table-cell">
+                                    <span class="badge bg-[#FFFBEA] text-black border-2 border-black font-fredoka font-black text-xs px-2 py-1">
+                                        {{ $request->ticket_category_label }}
+                                    </span>
+                                </td>
+                                <td class="d-none d-xl-table-cell">
+                                    <span class="badge bg-[#FF007A] text-white border-2 border-black font-fredoka font-black text-xs px-2 py-1">
+                                        {{ $request->impact_label }}/{{ $request->urgency_label }}
+                                    </span>
+                                </td>
+                                <td>
+                                    <span class="badge bg-[#FFE600] text-black border-2 border-black font-fredoka font-black text-xs px-2 py-1">
+                                        {{ $request->status_label }}
+                                    </span>
+                                </td>
+                                <td>
+                                    <span class="badge bg-[#0055FF] text-white border-2 border-black font-fredoka font-black text-xs px-2 py-1">
+                                        {{ $request->ticket_status_label }}
+                                    </span>
+                                </td>
+                                <td>
+                                    <span class="font-mono text-xs font-bold">{{ $request->sla_resolution_due_at ? $request->sla_resolution_due_at->format('d/m/Y H:i') : '-' }}</span>
+                                </td>
+                                <td class="d-none d-lg-table-cell">
+                                    <span class="font-mono text-xs text-muted">{{ $request->created_at->format('d/m/Y') }}</span>
+                                </td>
+                                <td class="text-right">
+                                    <a href="{{ route('project-requests.show', $request) }}" class="btn btn-sm bg-[#00E676] text-black border-2 border-black font-fredoka font-black rounded-xl px-3 py-1 shadow-[2px_2px_0px_0px_rgba(0,0,0,1)] hover:bg-[#FFE600]">
+                                        <i class="fas fa-eye"></i> Detail
+                                    </a>
+                                </td>
                             </tr>
-                        </thead>
-                        <tbody>
-                            @foreach($requests as $request)
-                                <tr>
-                                    <td>{{ $request->id }}</td>
-                                    <td>
-                                        <span class="badge badge-dark">{{ $request->ticket_number ?? '-' }}</span>
-                                    </td>
-                                    <td>{{ $request->project_name }}</td>
-                                    @if(!auth()->user()->isClient())
-                                        <td class="d-none d-lg-table-cell">{{ $request->client->name }}</td>
-                                    @endif
-                                    <td class="d-none d-lg-table-cell">{{ $request->ticket_category_label }}</td>
-                                    <td class="d-none d-xl-table-cell">
-                                        <span class="badge badge-light">{{ strtoupper($request->impact ?? 'medium') }}</span>
-                                        <span class="badge badge-light">{{ strtoupper($request->urgency ?? 'medium') }}</span>
-                                    </td>
-                                    <td>
-                                        <span class="badge badge-{{ $request->request_status_badge_class }}">{{ $request->request_status_label }}</span>
-                                    </td>
-                                    <td>
-                                        <span class="badge badge-{{ $request->ticket_status_badge_class }}">{{ $request->ticket_status_label }}</span>
-                                    </td>
-                                    <td>
-                                        @if($request->sla_resolution_due_at)
-                                            <span class="{{ $request->sla_resolution_due_at->isPast() && in_array($request->ticket_status, \App\Models\ProjectRequest::slaTrackedTicketStatuses(), true) ? 'text-danger font-weight-bold' : '' }}">
-                                                {{ $request->sla_resolution_due_at->format('d M Y H:i') }}
-                                            </span>
-                                        @else
-                                            -
-                                        @endif
-                                    </td>
-                                    <td class="d-none d-lg-table-cell">{{ $request->submitted_at ? $request->submitted_at->format('d M Y') : '-' }}</td>
-                                    <td>
-                                        <a href="{{ route('project-requests.show', $request) }}" class="btn btn-light text-info btn-sm mr-1 mb-1" title="Lihat" aria-label="Lihat tiket">
-                                            <i class="fas fa-eye"></i><span class="d-none d-xl-inline ml-1">Lihat</span>
-                                        </a>
-                                        @if(auth()->user()->hasRole(['admin', 'super_admin']) && $request->status !== 'draft' && in_array($request->ticket_status, \App\Models\ProjectRequest::pausableTicketStatuses(), true))
-                                            <form action="{{ route('project-requests.pause', $request) }}" method="POST" style="display: inline;" id="pause-form-{{ $request->id }}">
-                                                @csrf
-                                                <button type="button" class="btn btn-warning text-dark btn-sm mr-1 mb-1" title="Pause Tiket" aria-label="Pause tiket" onclick="confirmAction('pause-form-{{ $request->id }}', 'Pause tiket?', 'Tiket akan dijeda sementara sampai dijalankan kembali.', 'Ya, pause', '#f97316', 'warning')">
-                                                    <i class="fas fa-pause"></i><span class="d-none d-xl-inline ml-1">Pause</span>
-                                                </button>
-                                            </form>
-                                        @elseif(auth()->user()->hasRole(['admin', 'super_admin']) && $request->status !== 'draft' && in_array($request->ticket_status, \App\Models\ProjectRequest::playableTicketStatuses(), true))
-                                            <form action="{{ route('project-requests.play', $request) }}" method="POST" style="display: inline;" id="play-form-{{ $request->id }}">
-                                                @csrf
-                                                <button type="button" class="btn btn-success btn-sm mr-1 mb-1" title="Play Tiket" aria-label="Play tiket" onclick="confirmAction('play-form-{{ $request->id }}', 'Jalankan kembali tiket?', 'Tiket akan dilanjutkan kembali ke proses kerja aktif.', 'Ya, jalankan', '#10b981', 'question')">
-                                                    <i class="fas fa-play"></i><span class="d-none d-xl-inline ml-1">Play</span>
-                                                </button>
-                                            </form>
-                                        @endif
-                                        @if(auth()->user()->isClient() && in_array($request->status, ['draft', 'revision_requested']))
-                                            <a href="{{ route('project-requests.edit', $request) }}" class="btn btn-warning btn-sm mr-1 mb-1" title="Ubah" aria-label="Ubah tiket">
-                                                <i class="fas fa-edit"></i><span class="d-none d-xl-inline ml-1">Ubah</span>
-                                            </a>
-                                        @endif
-                                        @if(auth()->user()->isClient() && $request->status == 'draft')
-                                            <form action="{{ route('project-requests.destroy', $request) }}" method="POST" style="display: inline;" id="delete-form-{{ $request->id }}">
-                                                @csrf
-                                                @method('DELETE')
-                                                <button type="button" class="btn btn-danger btn-sm mb-1" onclick="confirmDelete('delete-form-{{ $request->id }}')" title="Hapus" aria-label="Hapus tiket">
-                                                    <i class="fas fa-trash"></i><span class="d-none d-xl-inline ml-1">Hapus</span>
-                                                </button>
-                                            </form>
-                                        @endif
-                                    </td>
-                                </tr>
-                            @endforeach
-                        </tbody>
-                    </table>
-                </div>
+                        @empty
+                            <tr>
+                                <td colspan="{{ auth()->user()->isClient() ? 10 : 11 }}" class="text-center p-4 font-jakarta font-extrabold text-muted">
+                                    Tidak ada data yang tersedia
+                                </td>
+                            </tr>
+                        @endforelse
+                    </tbody>
+                </table>
             </div>
-            <div class="card-footer bg-white border-0 px-4 pb-4 pt-0">
-                {{ $requests->links() }}
+
+            <!-- Pagination Row -->
+            <div class="mt-3">
+                {{ $requests->withQueryString()->links() }}
             </div>
         </div>
     </div>

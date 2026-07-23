@@ -21,13 +21,39 @@ use Illuminate\Support\Facades\Route;
 |
 */
 
-Route::redirect('/', '/login');
+// Root Redirect to Dashboard or Login
+Route::get('/', function () {
+    return auth()->check() ? redirect()->route('dashboard') : redirect()->route('login');
+})->name('home');
 
+// Dashboard Route (Authenticated)
 Route::get('/dashboard', function () {
     $user = auth()->user();
     
-    // Default variables
-    $viewData = ['user' => $user];
+    // 1. Fetch tickets waiting for approval (Status: submitted / Belum Disetujui)
+    $pendingApprovalTickets = \App\Models\ProjectRequest::with(['client'])
+        ->whereIn('status', ['submitted', 'revision_requested'])
+        ->when($user->isClient(), function ($query) use ($user) {
+            return $query->where('client_id', $user->id);
+        })
+        ->orderBy('created_at', 'desc')
+        ->get();
+
+    // 2. Fetch active tickets ordered: APPROVED FIRST, then by REQUEST DATE (created_at desc)
+    $activeProjectRequests = \App\Models\ProjectRequest::with(['client', 'queue'])
+        ->when($user->isClient(), function ($query) use ($user) {
+            return $query->where('client_id', $user->id);
+        })
+        ->orderByRaw("FIELD(status, 'approved', 'submitted', 'revision_requested', 'rejected')")
+        ->orderBy('created_at', 'desc')
+        ->limit(15)
+        ->get();
+
+    $viewData = [
+        'user' => $user,
+        'pendingApprovalTickets' => $pendingApprovalTickets,
+        'activeProjectRequests' => $activeProjectRequests,
+    ];
     
     // For clients, fetch global active queues to show IT workload/queue position
     if ($user->isClient()) {

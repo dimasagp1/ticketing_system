@@ -1,7 +1,7 @@
 <!-- Chat Widget -->
 <div id="chat-widget" class="chat-widget">
     <!-- Chat Button -->
-    <div class="chat-toggle" id="chat-toggle">
+    <div class="chat-toggle" id="chat-toggle" title="Chat Support">
         <i class="fas fa-comments"></i>
         <span class="badge badge-danger chat-notification-badge" id="chat-notification-badge" style="display: none;">0</span>
     </div>
@@ -9,18 +9,18 @@
     <!-- Chat List Panel -->
     <div class="chat-panel" id="chat-panel" style="display: none;">
         <div class="chat-panel-header">
-            <h5>Pesan</h5>
+            <h5 class="font-fredoka font-black text-base uppercase mb-0">💬 Chat Support</h5>
             <button class="btn btn-sm" id="close-chat-panel">
                 <i class="fas fa-times"></i>
             </button>
         </div>
         <div class="chat-panel-search">
-            <input type="text" class="form-control form-control-sm" placeholder="Cari percakapan...">
+            <input type="text" class="form-control form-control-sm border-2 border-black rounded-xl" placeholder="Cari percakapan...">
         </div>
         <div class="chat-panel-body" id="chat-conversations-list">
             <!-- Conversations will be loaded here -->
-            <div class="text-center p-3">
-                <i class="fas fa-spinner fa-spin"></i> Memuat...
+            <div class="text-center p-3 font-jakarta font-extrabold text-muted">
+                <i class="fas fa-spinner fa-spin"></i> Memuat percakapan...
             </div>
         </div>
     </div>
@@ -32,71 +32,91 @@
 </div>
 
 <style>
-/* Chat Widget Styles */
+/* TOONWORLD Neo-Brutalist Floating Chat Styles */
 .chat-widget {
-    --chat-right: 20px;
-    --chat-bottom: 20px;
-    --chat-toggle-size: 60px;
-    --chat-gap: 12px;
-    --chat-panel-width: 320px;
-    --chat-panel-height: 450px;
-    --chat-window-width: 320px;
-    --chat-window-height: 400px;
-    --chat-primary: #3b82f6;
-    --chat-secondary: #06b6d4;
-    --chat-accent-gradient: linear-gradient(135deg, var(--chat-primary) 0%, var(--chat-secondary) 100%);
+    --chat-right: 24px;
+    --chat-bottom: 24px;
+    --chat-toggle-size: 58px;
+    --chat-gap: 14px;
+    --chat-panel-width: 340px;
+    --chat-panel-height: 480px;
+    --chat-window-width: 330px;
+    --chat-window-height: 420px;
     position: fixed;
     bottom: 0;
     right: 0;
     z-index: 9999;
 }
 
-/* Chat Toggle Button */
+/* Chat Toggle Floating Button */
 .chat-toggle {
     position: fixed;
     bottom: var(--chat-bottom);
     right: var(--chat-right);
     width: var(--chat-toggle-size);
     height: var(--chat-toggle-size);
-    background: var(--chat-accent-gradient);
+    background: #0055FF;
+    border: 4px solid #000000;
     border-radius: 50%;
     display: flex;
     align-items: center;
     justify-content: center;
     cursor: pointer;
-    box-shadow: 0 4px 12px rgba(0,0,0,0.15);
-    transition: all 0.3s ease;
+    box-shadow: 4px 4px 0px 0px #000000;
+    transition: all 0.2s ease;
     z-index: 10020;
 }
 
-.chat-toggle:hover {
-    transform: scale(1.1);
-    box-shadow: 0 6px 16px rgba(0,0,0,0.2);
+body.dark-mode .chat-toggle, .dark .chat-toggle {
+    background: #FFE600;
+    border: 4px solid #ffffff;
+    box-shadow: 4px 4px 0px 0px #FF007A;
 }
 
-.chat-widget.panel-open .chat-toggle {
-    box-shadow: 0 6px 18px rgba(0,0,0,0.22);
+body.dark-mode .chat-toggle i, .dark .chat-toggle i {
+    color: #000000 !important;
+}
+
+.chat-toggle:hover {
+    transform: translateY(-4px) scale(1.05);
+    box-shadow: 6px 6px 0px 0px #000000;
+}
+
+body.dark-mode .chat-toggle:hover, .dark .chat-toggle:hover {
+    box-shadow: 6px 6px 0px 0px #FFE600;
+    background: #FF007A;
+}
+
+body.dark-mode .chat-toggle:hover i, .dark .chat-toggle:hover i {
+    color: #ffffff !important;
 }
 
 .chat-toggle i {
-    color: white;
+    color: #ffffff;
     font-size: 24px;
+    margin: 0;
+    line-height: 1;
 }
 
 .chat-notification-badge {
     position: absolute;
-    top: -5px;
-    right: -5px;
-    min-width: 20px;
-    height: 20px;
-    border-radius: 10px;
+    top: -4px;
+    right: -4px;
+    min-width: 22px;
+    height: 22px;
+    border-radius: 9999px;
+    background: #FF007A !important;
+    color: #ffffff !important;
+    border: 2px solid #000000;
     display: flex;
     align-items: center;
     justify-content: center;
     font-size: 11px;
+    font-family: 'Fredoka', cursive;
+    font-weight: 800;
 }
 
-/* Chat Panel */
+/* Chat Panel Container */
 .chat-panel {
     position: fixed;
     bottom: calc(var(--chat-bottom) + var(--chat-toggle-size) + var(--chat-gap));
@@ -104,36 +124,66 @@
     width: var(--chat-panel-width);
     height: var(--chat-panel-height);
     max-height: calc(100vh - 120px);
-    background: white;
-    border-radius: 10px;
-    box-shadow: 0 4px 20px rgba(0,0,0,0.15);
+    background: #ffffff;
+    border: 4px solid #000000;
+    border-radius: 1.5rem;
+    box-shadow: 8px 8px 0px 0px #000000;
     display: flex;
     flex-direction: column;
     overflow: hidden;
     z-index: 10030;
+    font-family: 'Plus Jakarta Sans', sans-serif;
+}
+
+body.dark-mode .chat-panel, .dark .chat-panel {
+    background: #121212;
+    border: 4px solid #FFE600;
+    box-shadow: 8px 8px 0px 0px #FFE600;
+    color: #ffffff;
 }
 
 .chat-panel-header {
-    padding: 15px;
-    border-bottom: 1px solid #e0e0e0;
+    padding: 14px 16px;
+    border-bottom: 3px solid #000000;
     display: flex;
     justify-content: space-between;
     align-items: center;
-    background: var(--chat-accent-gradient);
-    color: white;
-    border-radius: 10px 10px 0 0;
+    background: #0055FF;
+    color: #ffffff;
+    border-radius: 1.25rem 1.25rem 0 0;
+}
+
+body.dark-mode .chat-panel-header, .dark .chat-panel-header {
+    background: #FF007A;
+    border-bottom: 3px solid #ffffff;
 }
 
 .chat-panel-header h5 {
     margin: 0;
-    font-size: 16px;
+    font-family: 'Fredoka', cursive;
+    font-weight: 800;
+    font-size: 1.05rem;
+    color: #ffffff;
+    text-transform: uppercase;
 }
 
 .chat-panel-header button {
-    color: white;
+    color: #ffffff;
     padding: 0;
-    background: none;
-    border: none;
+    background: #000000;
+    border: 2px solid #ffffff;
+    border-radius: 50%;
+    width: 28px;
+    height: 28px;
+    display: flex;
+    align-items: center;
+    justify-content: center;
+    cursor: pointer;
+}
+
+.chat-panel-header button:hover {
+    background: #FFE600;
+    color: #000000;
 }
 
 .chat-panel-search {
