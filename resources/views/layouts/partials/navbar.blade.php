@@ -8,14 +8,14 @@
             </button>
         </li>
         <li class="nav-item d-flex align-items-center">
-            <a href="{{ route('dashboard') }}" class="flex items-center gap-2 bg-[#FFE600] border-3 border-black px-3 py-1.5 rounded-2xl shadow-[3px_3px_0px_0px_rgba(0,0,0,1)] hover:-translate-y-0.5 transition-transform select-none">
+            <a href="{{ route('dashboard') }}" class="d-inline-flex align-items-center bg-[#FFE600] border-3 border-black px-3 py-1 rounded-2xl shadow-[3px_3px_0px_0px_rgba(0,0,0,1)] hover:-translate-y-0.5 transition-transform select-none" style="height: 40px; max-height: 40px; overflow: hidden; text-decoration: none;">
                 @if(\App\Helpers\SettingsHelper::get('app_logo'))
-                    <img src="{{ asset('storage/' . \App\Helpers\SettingsHelper::get('app_logo')) }}" alt="Logo" class="h-8 w-auto max-w-[160px] object-contain">
+                    <img src="{{ asset('storage/' . \App\Helpers\SettingsHelper::get('app_logo')) }}" alt="Logo" style="height: 30px !important; max-height: 30px !important; width: auto !important; max-width: 150px !important; object-fit: contain !important; display: block !important;">
                 @else
-                    <span class="w-7 h-7 bg-[#FF007A] text-white border-2 border-black rounded-full flex items-center justify-center font-fredoka font-black text-sm shrink-0">
+                    <span class="w-7 h-7 bg-[#FF007A] text-white border-2 border-black rounded-full flex items-center justify-center font-fredoka font-black text-sm shrink-0 mr-2">
                         <i class="fas fa-life-ring"></i>
                     </span>
-                    <span class="font-fredoka font-black text-base md:text-lg text-black text-stroke-sm leading-none drop-shadow-[1px_1px_0px_#0055FF]">
+                    <span class="font-fredoka font-black text-base md:text-lg text-black text-stroke-sm leading-none drop-shadow-[1px_1px_0px_#0055FF]" style="color: #000000 !important;">
                         {{ \App\Helpers\SettingsHelper::get('app_name', config('app.name', 'Antrian Project')) }}
                     </span>
                 @endif
