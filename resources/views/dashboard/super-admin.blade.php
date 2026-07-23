@@ -12,23 +12,6 @@
         ->count();
 @endphp
 
-<!-- Header Row -->
-<div class="d-flex justify-content-between align-items-start align-items-md-center flex-column flex-md-row mb-4 pt-2 gap-3">
-    <div>
-        <h1 class="font-fredoka font-black text-2xl text-md-3xl text-black dark:text-white uppercase tracking-wide mb-1">
-            SUPER ADMIN DASHBOARD ⚡
-        </h1>
-        <p class="font-jakarta font-extrabold text-sm text-muted mb-0">
-            Visibilitas menyeluruh untuk user, tiket, queue, dan kualitas layanan.
-        </p>
-    </div>
-    <div class="mt-3 mt-md-0">
-        <a href="{{ route('super-admin.users.index') }}" class="btn btn-primary font-fredoka font-black border-4 border-black dark:border-white rounded-2xl px-4 py-2.5 bg-[#0055FF] text-white hover:bg-[#FF007A] shadow-[4px_4px_0px_0px_rgba(0,0,0,1)] dark:shadow-[4px_4px_0px_0px_#FFE600] active:translate-x-1 active:translate-y-1 transition-all inline-flex items-center gap-2 select-none">
-            <i class="fas fa-users-cog"></i> Kelola User
-        </a>
-    </div>
-</div>
-
 <!-- Stat Cards Row -->
 <div class="row">
     <div class="col-lg-3 col-sm-6 mb-4">
