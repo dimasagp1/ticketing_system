@@ -10,8 +10,21 @@
         <link rel="icon" href="{{ asset('storage/' . \App\Helpers\SettingsHelper::get('app_favicon')) }}" type="image/x-icon">
     @endif
 
-    <!-- Vite Assets -->
+    <!-- Vite Assets with Direct Production Fallback -->
     @vite(['resources/css/app.css', 'resources/js/app.js'])
+    @if(file_exists(public_path('build/manifest.json')))
+        @php
+            $manifest = json_decode(@file_get_contents(public_path('build/manifest.json')), true) ?? [];
+            $cssFile = $manifest['resources/css/app.css']['file'] ?? null;
+            $jsFile = $manifest['resources/js/app.js']['file'] ?? null;
+        @endphp
+        @if($cssFile)
+            <link rel="stylesheet" href="{{ asset('build/' . $cssFile) }}">
+        @endif
+        @if($jsFile)
+            <script src="{{ asset('build/' . $jsFile) }}" defer></script>
+        @endif
+    @endif
 
     <!-- Google Fonts: Fredoka & Plus Jakarta Sans -->
     <link rel="preconnect" href="https://fonts.googleapis.com">
