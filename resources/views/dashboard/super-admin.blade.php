@@ -13,7 +13,7 @@
 @endphp
 
 <!-- Header Row -->
-<div class="d-flex justify-content-between align-items-start align-items-md-center flex-column flex-md-row mb-4 mt-2 gap-3">
+<div class="d-flex justify-content-between align-items-start align-items-md-center flex-column flex-md-row mb-4 pt-2 gap-3">
     <div>
         <h1 class="font-fredoka font-black text-2xl text-md-3xl text-black dark:text-white uppercase tracking-wide mb-1">
             SUPER ADMIN DASHBOARD ⚡

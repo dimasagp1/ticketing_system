@@ -186,12 +186,13 @@
         .content-wrapper {
             background: var(--theme-bg);
             margin-top: 0;
-            padding-top: 106px !important;
+            padding-top: 132px !important;
         }
 
         /* Override AdminLTE fixed-navbar offset so content starts right below custom navbar + top menu */
         .layout-navbar-fixed .wrapper .content-wrapper {
             margin-top: 0 !important;
+            padding-top: 132px !important;
         }
 
         .layout-navbar-fixed .wrapper .main-header {
