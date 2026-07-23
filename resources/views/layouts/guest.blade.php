@@ -22,13 +22,17 @@
 
         <div class="relative z-10 w-full max-w-md my-8 flex flex-col items-center">
             <!-- Brand Badge Logo -->
-            <a href="{{ route('home') }}" class="mb-6 inline-flex items-center gap-2 bg-[#FFE600] border-4 border-black px-5 py-2.5 rounded-full shadow-[4px_4px_0px_0px_rgba(0,0,0,1)] hover:-translate-y-1 transition-transform select-none">
-                <div class="w-8 h-8 bg-[#FF007A] border-2 border-black rounded-full flex items-center justify-center text-white font-fredoka font-black text-lg shadow-inner">
-                    T
-                </div>
-                <span class="font-fredoka font-black text-xl tracking-wider text-black text-stroke-sm leading-none drop-shadow-[1px_1px_0px_#0055FF]">
-                    TOONWORLD PORTAL
-                </span>
+            <a href="{{ route('dashboard') }}" class="mb-6 inline-flex items-center gap-2 bg-[#FFE600] border-4 border-black px-5 py-2.5 rounded-full shadow-[4px_4px_0px_0px_rgba(0,0,0,1)] hover:-translate-y-1 transition-transform select-none">
+                @if(\App\Helpers\SettingsHelper::get('app_logo'))
+                    <img src="{{ asset('storage/' . \App\Helpers\SettingsHelper::get('app_logo')) }}" alt="Logo" class="h-8 w-auto max-w-[160px] object-contain">
+                @else
+                    <div class="w-8 h-8 bg-[#FF007A] border-2 border-black rounded-full flex items-center justify-center text-white font-fredoka font-black text-sm shadow-inner">
+                        <i class="fas fa-life-ring"></i>
+                    </div>
+                    <span class="font-fredoka font-black text-xl tracking-wider text-black text-stroke-sm leading-none drop-shadow-[1px_1px_0px_#0055FF]">
+                        {{ \App\Helpers\SettingsHelper::get('app_name', config('app.name', 'Antrian Project')) }}
+                    </span>
+                @endif
             </a>
 
             <!-- Card Container -->

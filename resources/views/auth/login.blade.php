@@ -247,10 +247,16 @@
             
             <!-- Brand Badge -->
             <div class="brand-header">
-                <a href="{{ route('home') }}" style="text-decoration: none; color: inherit;">
-                    <div class="brand-logo-badge">
-                        <span style="background: var(--toon-pink); color: white; border: 2px solid black; border-radius: 50%; width: 26px; height: 26px; display: inline-flex; align-items: center; justify-content: center;">T</span>
-                        TOONWORLD PORTAL
+                <a href="{{ route('dashboard') }}" style="text-decoration: none; color: inherit;">
+                    <div class="brand-logo-badge" style="display: inline-flex; align-items: center; justify-content: center; gap: 8px;">
+                        @if(\App\Helpers\SettingsHelper::get('app_logo'))
+                            <img src="{{ asset('storage/' . \App\Helpers\SettingsHelper::get('app_logo')) }}" alt="Logo" style="height: 32px; width: auto; max-width: 160px; object-fit: contain; display: block;">
+                        @else
+                            <span style="background: var(--toon-pink); color: white; border: 2px solid black; border-radius: 50%; width: 26px; height: 26px; display: inline-flex; align-items: center; justify-content: center;">
+                                <i class="fas fa-life-ring" style="font-size: 0.75rem;"></i>
+                            </span>
+                            <span>{{ \App\Helpers\SettingsHelper::get('app_name', config('app.name', 'Antrian Project')) }}</span>
+                        @endif
                     </div>
                 </a>
                 <h1 class="form-title">MASUK SISTEM 🚀</h1>
