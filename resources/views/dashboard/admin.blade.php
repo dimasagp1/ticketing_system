@@ -8,272 +8,226 @@
         ->whereNotNull('sla_resolution_due_at')
         ->where('sla_resolution_due_at', '<', now())
         ->count();
-    $pendingApprovals = \App\Models\ProjectApproval::pending()->count();
     $activeQueues = \App\Models\Queue::where('status', 'In Progress')->count();
     $totalQueues = \App\Models\Queue::count();
-    $totalWork = max($inProgressTickets + $pendingUserTickets + $openTickets + $overdueTickets, 1);
 @endphp
 
-<div class="d-flex justify-content-between align-items-start align-items-md-center flex-column flex-md-row mb-4 mt-2">
-    <div>
-        <p class="text-muted mb-0 font-weight-500">Pantau tiket masuk, SLA, dan performa antrian tim.</p>
+<!-- Stat Cards Row -->
+<div class="row">
+    <div class="col-lg-3 col-sm-6 mb-4">
+        <div class="card border-4 border-black dark:border-white rounded-3xl p-4 shadow-[6px_6px_0px_0px_rgba(0,0,0,1)] dark:shadow-[6px_6px_0px_0px_#FFE600] bg-white dark:bg-[#121212] h-100 flex flex-col justify-between">
+            <div class="d-flex justify-content-between align-items-center mb-2">
+                <span class="badge bg-[#FFE600] text-black border-2 border-black font-fredoka font-black px-3 py-1 rounded-full">
+                    <i class="fas fa-ticket-alt mr-1"></i> TOTAL
+                </span>
+                <small class="font-fredoka font-black text-[#0055FF]">Sistem</small>
+            </div>
+            <div class="font-fredoka font-black text-4xl text-black dark:text-white my-2">{{ number_format($totalTickets) }}</div>
+            <div class="font-jakarta font-extrabold text-xs text-muted uppercase">Total Tiket Masuk</div>
+        </div>
     </div>
-    <div class="d-flex align-items-center mt-3 mt-md-0">
-        <a href="{{ route('approvals.index') }}" class="btn btn-primary px-4 shadow-sm" style="border-radius: 0.5rem; font-weight: 500;">
-            <i class="fas fa-check-circle mr-2"></i> Tinjau Approval
-        </a>
+
+    <div class="col-lg-3 col-sm-6 mb-4">
+        <div class="card border-4 border-black dark:border-white rounded-3xl p-4 shadow-[6px_6px_0px_0px_rgba(0,0,0,1)] dark:shadow-[6px_6px_0px_0px_#FFE600] bg-white dark:bg-[#121212] h-100 flex flex-col justify-between">
+            <div class="d-flex justify-content-between align-items-center mb-2">
+                <span class="badge bg-[#FF007A] text-white border-2 border-black font-fredoka font-black px-3 py-1 rounded-full">
+                    <i class="fas fa-hourglass-half mr-1"></i> PENDING
+                </span>
+                <small class="font-fredoka font-black text-[#FF007A]">{{ $pendingApprovalTickets->count() }} Approval</small>
+            </div>
+            <div class="font-fredoka font-black text-4xl text-black dark:text-white my-2">{{ $openTickets }}</div>
+            <div class="font-jakarta font-extrabold text-xs text-muted uppercase">Tiket Terbuka</div>
+        </div>
+    </div>
+
+    <div class="col-lg-3 col-sm-6 mb-4">
+        <div class="card border-4 border-black dark:border-white rounded-3xl p-4 shadow-[6px_6px_0px_0px_rgba(0,0,0,1)] dark:shadow-[6px_6px_0px_0px_#FFE600] bg-white dark:bg-[#121212] h-100 flex flex-col justify-between">
+            <div class="d-flex justify-content-between align-items-center mb-2">
+                <span class="badge bg-[#0055FF] text-white border-2 border-black font-fredoka font-black px-3 py-1 rounded-full">
+                    <i class="fas fa-tools mr-1"></i> WORKFLOW
+                </span>
+                <small class="font-fredoka font-black text-[#0055FF]">{{ $inProgressTickets }} Diproses</small>
+            </div>
+            <div class="font-fredoka font-black text-4xl text-black dark:text-white my-2">{{ $pendingUserTickets }}</div>
+            <div class="font-jakarta font-extrabold text-xs text-muted uppercase">Menunggu Response User</div>
+        </div>
+    </div>
+
+    <div class="col-lg-3 col-sm-6 mb-4">
+        <div class="card border-4 border-black dark:border-white rounded-3xl p-4 shadow-[6px_6px_0px_0px_rgba(0,0,0,1)] dark:shadow-[6px_6px_0px_0px_#FFE600] bg-white dark:bg-[#121212] h-100 flex flex-col justify-between">
+            <div class="d-flex justify-content-between align-items-center mb-2">
+                <span class="badge bg-[#00E676] text-black border-2 border-black font-fredoka font-black px-3 py-1 rounded-full">
+                    <i class="fas fa-check-circle mr-1"></i> SLA
+                </span>
+                <small class="font-fredoka font-black text-[#FF007A]">{{ $overdueTickets }} Late</small>
+            </div>
+            <div class="font-fredoka font-black text-4xl text-black dark:text-white my-2">{{ $overdueTickets }}</div>
+            <div class="font-jakarta font-extrabold text-xs text-muted uppercase">SLA Terlewat</div>
+        </div>
     </div>
 </div>
 
-{{-- Row 1 : Stats --}}
+<!-- Main Content Grid -->
 <div class="row">
-    <div class="col-lg-3 col-sm-6 mb-3">
-        <div class="support-stat-card">
-            <div class="d-flex justify-content-between align-items-center mb-2">
-                <span class="badge badge-primary"><i class="fas fa-ticket-alt"></i></span>
-                <small class="text-success">+{{ $totalTickets > 0 ? round(($openTickets / $totalTickets) * 100) : 0 }}%</small>
-            </div>
-            <div class="support-stat-value">{{ number_format($totalTickets) }}</div>
-            <div class="support-stat-label">Total Tiket</div>
-        </div>
-    </div>
-    <div class="col-lg-3 col-sm-6 mb-3">
-        <div class="support-stat-card">
-            <div class="d-flex justify-content-between align-items-center mb-2">
-                <span class="badge badge-warning"><i class="fas fa-hourglass-half"></i></span>
-                <small class="text-danger">{{ $pendingApprovals }}</small>
-            </div>
-            <div class="support-stat-value">{{ $openTickets }}</div>
-            <div class="support-stat-label">Tiket Terbuka</div>
-        </div>
-    </div>
-    <div class="col-lg-3 col-sm-6 mb-3">
-        <div class="support-stat-card">
-            <div class="d-flex justify-content-between align-items-center mb-2">
-                <span class="badge badge-info"><i class="fas fa-tools"></i></span>
-                <small class="text-info">{{ $inProgressTickets }}</small>
-            </div>
-            <div class="support-stat-value">{{ $pendingUserTickets }}</div>
-            <div class="support-stat-label">Menunggu User</div>
-        </div>
-    </div>
-    <div class="col-lg-3 col-sm-6 mb-3">
-        <div class="support-stat-card">
-            <div class="d-flex justify-content-between align-items-center mb-2">
-                <span class="badge badge-success"><i class="fas fa-check-circle"></i></span>
-                <small class="text-success">{{ $resolvedTickets }}</small>
-            </div>
-            <div class="support-stat-value">{{ $overdueTickets }}</div>
-            <div class="support-stat-label">SLA Terlewat</div>
-        </div>
-    </div>
-</div>
-
-{{-- Row 2 : Antrian Terlama (kiri) + Performa Tim (kanan) --}}
-<div class="row">
-    <div class="col-md-8">
-        <div class="card card-outline card-danger shadow-sm mb-3">
-            <div class="card-header border-0">
-                <h3 class="card-title mb-0">Antrian Terlama</h3>
-            </div>
-            <div class="card-body p-0">
-                <div class="table-responsive">
-                    <table class="table table-hover mb-0 align-middle">
-                        <thead class="bg-light">
-                            <tr>
-                                <th class="pl-4 border-bottom-0">Ticket</th>
-                                <th class="border-bottom-0">Client</th>
-                                <th class="border-bottom-0">Status</th>
-                                <th class="pr-4 border-bottom-0 text-right">Wait Time</th>
-                            </tr>
-                        </thead>
-                        <tbody>
-                            @forelse(\App\Models\ProjectRequest::with('client')->whereIn('ticket_status', \App\Models\ProjectRequest::slaTrackedTicketStatuses())->whereNotNull('sla_resolution_due_at')->orderBy('sla_resolution_due_at')->take(6)->get() as $ticket)
-                                <tr>
-                                    <td class="pl-4"><a href="{{ route('project-requests.show', $ticket) }}" class="font-weight-600 text-dark">{{ $ticket->ticket_number ?? ('#' . $ticket->id) }}</a></td>
-                                    <td>{{ $ticket->client?->name ?? '-' }}</td>
-                                    <td><span class="badge badge-{{ $ticket->ticket_status_badge_class }}">{{ $ticket->ticket_status_label }}</span></td>
-                                    <td class="pr-4 text-right"><span class="{{ $ticket->sla_resolution_due_at->isPast() ? 'text-danger font-weight-bold' : 'text-muted small' }}"><i class="far fa-clock mr-1"></i> {{ $ticket->created_at->diffForHumans() }}</span></td>
-                                </tr>
-                            @empty
-                                <tr>
-                                    <td colspan="4" class="text-center py-4 text-muted">Tidak ada tiket dalam watchlist.</td>
-                                </tr>
-                            @endforelse
-                        </tbody>
-                    </table>
+    <!-- Left Column: Tables -->
+    <div class="col-lg-8 mb-4 space-y-6">
+        
+        <!-- 1. Tiket Menunggu Persetujuan (Pending Approvals) -->
+        <div class="card border-4 border-black dark:border-white rounded-3xl p-4 shadow-[6px_6px_0px_0px_rgba(0,0,0,1)] dark:shadow-[6px_6px_0px_0px_#FFE600] bg-white dark:bg-[#121212]">
+            <div class="d-flex justify-content-between align-items-center border-b-4 border-black pb-3 mb-3">
+                <div class="d-flex items-center gap-2">
+                    <h3 class="font-fredoka font-black text-xl text-black dark:text-white uppercase mb-0">
+                        Tiket Menunggu Persetujuan ⏳
+                    </h3>
+                    <span class="badge bg-[#FF007A] text-white border-2 border-black font-fredoka font-black px-2.5 py-1 rounded-full text-xs">
+                        {{ $pendingApprovalTickets->count() }} Belum Disetujui
+                    </span>
                 </div>
+                <a href="{{ route('approvals.index') }}" class="btn btn-sm bg-[#FF007A] text-white border-2 border-black font-fredoka font-black px-3 py-1 rounded-full shadow-[2px_2px_0px_0px_rgba(0,0,0,1)] hover:bg-[#FFE600] hover:text-black">
+                    Tinjau Semua
+                </a>
             </div>
-        </div>
-    </div>
-
-    <div class="col-md-4">
-        <div class="card support-shell-card mb-3">
-            <div class="card-header border-0 bg-white">
-                <h3 class="card-title mb-0">Performa Tim</h3>
-            </div>
-            <div class="card-body p-0">
-                <div class="table-responsive">
-                    <table class="table table-hover mb-0 align-middle">
-                        <tbody>
-                            @forelse(\App\Models\User::whereIn('role', ['admin', 'super_admin'])->get() as $agent)
-                                @php
-                                    $agentActive = \App\Models\Queue::where('assigned_to', $agent->id)->whereIn('status', ['Assigned', 'In Progress'])->count();
-                                    $agentSolved = \App\Models\Queue::where('assigned_to', $agent->id)->where('status', 'Completed')->count();
-                                @endphp
-                                <tr>
-                                    <td class="pl-4">
-                                        <strong class="text-dark">{{ $agent->name }}</strong><br>
-                                        <small class="text-muted">{{ ucfirst(str_replace('_', ' ', $agent->role)) }}</small>
-                                    </td>
-                                    <td class="pr-4 text-right">
-                                        <small class="text-muted d-block">{{ $agentSolved }} selesai</small>
-                                        <small class="text-warning font-weight-600">{{ $agentActive }} aktif</small>
-                                    </td>
-                                </tr>
-                            @empty
-                                <tr><td class="text-center py-4 text-muted">Belum ada data performa.</td></tr>
-                            @endforelse
-                        </tbody>
-                    </table>
-                </div>
-            </div>
-        </div>
-    </div>
-</div>
-
-{{-- Row 3 : Tiket Terbaru (kiri) + Distribusi Kategori (kanan) --}}
-<div class="row">
-    <div class="col-lg-8">
-        <div class="card support-shell-card mb-3">
-            <div class="card-header border-0 d-flex justify-content-between align-items-center bg-white">
-                <h3 class="card-title mb-0">Tiket Terbaru</h3>
-                <a href="{{ route('project-requests.index') }}" class="btn btn-link btn-sm">Lihat Semua</a>
-            </div>
-            <div class="card-body p-0">
-                <div class="table-responsive">
-                    <table class="table table-hover mb-0">
-                        <thead class="bg-light">
+            <div class="table-responsive">
+                <table class="table border-3 border-black rounded-2xl w-100 text-sm font-jakarta font-extrabold">
+                    <thead>
+                        <tr class="bg-[#FF007A] text-white font-fredoka font-black uppercase border-b-3 border-black">
+                            <th class="p-3">TICKET #</th>
+                            <th class="p-3">NAMA PROYEK</th>
+                            <th class="p-3">KLIEN</th>
+                            <th class="p-3">TANGGAL REQUEST</th>
+                            <th class="p-3">STATUS</th>
+                            <th class="p-3 text-right">AKSI</th>
+                        </tr>
+                    </thead>
+                    <tbody>
+                        @forelse($pendingApprovalTickets as $req)
                             <tr>
-                                <th class="pl-4 border-bottom-0">ID</th>
-                                <th class="border-bottom-0">Subjek</th>
-                                <th class="d-none d-md-table-cell border-bottom-0">Client</th>
-                                <th class="border-bottom-0">Prioritas</th>
-                                <th class="border-bottom-0">Status</th>
-                                <th class="pr-4 d-none d-lg-table-cell border-bottom-0">Diperbarui</th>
+                                <td class="p-3"><span class="badge bg-black text-white font-fredoka font-black">{{ $req->ticket_number ?? '#'.$req->id }}</span></td>
+                                <td class="p-3 font-fredoka font-black text-black dark:text-white">{{ $req->title }}</td>
+                                <td class="p-3 text-xs">{{ $req->client->name ?? '-' }}</td>
+                                <td class="p-3 font-mono text-xs">{{ $req->created_at->format('d/m/Y H:i') }}</td>
+                                <td class="p-3">
+                                    <span class="badge bg-[#FFE600] text-black border-2 border-black font-fredoka font-black text-xs px-2 py-1">
+                                        Menunggu Persetujuan
+                                    </span>
+                                </td>
+                                <td class="p-3 text-right">
+                                    <a href="{{ route('approvals.index') }}" class="btn btn-sm bg-[#0055FF] text-white border-2 border-black font-fredoka font-black rounded-xl px-3 py-1 shadow-[2px_2px_0px_0px_rgba(0,0,0,1)] hover:bg-[#FFE600] hover:text-black">
+                                        <i class="fas fa-check-circle"></i> Process
+                                    </a>
+                                </td>
                             </tr>
-                        </thead>
-                        <tbody>
-                            @forelse(\App\Models\ProjectRequest::with('client')->latest()->take(8)->get() as $ticket)
-                                <tr>
-                                    <td class="pl-4"><strong>{{ $ticket->ticket_number ?? ('#' . $ticket->id) }}</strong></td>
-                                    <td><a href="{{ route('project-requests.show', $ticket) }}" class="font-weight-600 text-dark">{{ \Illuminate\Support\Str::limit($ticket->project_name, 32) }}</a></td>
-                                    <td class="d-none d-md-table-cell text-muted">{{ $ticket->client?->name ?? '-' }}</td>
-                                    <td>
-                                        <span class="badge badge-{{ ($ticket->impact === 'critical' || $ticket->urgency === 'critical' || $ticket->impact === 'high' || $ticket->urgency === 'high') ? 'danger' : (($ticket->impact === 'medium' || $ticket->urgency === 'medium') ? 'warning' : 'secondary') }}">
-                                            {{ strtoupper($ticket->impact ?? 'MED') }}
+                        @empty
+                            <tr>
+                                <td colspan="6" class="text-center p-4 font-jakarta font-extrabold text-muted">
+                                    Tidak ada tiket yang menunggu persetujuan.
+                                </td>
+                            </tr>
+                        @endforelse
+                    </tbody>
+                </table>
+            </div>
+        </div>
+
+        <!-- 2. Active Projects Table (Sorted: Approved Tickets First + Request Date) -->
+        <div class="card border-4 border-black dark:border-white rounded-3xl p-4 shadow-[6px_6px_0px_0px_rgba(0,0,0,1)] dark:shadow-[6px_6px_0px_0px_#FFE600] bg-white dark:bg-[#121212]">
+            <div class="d-flex justify-content-between align-items-center border-b-4 border-black pb-3 mb-3">
+                <h3 class="font-fredoka font-black text-xl text-black dark:text-white uppercase mb-0">
+                    Project & Tiket Aktif Terbaru ⚡
+                </h3>
+                <a href="{{ route('project-requests.index') }}" class="btn btn-sm bg-[#FFE600] text-black border-2 border-black font-fredoka font-black px-3 py-1 rounded-full shadow-[2px_2px_0px_0px_rgba(0,0,0,1)] hover:bg-[#FF007A] hover:text-white">
+                    Lihat Semua
+                </a>
+            </div>
+            <div class="table-responsive">
+                <table class="table border-3 border-black rounded-2xl w-100 text-sm font-jakarta font-extrabold">
+                    <thead>
+                        <tr class="bg-[#FFE600] text-black font-fredoka font-black uppercase border-b-3 border-black">
+                            <th class="p-3">TICKET #</th>
+                            <th class="p-3">NAMA PROYEK</th>
+                            <th class="p-3">KLIEN</th>
+                            <th class="p-3">TANGGAL REQUEST</th>
+                            <th class="p-3">PERSETUJUAN</th>
+                            <th class="p-3">STATUS TIKET</th>
+                        </tr>
+                    </thead>
+                    <tbody>
+                        @forelse($activeProjectRequests as $req)
+                            <tr>
+                                <td class="p-3"><span class="badge bg-black text-white font-fredoka font-black">{{ $req->ticket_number ?? '#'.$req->id }}</span></td>
+                                <td class="p-3 font-fredoka font-black text-black dark:text-white">
+                                    <a href="{{ route('project-requests.show', $req) }}" class="text-black dark:text-white hover:text-[#FF007A]">
+                                        {{ $req->title }}
+                                    </a>
+                                </td>
+                                <td class="p-3 text-xs">{{ $req->client->name ?? '-' }}</td>
+                                <td class="p-3 font-mono text-xs">{{ $req->created_at->format('d/m/Y H:i') }}</td>
+                                <td class="p-3">
+                                    @if($req->status === 'approved')
+                                        <span class="badge bg-[#00E676] text-black border-2 border-black font-fredoka font-black text-xs px-2 py-1">
+                                            Disetujui
                                         </span>
-                                    </td>
-                                    <td><span class="badge badge-{{ $ticket->ticket_status_badge_class }}">{{ $ticket->ticket_status_label }}</span></td>
-                                    <td class="pr-4 d-none d-lg-table-cell text-muted small">{{ $ticket->updated_at->diffForHumans() }}</td>
-                                </tr>
-                            @empty
-                                <tr>
-                                    <td colspan="6" class="text-center py-4 text-muted">Belum ada tiket terbaru.</td>
-                                </tr>
-                            @endforelse
-                        </tbody>
-                    </table>
-                </div>
+                                    @elseif($req->status === 'submitted')
+                                        <span class="badge bg-[#FFE600] text-black border-2 border-black font-fredoka font-black text-xs px-2 py-1">
+                                            Menunggu
+                                        </span>
+                                    @else
+                                        <span class="badge bg-[#FF007A] text-white border-2 border-black font-fredoka font-black text-xs px-2 py-1">
+                                            {{ ucfirst($req->status) }}
+                                        </span>
+                                    @endif
+                                </td>
+                                <td class="p-3">
+                                    <span class="badge bg-[#0055FF] text-white border-2 border-black font-fredoka font-black text-xs px-2 py-1">
+                                        {{ $req->ticket_status_label }}
+                                    </span>
+                                </td>
+                            </tr>
+                        @empty
+                            <tr>
+                                <td colspan="6" class="text-center p-4 font-jakarta font-extrabold text-muted">
+                                    Belum ada project aktif.
+                                </td>
+                            </tr>
+                        @endforelse
+                    </tbody>
+                </table>
             </div>
         </div>
+
     </div>
 
-    <div class="col-lg-4">
-        <div class="card support-shell-card mb-3">
-            <div class="card-header border-0 bg-white">
-                <h3 class="card-title mb-0">Distribusi Kategori</h3>
-            </div>
-            <div class="card-body">
-                @php
-                    $categoryTotal = max(\App\Models\ProjectRequest::count(), 1);
-                    $categoryData = [
-                        'Incident/Bug'    => \App\Models\ProjectRequest::whereIn('ticket_category', ['incident', 'bug'])->count(),
-                        'Service Request' => \App\Models\ProjectRequest::where('ticket_category', 'service_request')->count(),
-                        'Access'          => \App\Models\ProjectRequest::where('ticket_category', 'access')->count(),
-                        'Lainnya'         => \App\Models\ProjectRequest::where('ticket_category', 'other')->count(),
-                    ];
-                @endphp
-                @foreach($categoryData as $label => $count)
-                    <div class="mb-2">
-                        <div class="d-flex justify-content-between">
-                            <small>{{ $label }}</small>
-                            <small>{{ round(($count / $categoryTotal) * 100) }}%</small>
+    <!-- Right Side Widgets -->
+    <div class="col-lg-4 mb-4 space-y-6">
+        <!-- Team Performance Card -->
+        <div class="card border-4 border-black dark:border-white rounded-3xl p-4 shadow-[6px_6px_0px_0px_rgba(0,0,0,1)] dark:shadow-[6px_6px_0px_0px_#FFE600] bg-white dark:bg-[#121212]">
+            <h3 class="font-fredoka font-black text-xl text-black dark:text-white uppercase border-b-4 border-black pb-3 mb-3">Performa Tim IT</h3>
+            <div class="space-y-3 font-jakarta font-extrabold text-sm">
+                @foreach(\App\Models\User::whereIn('role', ['admin', 'super_admin', 'developer'])->take(5)->get() as $staff)
+                    <div class="d-flex justify-content-between align-items-center p-2.5 bg-[#FFFBEA] dark:bg-[#1a1a1a] border-2 border-black rounded-2xl shadow-[2px_2px_0px_0px_rgba(0,0,0,1)]">
+                        <div>
+                            <span class="font-fredoka font-black text-black dark:text-white block leading-tight">{{ $staff->name }}</span>
+                            <small class="text-muted uppercase text-[10px]">{{ str_replace('_', ' ', $staff->role) }}</small>
                         </div>
-                        <div class="progress progress-xs">
-                            <div class="progress-bar bg-primary" style="width: {{ round(($count / $categoryTotal) * 100) }}%"></div>
-                        </div>
+                        <span class="badge bg-[#00E676] text-black border border-black font-fredoka font-black px-2 py-1 text-xs">
+                            Aktif
+                        </span>
                     </div>
                 @endforeach
             </div>
         </div>
-    </div>
-</div>
 
-{{-- Row 4 : Distribusi Beban Kerja (kiri) + Ringkasan Antrian & Status (kanan) --}}
-<div class="row">
-    <div class="col-lg-8">
-        <div class="card support-shell-card mb-3">
-            <div class="card-header border-0 bg-white">
-                <h3 class="card-title mb-0">Distribusi Beban Kerja</h3>
-            </div>
-            <div class="card-body">
-                <div class="row text-center">
-                    <div class="col-md-3 mb-2">
-                        <small class="d-block text-muted">Diproses</small>
-                        <span class="font-weight-bold">{{ round(($inProgressTickets / $totalWork) * 100) }}%</span>
-                        <div class="progress progress-xs mt-1"><div class="progress-bar bg-primary" style="width: {{ round(($inProgressTickets / $totalWork) * 100) }}%"></div></div>
-                    </div>
-                    <div class="col-md-3 mb-2">
-                        <small class="d-block text-muted">Unqueued/Open</small>
-                        <span class="font-weight-bold">{{ round(($openTickets / $totalWork) * 100) }}%</span>
-                        <div class="progress progress-xs mt-1"><div class="progress-bar bg-warning" style="width: {{ round(($openTickets / $totalWork) * 100) }}%"></div></div>
-                    </div>
-                    <div class="col-md-3 mb-2">
-                        <small class="d-block text-muted">Menunggu User</small>
-                        <span class="font-weight-bold">{{ round(($pendingUserTickets / $totalWork) * 100) }}%</span>
-                        <div class="progress progress-xs mt-1"><div class="progress-bar bg-info" style="width: {{ round(($pendingUserTickets / $totalWork) * 100) }}%"></div></div>
-                    </div>
-                    <div class="col-md-3 mb-2">
-                        <small class="d-block text-muted">Escalated</small>
-                        <span class="font-weight-bold text-danger">{{ round(($overdueTickets / $totalWork) * 100) }}%</span>
-                        <div class="progress progress-xs mt-1"><div class="progress-bar bg-danger" style="width: {{ round(($overdueTickets / $totalWork) * 100) }}%"></div></div>
-                    </div>
+        <!-- SLA Snapshot Card -->
+        <div class="card border-4 border-black dark:border-white rounded-3xl p-4 shadow-[6px_6px_0px_0px_rgba(0,0,0,1)] dark:shadow-[6px_6px_0px_0px_#FFE600] bg-white dark:bg-[#121212]">
+            <h3 class="font-fredoka font-black text-xl text-black dark:text-white uppercase border-b-4 border-black pb-3 mb-3">Snapshot Queue & SLA</h3>
+            <div class="font-jakarta font-extrabold text-sm space-y-2">
+                <div>
+                    <span class="text-xs text-muted uppercase block">Queue Aktif</span>
+                    <span class="font-fredoka font-black text-2xl text-black dark:text-white">{{ $activeQueues }}</span>
                 </div>
-            </div>
-        </div>
-    </div>
-
-    <div class="col-md-4">
-        <div class="card card-outline card-info shadow-sm mb-3">
-            <div class="card-header border-0">
-                <h3 class="card-title mb-0">Ringkasan Antrian & Status</h3>
-            </div>
-            <div class="card-body">
-                <div class="mb-3">
-                    <small class="text-muted d-block">Queue Aktif</small>
-                    <strong>{{ $activeQueues }}</strong>
-                    <div class="progress progress-xs mt-1"><div class="progress-bar bg-primary" style="width: {{ $totalQueues > 0 ? round(($activeQueues / $totalQueues) * 100) : 0 }}%"></div></div>
-                </div>
-                <div class="mb-3">
-                    <small class="text-muted d-block">Approval Pending</small>
-                    <strong>{{ $pendingApprovals }}</strong>
-                    <div class="progress progress-xs mt-1"><div class="progress-bar bg-warning" style="width: {{ $totalTickets > 0 ? round(($pendingApprovals / $totalTickets) * 100) : 0 }}%"></div></div>
-                </div>
-                <div class="mb-1">
-                    <small class="text-muted d-block">SLA Terlewat</small>
-                    <strong class="text-danger">{{ $overdueTickets }}</strong>
-                    <div class="progress progress-xs mt-1"><div class="progress-bar bg-danger" style="width: {{ max(min($overdueTickets * 10, 100), 0) }}%"></div></div>
+                <div class="border-top-2 border-dashed border-black pt-2">
+                    <span class="text-xs text-muted uppercase block">Approval Pending</span>
+                    <span class="font-fredoka font-black text-2xl text-[#FF007A]">{{ $pendingApprovalTickets->count() }}</span>
                 </div>
             </div>
         </div>

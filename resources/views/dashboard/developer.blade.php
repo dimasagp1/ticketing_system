@@ -5,148 +5,143 @@
     $inProgressCount = auth()->user()->assignedQueues()->where('status', 'In Progress')->count();
     $pendingCount = auth()->user()->assignedQueues()->where('status', 'Pending')->count();
     $activeChats = auth()->user()->developerConversations()->where('status', 'active')->count();
-    $workloadBase = max($assignedCount, 1);
 @endphp
 
-<div class="d-flex justify-content-between align-items-center mb-4 mt-2">
-    <div>
-        <p class="text-muted mb-0 font-weight-500">Pantau antrian yang ditugaskan, progres pengerjaan, dan percakapan aktif.</p>
-    </div>
-    <a href="{{ route('chat.index') }}" class="btn btn-primary px-4 shadow-sm" style="border-radius: 0.5rem; font-weight: 500;">
-        <i class="fas fa-comments mr-2"></i> Buka Chat
+<!-- Quick Action Button Row -->
+<div class="d-flex justify-content-end mb-4">
+    <a href="{{ route('queues.index') }}" class="btn btn-primary font-fredoka font-black border-4 border-black dark:border-white rounded-2xl px-4 py-2.5 bg-[#0055FF] text-white hover:bg-[#FFE600] hover:text-black shadow-[4px_4px_0px_0px_rgba(0,0,0,1)] dark:shadow-[4px_4px_0px_0px_#FFE600] active:translate-x-1 active:translate-y-1 transition-all inline-flex items-center gap-2 select-none">
+        <i class="fas fa-layer-group"></i> Lihat Semua Queue ⚡
     </a>
 </div>
 
+<!-- Stat Cards Row -->
 <div class="row">
-    <div class="col-lg-3 col-sm-6 mb-3">
-        <div class="support-stat-card">
+    <div class="col-lg-3 col-sm-6 mb-4">
+        <div class="card border-4 border-black dark:border-white rounded-3xl p-4 shadow-[6px_6px_0px_0px_rgba(0,0,0,1)] dark:shadow-[6px_6px_0px_0px_#FFE600] bg-white dark:bg-[#121212] h-100 flex flex-col justify-between">
             <div class="d-flex justify-content-between align-items-center mb-2">
-                <span class="badge badge-primary"><i class="fas fa-layer-group"></i></span>
-                <small class="text-muted">Ditugaskan</small>
+                <span class="badge bg-[#FFE600] text-black border-2 border-black font-fredoka font-black px-3 py-1 rounded-full">
+                    <i class="fas fa-tasks mr-1"></i> DITUGASKAN
+                </span>
+                <small class="font-fredoka font-black text-[#0055FF]">Tugas</small>
             </div>
-            <div class="support-stat-value">{{ $assignedCount }}</div>
-            <div class="support-stat-label">Total Antrian</div>
+            <div class="font-fredoka font-black text-4xl text-black dark:text-white my-2">{{ number_format($assignedCount) }}</div>
+            <div class="font-jakarta font-extrabold text-xs text-muted uppercase">Total Queue Ditugaskan</div>
         </div>
     </div>
-    <div class="col-lg-3 col-sm-6 mb-3">
-        <div class="support-stat-card">
+
+    <div class="col-lg-3 col-sm-6 mb-4">
+        <div class="card border-4 border-black dark:border-white rounded-3xl p-4 shadow-[6px_6px_0px_0px_rgba(0,0,0,1)] dark:shadow-[6px_6px_0px_0px_#FFE600] bg-white dark:bg-[#121212] h-100 flex flex-col justify-between">
             <div class="d-flex justify-content-between align-items-center mb-2">
-                <span class="badge badge-info"><i class="fas fa-spinner"></i></span>
-                <small class="text-info">Berjalan</small>
+                <span class="badge bg-[#0055FF] text-white border-2 border-black font-fredoka font-black px-3 py-1 rounded-full">
+                    <i class="fas fa-spinner fa-spin mr-1"></i> DIPROSES
+                </span>
+                <small class="font-fredoka font-black text-[#0055FF]">In Progress</small>
             </div>
-            <div class="support-stat-value">{{ $inProgressCount }}</div>
-            <div class="support-stat-label">Sedang Dikerjakan</div>
+            <div class="font-fredoka font-black text-4xl text-black dark:text-white my-2">{{ $inProgressCount }}</div>
+            <div class="font-jakarta font-extrabold text-xs text-muted uppercase">Queue Sedang Dikerjakan</div>
         </div>
     </div>
-    <div class="col-lg-3 col-sm-6 mb-3">
-        <div class="support-stat-card">
+
+    <div class="col-lg-3 col-sm-6 mb-4">
+        <div class="card border-4 border-black dark:border-white rounded-3xl p-4 shadow-[6px_6px_0px_0px_rgba(0,0,0,1)] dark:shadow-[6px_6px_0px_0px_#FFE600] bg-white dark:bg-[#121212] h-100 flex flex-col justify-between">
             <div class="d-flex justify-content-between align-items-center mb-2">
-                <span class="badge badge-success"><i class="fas fa-check-circle"></i></span>
-                <small class="text-success">Selesai</small>
+                <span class="badge bg-[#00E676] text-black border-2 border-black font-fredoka font-black px-3 py-1 rounded-full">
+                    <i class="fas fa-check-circle mr-1"></i> SELESAI
+                </span>
+                <small class="font-fredoka font-black text-[#00E676]">Done</small>
             </div>
-            <div class="support-stat-value">{{ $completedCount }}</div>
-            <div class="support-stat-label">Terselesaikan</div>
+            <div class="font-fredoka font-black text-4xl text-black dark:text-white my-2">{{ $completedCount }}</div>
+            <div class="font-jakarta font-extrabold text-xs text-muted uppercase">Queue Selesai Dikerjakan</div>
         </div>
     </div>
-    <div class="col-lg-3 col-sm-6 mb-3">
-        <div class="support-stat-card">
+
+    <div class="col-lg-3 col-sm-6 mb-4">
+        <div class="card border-4 border-black dark:border-white rounded-3xl p-4 shadow-[6px_6px_0px_0px_rgba(0,0,0,1)] dark:shadow-[6px_6px_0px_0px_#FFE600] bg-white dark:bg-[#121212] h-100 flex flex-col justify-between">
             <div class="d-flex justify-content-between align-items-center mb-2">
-                <span class="badge badge-warning"><i class="fas fa-comments"></i></span>
-                <small class="text-warning">Aktif</small>
+                <span class="badge bg-[#FF007A] text-white border-2 border-black font-fredoka font-black px-3 py-1 rounded-full">
+                    <i class="fas fa-comments mr-1"></i> CHAT
+                </span>
+                <small class="font-fredoka font-black text-[#FF007A]">Aktif</small>
             </div>
-            <div class="support-stat-value">{{ $activeChats }}</div>
-            <div class="support-stat-label">Chat Aktif</div>
+            <div class="font-fredoka font-black text-4xl text-black dark:text-white my-2">{{ $activeChats }}</div>
+            <div class="font-jakarta font-extrabold text-xs text-muted uppercase">Percakapan Aktif</div>
         </div>
     </div>
 </div>
 
+<!-- Main Content Grid -->
 <div class="row">
-    <div class="col-lg-8">
-        <div class="card support-shell-card mb-3">
-            <div class="card-header border-0 d-flex justify-content-between align-items-center bg-white">
-                <h3 class="card-title mb-0">Proyek Tugas Saya</h3>
-                <a href="{{ route('queues.index') }}" class="btn btn-link btn-sm">Lihat Antrian</a>
+    <!-- Left Column: Tables -->
+    <div class="col-lg-8 mb-4 space-y-6">
+        
+        <!-- 1. Queue Ditugaskan Kepada Saya -->
+        <div class="card border-4 border-black dark:border-white rounded-3xl p-4 shadow-[6px_6px_0px_0px_rgba(0,0,0,1)] dark:shadow-[6px_6px_0px_0px_#FFE600] bg-white dark:bg-[#121212]">
+            <div class="d-flex justify-content-between align-items-center border-b-4 border-black pb-3 mb-3">
+                <h3 class="font-fredoka font-black text-xl text-black dark:text-white uppercase mb-0">
+                    Queue Ditugaskan Kepada Saya ⚡
+                </h3>
+                <a href="{{ route('queues.index') }}" class="btn btn-sm bg-[#FFE600] text-black border-2 border-black font-fredoka font-black px-3 py-1 rounded-full shadow-[2px_2px_0px_0px_rgba(0,0,0,1)] hover:bg-[#FF007A] hover:text-white">
+                    Lihat Semua Queue
+                </a>
             </div>
-            <div class="card-body p-0">
-                <div class="table-responsive">
-                    <table class="table table-hover mb-0">
-                        <thead class="bg-light">
+            <div class="table-responsive">
+                <table class="table border-3 border-black rounded-2xl w-100 text-sm font-jakarta font-extrabold">
+                    <thead>
+                        <tr class="bg-[#FFE600] text-black font-fredoka font-black uppercase border-b-3 border-black">
+                            <th class="p-3">QUEUE #</th>
+                            <th class="p-3">NAMA TASK / PROYEK</th>
+                            <th class="p-3">STATUS</th>
+                            <th class="p-3">TANGGAL ASSIGN</th>
+                            <th class="p-3 text-right">AKSI</th>
+                        </tr>
+                    </thead>
+                    <tbody>
+                        @forelse($assigned->take(6)->get() as $queue)
                             <tr>
-                                <th class="pl-4 border-bottom-0">Nama Proyek</th>
-                                <th class="d-none d-md-table-cell border-bottom-0">Client</th>
-                                <th class="border-bottom-0">Status</th>
-                                <th class="border-bottom-0">Progres</th>
-                                <th class="border-bottom-0">Deadline</th>
-                                <th class="pr-4 border-bottom-0 text-right">Aksi</th>
+                                <td class="p-3"><span class="badge bg-black text-white font-fredoka font-black">#{{ $queue->id }}</span></td>
+                                <td class="p-3 font-fredoka font-black text-black dark:text-white">
+                                    {{ $queue->projectRequest->title ?? 'Queue Item' }}
+                                </td>
+                                <td class="p-3">
+                                    <span class="badge bg-[#0055FF] text-white border-2 border-black font-fredoka font-black text-xs px-2 py-1">
+                                        {{ $queue->status }}
+                                    </span>
+                                </td>
+                                <td class="p-3 font-mono text-xs">{{ $queue->created_at->format('d/m/Y H:i') }}</td>
+                                <td class="p-3 text-right">
+                                    <a href="{{ route('queues.show', $queue) }}" class="btn btn-sm bg-[#FF007A] text-white border-2 border-black font-fredoka font-black rounded-xl px-3 py-1 shadow-[2px_2px_0px_0px_rgba(0,0,0,1)] hover:bg-[#FFE600] hover:text-black">
+                                        <i class="fas fa-edit"></i> Update
+                                    </a>
+                                </td>
                             </tr>
-                        </thead>
-                        <tbody>
-                            @forelse(auth()->user()->assignedQueues()->latest()->take(8)->get() as $queue)
-                                    <tr>
-                                        <td class="pl-4 font-weight-600 text-dark">{{ $queue->project_name }}</td>
-                                        <td class="d-none d-md-table-cell text-muted">{{ $queue->client_name }}</td>
-                                        <td>
-                                            <span class="badge badge-{{ $queue->status == 'Completed' ? 'success' : ($queue->status == 'In Progress' ? 'primary' : ($queue->status == 'Pending' ? 'warning' : 'secondary')) }}">
-                                                {{ $queue->status }}
-                                            </span>
-                                        </td>
-                                        <td>
-                                            <div class="d-flex align-items-center">
-                                                <div class="progress progress-xs w-100 mr-2">
-                                                    <div class="progress-bar bg-{{ $queue->status == 'Completed' ? 'success' : 'primary' }}" style="width: {{ $queue->progress }}%"></div>
-                                                </div>
-                                                <small class="font-weight-600">{{ $queue->progress }}%</small>
-                                            </div>
-                                        </td>
-                                        <td class="text-muted small"><i class="far fa-clock mr-1"></i> {{ $queue->deadline ? $queue->deadline->format('d M Y') : '-' }}</td>
-                                        <td class="pr-4 text-right">
-                                            <a href="{{ route('progress.show', $queue) }}" class="btn btn-sm btn-light text-info" title="Lihat Progres"><i class="fas fa-eye"></i></a>
-                                        </td>
-                                    </tr>
-                            @empty
-                                <tr>
-                                    <td colspan="6" class="text-center py-4 text-muted">Belum ada proyek yang ditugaskan.</td>
-                                </tr>
-                            @endforelse
-                        </tbody>
-                    </table>
-                </div>
+                        @empty
+                            <tr>
+                                <td colspan="5" class="text-center p-4 font-jakarta font-extrabold text-muted">
+                                    Belum ada queue yang ditugaskan kepada Anda.
+                                </td>
+                            </tr>
+                        @endforelse
+                    </tbody>
+                </table>
             </div>
         </div>
+
     </div>
 
-    <div class="col-lg-4">
-        <div class="card support-shell-card mb-3">
-            <div class="card-header border-0 bg-white pt-4 px-4 pb-2">
-                <h3 class="card-title mb-0 font-weight-bold" style="font-size: 1.15rem;">Distribusi Beban Kerja</h3>
-            </div>
-            <div class="card-body px-4 pb-4 pt-2">
-                <div class="mb-3">
-                    <div class="d-flex justify-content-between mb-1"><small class="text-muted font-weight-600">Sedang Dikerjakan</small><small class="font-weight-600">{{ round(($inProgressCount / $workloadBase) * 100) }}%</small></div>
-                    <div class="progress progress-xs"><div class="progress-bar bg-primary" style="width: {{ round(($inProgressCount / $workloadBase) * 100) }}%"></div></div>
-                </div>
-                <div class="mb-3">
-                    <div class="d-flex justify-content-between mb-1"><small class="text-muted font-weight-600">Menunggu</small><small class="font-weight-600">{{ round(($pendingCount / $workloadBase) * 100) }}%</small></div>
-                    <div class="progress progress-xs"><div class="progress-bar bg-warning" style="width: {{ round(($pendingCount / $workloadBase) * 100) }}%"></div></div>
-                </div>
-                <div class="mb-3">
-                    <div class="d-flex justify-content-between mb-1"><small class="text-muted font-weight-600">Terselesaikan</small><small class="font-weight-600">{{ round(($completedCount / $workloadBase) * 100) }}%</small></div>
-                    <div class="progress progress-xs"><div class="progress-bar bg-success" style="width: {{ round(($completedCount / $workloadBase) * 100) }}%"></div></div>
-                </div>
-                <div class="mb-0">
-                    <div class="d-flex justify-content-between mb-1"><small class="text-muted font-weight-600">Aktivitas Chat</small><small class="font-weight-600">{{ $activeChats }}</small></div>
-                    <div class="progress progress-xs"><div class="progress-bar bg-info" style="width: {{ max(min($activeChats * 10, 100), 0) }}%"></div></div>
-                </div>
-            </div>
-        </div>
-
-        <div class="card support-shell-card mb-3">
-            <div class="card-header border-0 bg-white pt-4 px-4 pb-2">
-                <h3 class="card-title mb-0 font-weight-bold" style="font-size: 1.15rem;">Aksi Cepat</h3>
-            </div>
-            <div class="card-body px-4 pb-4 pt-2">
-                <a href="{{ route('queues.index') }}" class="btn btn-light btn-block mb-2 font-weight-500 text-left px-3"><i class="fas fa-list text-primary mr-2" style="width: 20px;"></i> Buka Papan Antrian</a>
-                <a href="{{ route('chat.index') }}" class="btn btn-light btn-block font-weight-500 text-left px-3"><i class="fas fa-comments text-info mr-2" style="width: 20px;"></i> Balas Chat</a>
+    <!-- Right Side Widgets -->
+    <div class="col-lg-4 mb-4 space-y-6">
+        <!-- Developer Tools Card -->
+        <div class="card border-4 border-black dark:border-white rounded-3xl p-4 shadow-[6px_6px_0px_0px_rgba(0,0,0,1)] dark:shadow-[6px_6px_0px_0px_#FFE600] bg-white dark:bg-[#121212]">
+            <h3 class="font-fredoka font-black text-xl text-black dark:text-white uppercase border-b-4 border-black pb-3 mb-3">Developer Quick Menu 🛠️</h3>
+            <div class="space-y-3 font-jakarta font-extrabold">
+                <a href="{{ route('daily-logs.index') }}" class="btn btn-primary font-fredoka font-black border-3 border-black rounded-2xl w-full py-2.5 bg-[#00E676] text-black hover:bg-[#FFE600] shadow-[3px_3px_0px_0px_rgba(0,0,0,1)] flex items-center justify-between px-4">
+                    <span><i class="fas fa-clipboard-list mr-2"></i> Log Pengerjaan Harian</span>
+                    <i class="fas fa-arrow-right"></i>
+                </a>
+                <a href="{{ route('chat.index') }}" class="btn btn-primary font-fredoka font-black border-3 border-black rounded-2xl w-full py-2.5 bg-[#0055FF] text-white hover:bg-[#FFE600] hover:text-black shadow-[3px_3px_0px_0px_rgba(0,0,0,1)] flex items-center justify-between px-4">
+                    <span><i class="fas fa-comments mr-2"></i> Chat Diskusi Klien</span>
+                    <i class="fas fa-arrow-right"></i>
+                </a>
             </div>
         </div>
     </div>
