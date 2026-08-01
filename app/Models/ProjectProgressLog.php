@@ -14,6 +14,9 @@ class ProjectProgressLog extends Model
         'project_stage_id',
         'progress_percentage',
         'activity_description',
+        'attachment_path',
+        'attachment_name',
+        'attachment_type',
         'updated_by',
         'stage_started_at',
         'stage_completed_at',
@@ -23,6 +26,36 @@ class ProjectProgressLog extends Model
         'stage_started_at' => 'datetime',
         'stage_completed_at' => 'datetime',
     ];
+
+    public function hasAttachment(): bool
+    {
+        return !empty($this->attachment_path);
+    }
+
+    public function getIsImageAttribute(): bool
+    {
+        if (!$this->attachment_type && !$this->attachment_name) {
+            return false;
+        }
+        $mime = strtolower((string) $this->attachment_type);
+        $ext = strtolower(pathinfo((string) $this->attachment_name, PATHINFO_EXTENSION));
+        return str_contains($mime, 'image') || in_array($ext, ['jpg', 'jpeg', 'png', 'gif', 'webp', 'svg'], true);
+    }
+
+    public function getFileIconClassAttribute(): string
+    {
+        if ($this->is_image) {
+            return 'fa-file-image text-purple';
+        }
+        $ext = strtolower(pathinfo((string) $this->attachment_name, PATHINFO_EXTENSION));
+        return match ($ext) {
+            'pdf' => 'fa-file-pdf text-danger',
+            'doc', 'docx' => 'fa-file-word text-primary',
+            'xls', 'xlsx' => 'fa-file-excel text-success',
+            'zip', 'rar', '7z' => 'fa-file-archive text-warning',
+            default => 'fa-file-alt text-info',
+        };
+    }
 
     // Relationships
     public function queue()

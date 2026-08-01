@@ -76,11 +76,11 @@
         
         <!-- 1. Queue Ditugaskan Kepada Saya -->
         <div class="card border-4 border-black dark:border-white rounded-3xl p-4 shadow-[6px_6px_0px_0px_rgba(0,0,0,1)] dark:shadow-[6px_6px_0px_0px_#FFE600] bg-white dark:bg-[#121212]">
-            <div class="d-flex justify-content-between align-items-center border-b-4 border-black pb-3 mb-3">
+            <div class="d-flex justify-content-between align-items-center border-b-4 border-black dark:border-white pb-3 mb-3">
                 <h3 class="font-fredoka font-black text-xl text-black dark:text-white uppercase mb-0">
                     Queue Ditugaskan Kepada Saya ⚡
                 </h3>
-                <a href="{{ route('queues.index') }}" class="btn btn-sm bg-[#FFE600] text-black border-2 border-black font-fredoka font-black px-3 py-1 rounded-full shadow-[2px_2px_0px_0px_rgba(0,0,0,1)] hover:bg-[#FF007A] hover:text-white">
+                <a href="{{ route('queues.index') }}" class="btn btn-sm !bg-[#FFE600] !text-black border-2 border-black font-fredoka font-black px-3 py-1 rounded-full shadow-[2px_2px_0px_0px_rgba(0,0,0,1)] hover:!bg-[#FF007A] hover:!text-white transition-all">
                     Lihat Semua Queue
                 </a>
             </div>
@@ -100,7 +100,7 @@
                             <tr>
                                 <td class="p-3"><span class="badge bg-black text-white font-fredoka font-black">#{{ $queue->id }}</span></td>
                                 <td class="p-3 font-fredoka font-black text-black dark:text-white">
-                                    {{ $queue->projectRequest->title ?? 'Queue Item' }}
+                                    {{ $queue->projectRequest->title ?? $queue->project_name }}
                                 </td>
                                 <td class="p-3">
                                     <span class="badge bg-[#0055FF] text-white border-2 border-black font-fredoka font-black text-xs px-2 py-1">
@@ -109,8 +109,8 @@
                                 </td>
                                 <td class="p-3 font-mono text-xs">{{ $queue->created_at->format('d/m/Y H:i') }}</td>
                                 <td class="p-3 text-right">
-                                    <a href="{{ route('queues.show', $queue) }}" class="btn btn-sm bg-[#FF007A] text-white border-2 border-black font-fredoka font-black rounded-xl px-3 py-1 shadow-[2px_2px_0px_0px_rgba(0,0,0,1)] hover:bg-[#FFE600] hover:text-black">
-                                        <i class="fas fa-edit"></i> Update
+                                    <a href="{{ route('progress.show', $queue) }}" class="btn btn-sm !bg-[#FF007A] !text-white border-2 border-black font-fredoka font-black rounded-xl px-3 py-1 shadow-[2px_2px_0px_0px_rgba(0,0,0,1)] hover:!bg-[#FFE600] hover:!text-black transition-all">
+                                        <i class="fas fa-edit mr-1"></i> Update
                                     </a>
                                 </td>
                             </tr>

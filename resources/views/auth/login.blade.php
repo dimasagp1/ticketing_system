@@ -6,8 +6,24 @@
     <meta name="csrf-token" content="{{ csrf_token() }}">
     <title>Login - {{ \App\Helpers\SettingsHelper::get('app_name', config('app.name', 'TOONWORLD Ticketing Portal')) }}</title>
     
-    @if(\App\Helpers\SettingsHelper::get('app_favicon'))
-        <link rel="icon" href="{{ asset('storage/' . \App\Helpers\SettingsHelper::get('app_favicon')) }}" type="image/x-icon">
+    @php
+        $favPath = \App\Helpers\SettingsHelper::get('app_favicon') ?: \App\Helpers\SettingsHelper::get('app_logo');
+    @endphp
+    @if($favPath)
+        @php
+            $favExt = strtolower(pathinfo($favPath, PATHINFO_EXTENSION));
+            $favMime = match($favExt) {
+                'png' => 'image/png',
+                'svg' => 'image/svg+xml',
+                'gif' => 'image/gif',
+                'jpg', 'jpeg' => 'image/jpeg',
+                default => 'image/x-icon',
+            };
+            $favVersion = file_exists(public_path('storage/' . $favPath)) ? filemtime(public_path('storage/' . $favPath)) : time();
+        @endphp
+        <link rel="icon" type="{{ $favMime }}" href="{{ asset('storage/' . $favPath) }}?v={{ $favVersion }}">
+        <link rel="shortcut icon" type="{{ $favMime }}" href="{{ asset('storage/' . $favPath) }}?v={{ $favVersion }}">
+        <link rel="apple-touch-icon" href="{{ asset('storage/' . $favPath) }}?v={{ $favVersion }}">
     @endif
     
     <!-- Google Fonts: Fredoka & Plus Jakarta Sans -->

@@ -8,6 +8,7 @@ use App\Models\ProjectProgressLog;
 use App\Models\ActivityLog;
 use App\Services\SystemEmailNotifier;
 use Illuminate\Http\Request;
+use Illuminate\Support\Facades\Storage;
 
 class ProjectProgressController extends Controller
 {
@@ -32,7 +33,19 @@ class ProjectProgressController extends Controller
             'stage_id' => 'required|exists:project_stages,id',
             'activity_description' => 'required|string',
             'progress_percentage' => 'required|integer|min:0|max:100',
+            'attachment' => 'nullable|file|max:10240', // 10MB max
         ]);
+
+        $attachmentData = [];
+        if ($request->hasFile('attachment')) {
+            $file = $request->file('attachment');
+            $path = $file->store('progress_attachments', 'public');
+            $attachmentData = [
+                'attachment_path' => $path,
+                'attachment_name' => $file->getClientOriginalName(),
+                'attachment_type' => $file->getClientMimeType(),
+            ];
+        }
 
         // Complete current stage if exists
         $currentStage = $queue->getCurrentStage();
@@ -41,14 +54,16 @@ class ProjectProgressController extends Controller
         }
 
         // Create new progress log
-        $progressLog = ProjectProgressLog::create([
+        $progressLogData = array_merge([
             'queue_id' => $queue->id,
             'project_stage_id' => $request->stage_id,
             'progress_percentage' => $request->progress_percentage,
             'activity_description' => $request->activity_description,
             'updated_by' => auth()->id(),
             'stage_started_at' => now(),
-        ]);
+        ], $attachmentData);
+
+        $progressLog = ProjectProgressLog::create($progressLogData);
 
         // Update queue progress
         $queue->updateProgress($request->progress_percentage);
@@ -77,20 +92,40 @@ class ProjectProgressController extends Controller
 
         ActivityLog::log('update_progress', 'Updated project progress to ' . $request->progress_percentage . '%', $queue);
 
-        if ($queue->projectRequest && $queue->projectRequest->client) {
+        if ($queue->projectRequest) {
             $projectRequest = $queue->projectRequest;
             $ticketCode = $projectRequest->ticket_number ?? ('#' . $projectRequest->id);
             $stageName = optional($progressLog->projectStage)->name ?? 'Tahap Progres';
+            $developerName = auth()->user()->name;
 
-            SystemEmailNotifier::sendToUser(
-                $projectRequest->client,
-                'Update Progres Tiket: ' . $ticketCode,
-                'Ada pembaruan progres pada tiket Anda',
-                "Tiket {$ticketCode} ({$projectRequest->project_name}) diperbarui ke {$request->progress_percentage}% pada tahap {$stageName}.\nCatatan: {$request->activity_description}",
-                route('project-requests.show', $projectRequest),
-                'Lihat Progres Tiket',
-                'Anda menerima email ini karena notifikasi progres aktif.'
-            );
+            // 1. Kirim Email Notifikasi ke Klien
+            if ($projectRequest->client) {
+                SystemEmailNotifier::sendToUser(
+                    $projectRequest->client,
+                    'Update Progres Tiket: ' . $ticketCode,
+                    'Ada pembaruan progres pada tiket Anda',
+                    "Tiket {$ticketCode} ({$projectRequest->project_name}) diperbarui ke {$request->progress_percentage}% pada tahap {$stageName}.\nCatatan: {$request->activity_description}",
+                    route('project-requests.show', $projectRequest),
+                    'Lihat Progres Tiket',
+                    'Anda menerima email ini karena notifikasi progres aktif.'
+                );
+            }
+
+            // 2. Kirim Email Notifikasi ke Admin & Super Admin jika di-update oleh Developer
+            if (auth()->user()->isDeveloper()) {
+                $admins = \App\Models\User::whereIn('role', ['admin', 'super_admin'])->where('status', 'active')->get();
+                foreach ($admins as $admin) {
+                    SystemEmailNotifier::sendToUser(
+                        $admin,
+                        'Update Progres Developer: ' . $ticketCode,
+                        "Developer {$developerName} memperbarui progres tiket",
+                        "Developer {$developerName} memperbarui progres tiket {$ticketCode} ({$projectRequest->project_name}) menjadi {$request->progress_percentage}% pada tahap {$stageName}.\nCatatan: {$request->activity_description}",
+                        route('progress.show', $queue),
+                        'Buka Progres Tiket',
+                        'Notifikasi otomatis untuk Admin & Super Admin.'
+                    );
+                }
+            }
         }
 
         return back()->with('success', 'Progres proyek berhasil diperbarui.');
@@ -127,5 +162,29 @@ class ProjectProgressController extends Controller
         $queue->load(['progressLogs.projectStage', 'progressLogs.updatedBy']);
         
         return view('progress.timeline', compact('queue'));
+    }
+
+    public function downloadAttachment(ProjectProgressLog $progressLog)
+    {
+        abort_unless($progressLog->attachment_path && Storage::disk('public')->exists($progressLog->attachment_path), 404);
+
+        return Storage::disk('public')->download($progressLog->attachment_path, $progressLog->attachment_name);
+    }
+
+    public function viewAttachment(ProjectProgressLog $progressLog)
+    {
+        abort_unless($progressLog->attachment_path && Storage::disk('public')->exists($progressLog->attachment_path), 404);
+
+        $mimeType = Storage::disk('public')->mimeType($progressLog->attachment_path) ?? 'application/octet-stream';
+
+        return Storage::disk('public')->response(
+            $progressLog->attachment_path,
+            $progressLog->attachment_name,
+            [
+                'Content-Type' => $mimeType,
+                'Content-Disposition' => 'inline; filename="' . addslashes($progressLog->attachment_name) . '"',
+                'X-Content-Type-Options' => 'nosniff',
+            ]
+        );
     }
 }

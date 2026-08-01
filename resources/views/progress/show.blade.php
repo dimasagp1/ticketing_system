@@ -43,7 +43,13 @@
                 </ul>
 
                 @if($queue->projectRequest)
-                    <a href="{{ route('project-requests.show', $queue->projectRequest) }}" class="btn btn-primary btn-block font-weight-500 shadow-sm mt-4" style="border-radius: 0.5rem;"><b>View Project Details</b></a>
+                    <a href="{{ route('project-requests.show', $queue->projectRequest) }}" class="btn btn-primary btn-block font-weight-500 shadow-sm mt-3" style="border-radius: 0.5rem;"><b>Lihat Detail Proyek</b></a>
+                    <a href="{{ route('berita-acara.pdf', $queue->projectRequest) }}" class="btn btn-outline-danger btn-block font-weight-bold shadow-sm mt-2" style="border-radius: 0.5rem;">
+                        <i class="fas fa-file-pdf mr-1"></i> Export Berita Acara (PDF)
+                    </a>
+                    <button type="button" class="btn btn-outline-dark btn-block font-weight-bold shadow-sm mt-2" style="border-radius: 0.5rem;" onclick="openBeritaAcaraModal('{{ route('berita-acara.print', $queue->projectRequest) }}')">
+                        <i class="fas fa-print mr-1"></i> Pratinjau / Cetak BA
+                    </button>
                 @endif
             </div>
         </div>
@@ -89,10 +95,25 @@
                                         <h3 class="timeline-header"><a href="#">{{ $log->updatedBy->name }}</a> updated: {{ $log->projectStage->name }}</h3>
                                         <div class="timeline-body">
                                             <p>{{ $log->activity_description }}</p>
+                                            
+                                            {{-- Lampiran Progres (Opsional) --}}
+                                            @if($log->attachment_path)
+                                                <div class="mt-2 mb-3 p-2.5 bg-light border rounded-xl d-inline-flex align-items-center gap-2 shadow-sm flex-wrap">
+                                                    <i class="fas {{ $log->file_icon_class }} fa-lg mr-1"></i>
+                                                    <span class="font-weight-bold text-sm mr-2 text-dark">{{ $log->attachment_name }}</span>
+                                                    <a href="{{ route('progress.attachment.view', $log) }}" target="_blank" class="btn btn-xs btn-info px-2 py-1" style="border-radius: 0.4rem;">
+                                                        <i class="fas fa-eye mr-1"></i> Lihat
+                                                    </a>
+                                                    <a href="{{ route('progress.attachment.download', $log) }}" class="btn btn-xs btn-primary px-2 py-1" style="border-radius: 0.4rem;">
+                                                        <i class="fas fa-download mr-1"></i> Unduh
+                                                    </a>
+                                                </div>
+                                            @endif
+
                                             <div class="progress progress-xs">
                                                 <div class="progress-bar bg-success" style="width: {{ $log->progress_percentage }}%"></div>
                                             </div>
-                                            <small class="badge badge-light">{{ $log->progress_percentage }}% Complete</small>
+                                            <small class="badge badge-light border mt-1">{{ $log->progress_percentage }}% Complete</small>
                                         </div>
                                     </div>
                                 </div>
@@ -126,7 +147,7 @@
                    
                     @if(auth()->user()->hasRole(['developer', 'admin', 'super_admin']))
                         <div class="tab-pane" id="update">
-                            <form action="{{ route('progress.update-stage', $queue) }}" method="POST" class="form-horizontal">
+                            <form action="{{ route('progress.update-stage', $queue) }}" method="POST" enctype="multipart/form-data" class="form-horizontal">
                                 @csrf
                                 <div class="form-group row">
                                     <label for="stage_id" class="col-sm-2 col-form-label">Current Stage</label>
@@ -154,8 +175,17 @@
                                     </div>
                                 </div>
                                 <div class="form-group row">
+                                    <label for="attachment" class="col-sm-2 col-form-label">Lampiran (Opsional)</label>
+                                    <div class="col-sm-10">
+                                        <input type="file" class="form-control-file border p-2 rounded-lg bg-light" id="attachment" name="attachment">
+                                        <small class="form-text text-muted">Unggah tangkapan layar, screenshot, bukti pengerjaan, atau dokumen terkait (Maksimal 10MB)</small>
+                                    </div>
+                                </div>
+                                <div class="form-group row">
                                     <div class="offset-sm-2 col-sm-10">
-                                        <button type="submit" class="btn btn-danger">Update Progress</button>
+                                        <button type="submit" class="btn btn-danger font-weight-bold px-4" style="border-radius: 0.5rem;">
+                                            <i class="fas fa-paper-plane mr-1"></i> Update Progress
+                                        </button>
                                     </div>
                                 </div>
                             </form>
@@ -176,6 +206,72 @@
                 </div>
             </div>
         </div>
+</div>
+
+<!-- Modal Pratinjau Berita Acara -->
+@if($queue->projectRequest)
+<div class="modal fade" id="modalBeritaAcara" tabindex="-1" role="dialog" aria-labelledby="modalBeritaAcaraTitle" aria-hidden="true">
+    <div class="modal-dialog modal-xl modal-dialog-centered" role="document" style="max-width: 90vw;">
+        <div class="modal-content border-0 shadow-lg" style="border-radius: 12px; overflow: hidden;">
+            <div class="modal-header bg-dark text-white py-3 px-4 d-flex justify-content-between align-items-center">
+                <h5 class="modal-title font-weight-bold mb-0" id="modalBeritaAcaraTitle">
+                    <i class="fas fa-file-contract text-warning mr-2"></i> Pratinjau Berita Acara IT
+                </h5>
+                <div class="d-flex align-items-center">
+                    <a href="{{ route('berita-acara.pdf', $queue->projectRequest) }}" class="btn btn-sm btn-danger font-weight-bold mr-2" style="border-radius: 6px;">
+                        <i class="fas fa-file-pdf mr-1"></i> Unduh PDF
+                    </a>
+                    <button type="button" class="btn btn-sm btn-warning font-weight-bold mr-2 text-dark" style="border-radius: 6px;" onclick="document.getElementById('iframeBeritaAcara').contentWindow.print()">
+                        <i class="fas fa-print mr-1"></i> Cetak Dokumen
+                    </button>
+                    <button type="button" class="close text-white opacity-100 ml-2" data-dismiss="modal" aria-label="Close" style="outline: none;">
+                        <span aria-hidden="true" style="font-size: 1.5rem;">&times;</span>
+                    </button>
+                </div>
+            </div>
+            <div class="modal-body p-0" style="height: 80vh; background: #e5e7eb;">
+                <iframe id="iframeBeritaAcara" src="" style="width: 100%; height: 100%; border: none;"></iframe>
+            </div>
+        </div>
     </div>
 </div>
+@endif
+
 @endsection
+
+@push('scripts')
+<script>
+    function openBeritaAcaraModal(url) {
+        var iframe = document.getElementById('iframeBeritaAcara');
+        if (iframe) {
+            iframe.src = url;
+        }
+        if (window.jQuery && window.jQuery.fn && window.jQuery.fn.modal) {
+            window.jQuery('#modalBeritaAcara').modal('show');
+        } else {
+            var modalEl = document.getElementById('modalBeritaAcara');
+            if (modalEl) {
+                modalEl.classList.add('show');
+                modalEl.style.display = 'block';
+                document.body.classList.add('modal-open');
+            }
+        }
+    }
+</script>
+@endpush
+
+@push('js')
+<script>
+    if (typeof openBeritaAcaraModal === 'undefined') {
+        function openBeritaAcaraModal(url) {
+            var iframe = document.getElementById('iframeBeritaAcara');
+            if (iframe) {
+                iframe.src = url;
+            }
+            if (window.jQuery && window.jQuery.fn && window.jQuery.fn.modal) {
+                window.jQuery('#modalBeritaAcara').modal('show');
+            }
+        }
+    }
+</script>
+@endpush

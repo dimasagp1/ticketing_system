@@ -12,6 +12,9 @@
         ->count();
 @endphp
 
+<!-- ACC Ticketing Alert Banner -->
+<x-acc-alert :count="$pendingApprovalTickets->count()" :route="route('approvals.index')" />
+
 <!-- Stat Cards Row -->
 <div class="row">
     <div class="col-lg-3 col-sm-6 mb-4">
@@ -83,7 +86,7 @@
                         {{ $pendingApprovalTickets->count() }} Belum Disetujui
                     </span>
                 </div>
-                <a href="{{ route('approvals.index') }}" class="btn btn-sm bg-[#FF007A] text-white border-2 border-black font-fredoka font-black px-3 py-1 rounded-full shadow-[2px_2px_0px_0px_rgba(0,0,0,1)] hover:bg-[#FFE600] hover:text-black">
+                <a href="{{ route('approvals.index') }}" class="btn btn-sm !bg-[#FF007A] !text-white border-2 border-black font-fredoka font-black px-3 py-1 rounded-full shadow-[2px_2px_0px_0px_rgba(0,0,0,1)] hover:!bg-[#FFE600] hover:!text-black transition-all">
                     Tinjau Semua
                 </a>
             </div>
@@ -112,8 +115,8 @@
                                     </span>
                                 </td>
                                 <td class="p-3 text-right">
-                                    <a href="{{ route('approvals.index') }}" class="btn btn-sm bg-[#0055FF] text-white border-2 border-black font-fredoka font-black rounded-xl px-3 py-1 shadow-[2px_2px_0px_0px_rgba(0,0,0,1)] hover:bg-[#FFE600] hover:text-black">
-                                        <i class="fas fa-check-circle"></i> Process
+                                    <a href="{{ route('approvals.index') }}" class="btn btn-sm !bg-[#0055FF] !text-white border-2 border-black font-fredoka font-black rounded-xl px-3 py-1 shadow-[2px_2px_0px_0px_rgba(0,0,0,1)] hover:!bg-[#FFE600] hover:!text-black transition-all">
+                                        <i class="fas fa-check-circle mr-1"></i> Process
                                     </a>
                                 </td>
                             </tr>
@@ -135,7 +138,7 @@
                 <h3 class="font-fredoka font-black text-xl text-black dark:text-white uppercase mb-0">
                     Project & Tiket Aktif Terbaru ⚡
                 </h3>
-                <a href="{{ route('project-requests.index') }}" class="btn btn-sm bg-[#FFE600] text-black border-2 border-black font-fredoka font-black px-3 py-1 rounded-full shadow-[2px_2px_0px_0px_rgba(0,0,0,1)] hover:bg-[#FF007A] hover:text-white">
+                <a href="{{ route('project-requests.index') }}" class="btn btn-sm !bg-[#FFE600] !text-black border-2 border-black font-fredoka font-black px-3 py-1 rounded-full shadow-[2px_2px_0px_0px_rgba(0,0,0,1)] hover:!bg-[#FF007A] hover:!text-white transition-all">
                     Lihat Semua
                 </a>
             </div>

@@ -94,6 +94,23 @@
             <form action="{{ route('approvals.approve', $approval) }}" method="POST">
                 @csrf
                 <div class="card-body px-4 pb-4 pt-2">
+                    <div class="form-group mb-3">
+                        <label class="font-weight-600 text-dark mb-1">
+                            <i class="fas fa-user-tag text-primary mr-1"></i> Penugasan Developer / Teknisi
+                        </label>
+                        <select name="assigned_to" class="form-control" style="border-radius: 0.5rem;">
+                            <option value="">-- Pilih Developer (Opsional) --</option>
+                            @foreach($developers ?? [] as $dev)
+                                <option value="{{ $dev->id }}">
+                                    {{ $dev->name }} ({{ strtoupper(str_replace('_', ' ', $dev->role)) }}) - {{ $dev->assigned_queues_count }} Tiket Aktif
+                                </option>
+                            @endforeach
+                        </select>
+                        <small class="text-muted d-block mt-1">
+                            Pilih teknisi yang akan langsung menangani tiket ini.
+                        </small>
+                    </div>
+
                     <div class="form-group mb-0">
                         <label class="text-muted font-weight-500">Komentar (Opsional)</label>
                         <textarea name="comments" class="form-control" rows="3" placeholder="Tambahkan komentar persetujuan..." style="border-radius: 0.5rem;"></textarea>

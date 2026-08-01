@@ -76,6 +76,26 @@
                     </div>
 
                     <div class="form-group">
+                        <label for="signature_image">Tanda Tangan Digital (Opsional)</label>
+                        @if(auth()->user()->signature_image)
+                            <div class="mb-2 p-2 bg-light border rounded">
+                                <small class="text-muted d-block mb-1">Tanda Tangan Saat Ini:</small>
+                                <img src="{{ asset('storage/' . auth()->user()->signature_image) }}" alt="Tanda Tangan" style="max-height: 70px; border: 1px dashed #999; padding: 4px; background: #fff;">
+                            </div>
+                        @endif
+                        <div class="input-group">
+                            <div class="custom-file">
+                                <input type="file" name="signature_image" class="custom-file-input @error('signature_image') is-invalid @enderror" id="signature_image" accept="image/*">
+                                <label class="custom-file-label" for="signature_image">Pilih file tanda tangan (PNG/JPG)...</label>
+                            </div>
+                        </div>
+                        <small class="form-text text-muted">Gunakan gambar tanda tangan transparan (PNG) untuk dicetak otomatis pada dokumen Berita Acara IT. (Maks. 2MB)</small>
+                        @error('signature_image')
+                            <span class="text-danger small">{{ $message }}</span>
+                        @enderror
+                    </div>
+
+                    <div class="form-group">
                         <label for="email">Email</label>
                         <input type="email" name="email" id="email" class="form-control @error('email') is-invalid @enderror" 
                                value="{{ old('email', auth()->user()->email) }}" required>

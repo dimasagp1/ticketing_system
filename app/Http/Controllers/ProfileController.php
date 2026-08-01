@@ -33,9 +33,20 @@ class ProfileController extends Controller
     {
         $user = $request->user();
         $validated = $request->validated();
-        unset($validated['avatar']);
+        unset($validated['avatar'], $validated['signature_image']);
 
         $user->fill($validated);
+
+        if ($request->hasFile('signature_image')) {
+            $sigFile = $request->file('signature_image');
+            if ($sigFile instanceof UploadedFile && $sigFile->isValid()) {
+                if ($user->signature_image) {
+                    Storage::disk('public')->delete($user->signature_image);
+                }
+                $sigPath = $sigFile->store('signatures', 'public');
+                $user->signature_image = $sigPath;
+            }
+        }
 
         if ($request->hasFile('avatar')) {
             $file = $request->file('avatar');

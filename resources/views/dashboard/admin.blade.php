@@ -12,6 +12,9 @@
     $totalQueues = \App\Models\Queue::count();
 @endphp
 
+<!-- ACC Ticketing Alert Banner -->
+<x-acc-alert :count="$pendingApprovalTickets->count()" :route="route('approvals.index')" />
+
 <!-- Stat Cards Row -->
 <div class="row">
     <div class="col-lg-3 col-sm-6 mb-4">
@@ -83,7 +86,7 @@
                         {{ $pendingApprovalTickets->count() }} Belum Disetujui
                     </span>
                 </div>
-                <a href="{{ route('approvals.index') }}" class="btn btn-sm bg-[#FF007A] text-white border-2 border-black font-fredoka font-black px-3 py-1 rounded-full shadow-[2px_2px_0px_0px_rgba(0,0,0,1)] hover:bg-[#FFE600] hover:text-black">
+                <a href="{{ route('approvals.index') }}" class="btn btn-sm !bg-[#FF007A] !text-white border-2 border-black font-fredoka font-black px-3 py-1 rounded-full shadow-[2px_2px_0px_0px_rgba(0,0,0,1)] hover:!bg-[#FFE600] hover:!text-black transition-all">
                     Tinjau Semua
                 </a>
             </div>
@@ -112,8 +115,8 @@
                                     </span>
                                 </td>
                                 <td class="p-3 text-right">
-                                    <a href="{{ route('approvals.index') }}" class="btn btn-sm bg-[#0055FF] text-white border-2 border-black font-fredoka font-black rounded-xl px-3 py-1 shadow-[2px_2px_0px_0px_rgba(0,0,0,1)] hover:bg-[#FFE600] hover:text-black">
-                                        <i class="fas fa-check-circle"></i> Process
+                                    <a href="{{ route('approvals.index') }}" class="btn btn-sm !bg-[#0055FF] !text-white border-2 border-black font-fredoka font-black rounded-xl px-3 py-1 shadow-[2px_2px_0px_0px_rgba(0,0,0,1)] hover:!bg-[#FFE600] hover:!text-black transition-all">
+                                        <i class="fas fa-check-circle mr-1"></i> Process
                                     </a>
                                 </td>
                             </tr>
@@ -135,7 +138,7 @@
                 <h3 class="font-fredoka font-black text-xl text-black dark:text-white uppercase mb-0">
                     Project & Tiket Aktif Terbaru ⚡
                 </h3>
-                <a href="{{ route('project-requests.index') }}" class="btn btn-sm bg-[#FFE600] text-black border-2 border-black font-fredoka font-black px-3 py-1 rounded-full shadow-[2px_2px_0px_0px_rgba(0,0,0,1)] hover:bg-[#FF007A] hover:text-white">
+                <a href="{{ route('project-requests.index') }}" class="btn btn-sm !bg-[#FFE600] !text-black border-2 border-black font-fredoka font-black px-3 py-1 rounded-full shadow-[2px_2px_0px_0px_rgba(0,0,0,1)] hover:!bg-[#FF007A] hover:!text-white transition-all">
                     Lihat Semua
                 </a>
             </div>
@@ -201,15 +204,15 @@
     <div class="col-lg-4 mb-4 space-y-6">
         <!-- Team Performance Card -->
         <div class="card border-4 border-black dark:border-white rounded-3xl p-4 shadow-[6px_6px_0px_0px_rgba(0,0,0,1)] dark:shadow-[6px_6px_0px_0px_#FFE600] bg-white dark:bg-[#121212]">
-            <h3 class="font-fredoka font-black text-xl text-black dark:text-white uppercase border-b-4 border-black pb-3 mb-3">Performa Tim IT</h3>
+            <h3 class="font-fredoka font-black text-xl text-black dark:text-white uppercase border-b-4 border-black dark:border-white pb-3 mb-3">Performa Tim IT</h3>
             <div class="space-y-3 font-jakarta font-extrabold text-sm">
                 @foreach(\App\Models\User::whereIn('role', ['admin', 'super_admin', 'developer'])->take(5)->get() as $staff)
-                    <div class="d-flex justify-content-between align-items-center p-2.5 bg-[#FFFBEA] dark:bg-[#1a1a1a] border-2 border-black rounded-2xl shadow-[2px_2px_0px_0px_rgba(0,0,0,1)]">
+                    <div class="d-flex justify-content-between align-items-center p-3 bg-[#FFFBEA] dark:bg-[#1f2937] border-2 border-black dark:border-white rounded-2xl shadow-[3px_3px_0px_0px_rgba(0,0,0,1)] dark:shadow-[3px_3px_0px_0px_#FFE600]">
                         <div>
-                            <span class="font-fredoka font-black text-black dark:text-white block leading-tight">{{ $staff->name }}</span>
-                            <small class="text-muted uppercase text-[10px]">{{ str_replace('_', ' ', $staff->role) }}</small>
+                            <span class="font-fredoka font-black text-black dark:text-white block leading-tight text-base">{{ $staff->name }}</span>
+                            <small class="font-jakarta font-bold text-gray-700 dark:text-gray-300 uppercase text-[11px] block mt-0.5">{{ str_replace('_', ' ', $staff->role) }}</small>
                         </div>
-                        <span class="badge bg-[#00E676] text-black border border-black font-fredoka font-black px-2 py-1 text-xs">
+                        <span class="badge !bg-[#00E676] !text-black border-2 border-black font-fredoka font-black px-2.5 py-1 text-xs shadow-[2px_2px_0px_0px_rgba(0,0,0,1)]">
                             Aktif
                         </span>
                     </div>
@@ -219,14 +222,14 @@
 
         <!-- SLA Snapshot Card -->
         <div class="card border-4 border-black dark:border-white rounded-3xl p-4 shadow-[6px_6px_0px_0px_rgba(0,0,0,1)] dark:shadow-[6px_6px_0px_0px_#FFE600] bg-white dark:bg-[#121212]">
-            <h3 class="font-fredoka font-black text-xl text-black dark:text-white uppercase border-b-4 border-black pb-3 mb-3">Snapshot Queue & SLA</h3>
+            <h3 class="font-fredoka font-black text-xl text-black dark:text-white uppercase border-b-4 border-black dark:border-white pb-3 mb-3">Snapshot Queue & SLA</h3>
             <div class="font-jakarta font-extrabold text-sm space-y-2">
                 <div>
-                    <span class="text-xs text-muted uppercase block">Queue Aktif</span>
+                    <span class="text-xs text-gray-600 dark:text-gray-300 font-bold uppercase block">Queue Aktif</span>
                     <span class="font-fredoka font-black text-2xl text-black dark:text-white">{{ $activeQueues }}</span>
                 </div>
-                <div class="border-top-2 border-dashed border-black pt-2">
-                    <span class="text-xs text-muted uppercase block">Approval Pending</span>
+                <div class="border-top-2 border-dashed border-black dark:border-white pt-2">
+                    <span class="text-xs text-gray-600 dark:text-gray-300 font-bold uppercase block">Approval Pending</span>
                     <span class="font-fredoka font-black text-2xl text-[#FF007A]">{{ $pendingApprovalTickets->count() }}</span>
                 </div>
             </div>

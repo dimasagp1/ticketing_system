@@ -19,8 +19,12 @@ class ProjectRequestController extends Controller
         if ($user->isClient()) {
             $query = ProjectRequest::where('client_id', $user->id)
                 ->with(['requirements', 'approvals']);
+        } elseif ($user->isDeveloper()) {
+            $query = ProjectRequest::whereHas('queue', function ($q) use ($user) {
+                $q->where('assigned_to', $user->id);
+            })->with(['client', 'requirements', 'approvals', 'queue']);
         } else {
-            $query = ProjectRequest::with(['client', 'requirements', 'approvals']);
+            $query = ProjectRequest::with(['client', 'requirements', 'approvals', 'queue']);
         }
 
         if ($request->filled('search')) {
@@ -118,8 +122,8 @@ class ProjectRequestController extends Controller
             'ticket_category' => $validated['ticket_category'],
             'technical_subcategory' => $isTechnicalSupport ? ($validated['technical_subcategory'] ?? null) : null,
             'description' => $validated['description'],
-            'location_detail' => $isTechnicalSupport ? ($validated['location_detail'] ?? null) : null,
-            'asset_code' => $isTechnicalSupport ? ($validated['asset_code'] ?? null) : null,
+            'location_detail' => $validated['location_detail'] ?? null,
+            'asset_code' => $validated['asset_code'] ?? null,
             'affected_users_count' => $isTechnicalSupport ? (int) ($validated['affected_users_count'] ?? 1) : 1,
             'estimated_duration' => $validated['estimated_duration'] ?? null,
             'client_id' => auth()->id(),
@@ -211,8 +215,8 @@ class ProjectRequestController extends Controller
             'ticket_category' => $validated['ticket_category'],
             'technical_subcategory' => $isTechnicalSupport ? ($validated['technical_subcategory'] ?? null) : null,
             'description' => $validated['description'],
-            'location_detail' => $isTechnicalSupport ? ($validated['location_detail'] ?? null) : null,
-            'asset_code' => $isTechnicalSupport ? ($validated['asset_code'] ?? null) : null,
+            'location_detail' => $validated['location_detail'] ?? null,
+            'asset_code' => $validated['asset_code'] ?? null,
             'affected_users_count' => $isTechnicalSupport ? (int) ($validated['affected_users_count'] ?? 1) : 1,
             'estimated_duration' => $validated['estimated_duration'] ?? null,
             'impact' => $validated['impact'],
@@ -267,23 +271,43 @@ class ProjectRequestController extends Controller
 
     public function destroy(ProjectRequest $projectRequest)
     {
-        // Only allow deletion if draft
-        if ($projectRequest->status !== 'draft') {
-            return redirect()->route('project-requests.index')
-                ->with('error', 'Hanya permintaan berstatus draf yang dapat dihapus.');
-        }
+        $user = auth()->user();
 
-        // Authorization check
-        if (auth()->user()->isClient() && $projectRequest->client_id !== auth()->id()) {
+        // Authorization check: Client can delete own ticket if not yet approved. Admin/SuperAdmin can delete any unapproved/draft.
+        if ($user->isClient()) {
+            if ($projectRequest->client_id !== $user->id) {
+                abort(403);
+            }
+
+            if (in_array($projectRequest->status, ['approved', 'converted_to_queue']) || $projectRequest->queue_id) {
+                return back()->with('error', 'Tiket yang sudah disetujui atau sedang diproses tidak dapat dihapus.');
+            }
+        } elseif (!$user->canApproveProjects()) {
             abort(403);
         }
 
-        ActivityLog::logDelete($projectRequest, 'Deleted project request: ' . $projectRequest->project_name);
+        // Delete requirements files & records
+        foreach ($projectRequest->requirements as $req) {
+            if (Storage::disk('public')->exists($req->file_path)) {
+                Storage::disk('public')->delete($req->file_path);
+            }
+            $req->delete();
+        }
 
+        $projectRequest->approvals()->delete();
+        $projectRequest->revisions()->delete();
+
+        if ($projectRequest->queue) {
+            $projectRequest->queue->delete();
+        }
+
+        $ticketName = $projectRequest->title ?? $projectRequest->project_name;
         $projectRequest->delete();
 
+        ActivityLog::log('delete_project_request', "Menghapus tiket/pengajuan '{$ticketName}'", null);
+
         return redirect()->route('project-requests.index')
-            ->with('success', 'Permintaan proyek berhasil dihapus.');
+            ->with('success', "Tiket '{$ticketName}' berhasil dihapus.");
     }
 
     public function submitForApproval(ProjectRequest $projectRequest)

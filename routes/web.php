@@ -99,6 +99,7 @@ Route::middleware(['auth'])->group(function () {
 // Queue Routes
 Route::middleware(['auth'])->group(function () {
     Route::resource('queues', \App\Http\Controllers\QueueController::class)->only(['index']);
+    Route::post('/queues/{queue}/assign', [\App\Http\Controllers\QueueController::class, 'assignDeveloper'])->name('queues.assign');
 });
 
 // Daily Log Routes (Authenticated Users - own logs only)
@@ -121,6 +122,16 @@ Route::middleware(['auth'])->prefix('progress')->name('progress.')->group(functi
     Route::get('/{queue}/timeline', [ProjectProgressController::class, 'timeline'])->name('timeline');
     Route::post('/{queue}/update-stage', [ProjectProgressController::class, 'updateStage'])->name('update-stage');
     Route::post('/{queue}/log-activity', [ProjectProgressController::class, 'logActivity'])->name('log-activity');
+    Route::get('/logs/{progressLog}/attachment/view', [ProjectProgressController::class, 'viewAttachment'])->name('attachment.view');
+    Route::get('/logs/{progressLog}/attachment/download', [ProjectProgressController::class, 'downloadAttachment'])->name('attachment.download');
+});
+
+// Berita Acara Export Routes (Authenticated Users)
+Route::middleware(['auth'])->group(function () {
+    Route::get('berita-acara/{projectRequest}/pdf', [\App\Http\Controllers\BeritaAcaraController::class, 'exportPdf'])
+        ->name('berita-acara.pdf');
+    Route::get('berita-acara/{projectRequest}/print', [\App\Http\Controllers\BeritaAcaraController::class, 'printView'])
+        ->name('berita-acara.print');
 });
 
 // Chat Routes (Authenticated Users)

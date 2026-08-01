@@ -28,6 +28,14 @@ class SettingsHelper
                 'email_notifications' => true,
                 'notification_window_days' => 3,
                 'maintenance_mode' => false,
+                'company_department_name' => 'DEPARTEMEN INFORMATION TECHNOLOGY',
+                'company_subtitle' => 'Formulir Layanan Dukungan Teknis dan Infrastruktur',
+                'company_address' => 'Jl. Raya Perusahaan No. 123',
+                'company_phone' => '(021) 1234567',
+                'company_city' => 'Purbalingga',
+                'head_of_it_name' => 'Head of IT / Manager',
+                'head_of_it_title' => 'IT Officer / Supervisor',
+                'it_supervisor_signature' => '',
             ];
             
             return $defaults[$key] ?? $default;

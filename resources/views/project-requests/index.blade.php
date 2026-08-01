@@ -23,8 +23,8 @@
                 </div>
 
                 @if(auth()->user()->isClient())
-                    <a href="{{ route('project-requests.create') }}" class="btn bg-[#0055FF] text-white border-3 border-black font-fredoka font-black rounded-2xl px-4 py-2 text-sm shadow-[3px_3px_0px_0px_rgba(0,0,0,1)] hover:bg-[#FF007A] active:translate-x-1 active:translate-y-1 transition-all">
-                        <i class="fas fa-plus mr-1"></i> Permintaan Baru
+                    <a href="{{ route('project-requests.create') }}" class="btn !bg-[#0055FF] !text-white border-3 border-black font-fredoka font-black rounded-2xl px-4 py-2 text-sm shadow-[3px_3px_0px_0px_rgba(0,0,0,1)] hover:!bg-[#FF007A] hover:!text-white active:translate-x-1 active:translate-y-1 transition-all d-inline-flex items-center gap-2">
+                        <i class="fas fa-plus"></i> <span>+ Permintaan Baru</span>
                     </a>
                 @endif
             </div>

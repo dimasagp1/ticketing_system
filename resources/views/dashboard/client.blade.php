@@ -7,6 +7,24 @@
     $activeChats = auth()->user()->clientConversations()->where('status', 'active')->count();
 @endphp
 
+@if($pendingApprovalTickets->count() > 0)
+    <div class="mb-4 p-4 border-4 border-black bg-[#0055FF] text-white rounded-3xl shadow-[6px_6px_0px_0px_rgba(0,0,0,1)] dark:shadow-[6px_6px_0px_0px_#FFE600] flex flex-wrap items-center justify-between gap-3">
+        <div class="flex items-center gap-3">
+            <div class="w-12 h-12 rounded-2xl bg-[#FFE600] text-black border-3 border-black flex items-center justify-center font-fredoka font-black text-2xl shadow-[2px_2px_0px_0px_rgba(0,0,0,1)] shrink-0">
+                ℹ️
+            </div>
+            <div>
+                <h4 class="font-fredoka font-black text-lg text-white mb-0 uppercase tracking-wide">
+                    STATUS PENGAJUAN: {{ $pendingApprovalTickets->count() }} TIKET DALAM PROSES VERIFIKASI / PERSETUJUAN
+                </h4>
+                <p class="font-jakarta font-extrabold text-xs text-white/90 mb-0 mt-0.5">
+                    Tiket Anda sedang ditinjau oleh tim Admin. Anda dapat melihat status persetujuannya di tabel di bawah.
+                </p>
+            </div>
+        </div>
+    </div>
+@endif
+
 <!-- Quick Action Button Row -->
 <div class="d-flex justify-content-end mb-4">
     <a href="{{ route('project-requests.create') }}" class="btn btn-primary font-fredoka font-black border-4 border-black dark:border-white rounded-2xl px-4 py-2.5 bg-[#FF007A] text-white hover:bg-[#FFE600] hover:text-black shadow-[4px_4px_0px_0px_rgba(0,0,0,1)] dark:shadow-[4px_4px_0px_0px_#FFE600] active:translate-x-1 active:translate-y-1 transition-all inline-flex items-center gap-2 select-none">

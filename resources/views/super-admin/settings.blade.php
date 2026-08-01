@@ -86,6 +86,72 @@
 
                     <hr class="my-4 border-light">
 
+                    <h5 class="font-weight-bold mb-3" style="font-size: 1rem;"><i class="fas fa-file-contract mr-2 text-primary"></i> Pengaturan Kop & Berita Acara Pengerjaan IT</h5>
+                    <p class="text-muted small mb-3">Informasi ini akan dicetak pada Kop Surat Berita Acara Pengerjaan Supporting IT saat di-export PDF / Dicetak.</p>
+
+                    <div class="form-group mb-3">
+                        <label class="font-weight-600 text-dark">Nama Departemen / Perusahaan (Kop)</label>
+                        <input type="text" name="company_department_name" class="form-control border-light shadow-none bg-light" value="{{ old('company_department_name', $settings['company_department_name'] ?? 'DEPARTEMEN INFORMATION TECHNOLOGY') }}">
+                    </div>
+
+                    <div class="form-group mb-3">
+                        <label class="font-weight-600 text-dark">Sub Judul Formulir</label>
+                        <input type="text" name="company_subtitle" class="form-control border-light shadow-none bg-light" value="{{ old('company_subtitle', $settings['company_subtitle'] ?? 'Formulir Layanan Dukungan Teknis dan Infrastruktur') }}">
+                    </div>
+
+                    <div class="row">
+                        <div class="col-sm-6">
+                            <div class="form-group mb-3">
+                                <label class="font-weight-600 text-dark">Alamat Kop Surat</label>
+                                <input type="text" name="company_address" class="form-control border-light shadow-none bg-light" value="{{ old('company_address', $settings['company_address'] ?? 'Jl. Raya Perusahaan No. 123') }}">
+                            </div>
+                        </div>
+                        <div class="col-sm-6">
+                            <div class="form-group mb-3">
+                                <label class="font-weight-600 text-dark">No. Telepon Perusahaan</label>
+                                <input type="text" name="company_phone" class="form-control border-light shadow-none bg-light" value="{{ old('company_phone', $settings['company_phone'] ?? '(021) 1234567') }}">
+                            </div>
+                        </div>
+                    </div>
+
+                    <div class="row">
+                        <div class="col-sm-4">
+                            <div class="form-group mb-3">
+                                <label class="font-weight-600 text-dark">Kota (Tempat BA)</label>
+                                <input type="text" name="company_city" class="form-control border-light shadow-none bg-light" value="{{ old('company_city', $settings['company_city'] ?? 'Purbalingga') }}">
+                            </div>
+                        </div>
+                        <div class="col-sm-4">
+                            <div class="form-group mb-3">
+                                <label class="font-weight-600 text-dark">Nama Head of IT / Manager</label>
+                                <input type="text" name="head_of_it_name" class="form-control border-light shadow-none bg-light" value="{{ old('head_of_it_name', $settings['head_of_it_name'] ?? 'Head of IT / Manager') }}">
+                            </div>
+                        </div>
+                        <div class="col-sm-4">
+                            <div class="form-group mb-3">
+                                <label class="font-weight-600 text-dark">Jabatan Penandatangan</label>
+                                <input type="text" name="head_of_it_title" class="form-control border-light shadow-none bg-light" value="{{ old('head_of_it_title', $settings['head_of_it_title'] ?? 'IT Officer / Supervisor') }}">
+                            </div>
+                        </div>
+                    </div>
+
+                    <div class="form-group mb-3">
+                        <label class="font-weight-600 text-dark">Tanda Tangan IT Officer / Supervisor (Pihak Mengetahui)</label>
+                        @if(!empty($settings['it_supervisor_signature']))
+                            <div class="mb-2 p-2 bg-light border rounded">
+                                <small class="text-muted d-block mb-1">Tanda Tangan Terpasang:</small>
+                                <img src="{{ asset('storage/' . $settings['it_supervisor_signature']) }}" alt="Supervisor Signature" style="max-height: 70px; border: 1px dashed #999; padding: 4px; background: #fff;">
+                            </div>
+                        @endif
+                        <div class="custom-file">
+                            <input type="file" class="custom-file-input" id="it_supervisor_signature" name="it_supervisor_signature" accept="image/*">
+                            <label class="custom-file-label" for="it_supervisor_signature">Pilih file tanda tangan (PNG/JPG)...</label>
+                        </div>
+                        <small class="form-text text-muted mt-1">Disarankan berupa file transparan PNG. Otomatis dicetak pada kolom 'Mengetahui' Berita Acara IT.</small>
+                    </div>
+
+                    <hr class="my-4 border-light">
+
                     <h5 class="font-weight-bold mb-3" style="font-size: 1rem;">Opsi Tambahan</h5>
 
                     <div class="form-group mb-4">

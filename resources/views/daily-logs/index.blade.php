@@ -146,16 +146,18 @@
         <div class="card support-shell-card">
 
             {{-- Card Header --}}
-            <div class="card-header border-0 bg-white d-flex justify-content-between align-items-center flex-wrap" style="gap:.5rem; padding:1rem 1.25rem .6rem;">
+            <div class="card-header border-0 bg-white d-flex justify-content-between align-items-center w-100 flex-wrap" style="gap:.5rem; padding:1rem 1.25rem .6rem;">
                 <div>
                     <h3 class="card-title mb-0 font-weight-bold" style="font-size:1.05rem;">
                         <i class="fas fa-book-open mr-2 text-primary"></i>Log Harian – Komplain Ad-Hoc
                     </h3>
                     <p class="text-muted mb-0 d-none d-md-block" style="font-size:.78rem;margin-top:.2rem;">Penanganan komplain di luar pengajuan tiket resmi</p>
                 </div>
-                <a href="{{ route('daily-logs.create') }}" class="btn btn-primary btn-sm shadow-sm" style="border-radius:.6rem;white-space:nowrap;">
-                    <i class="fas fa-plus mr-1"></i> Tambah Log
-                </a>
+                <div class="ml-auto ms-auto">
+                    <a href="{{ route('daily-logs.create') }}" class="btn btn-primary btn-sm shadow-sm font-weight-bold px-3 py-1.5" style="border-radius:.6rem;white-space:nowrap;">
+                        <i class="fas fa-plus mr-1"></i> Tambah Log
+                    </a>
+                </div>
             </div>
 
             {{-- Filter (collapsible on mobile) --}}

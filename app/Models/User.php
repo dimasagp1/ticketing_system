@@ -29,6 +29,7 @@ class User extends Authenticatable
         'company',
         'bio',
         'avatar',
+        'signature_image',
     ];
 
     /**

@@ -41,7 +41,15 @@ class ProjectApprovalController extends Controller
             'approver'
         ]);
 
-        return view('approvals.show', compact('approval'));
+        $developers = \App\Models\User::whereIn('role', ['developer', 'admin', 'super_admin'])
+            ->where('status', 'active')
+            ->withCount(['assignedQueues' => function ($q) {
+                $q->whereIn('status', ['Pending', 'In Progress']);
+            }])
+            ->orderBy('name')
+            ->get();
+
+        return view('approvals.show', compact('approval', 'developers'));
     }
 
     public function approve(Request $request, ProjectApproval $approval)
@@ -52,6 +60,7 @@ class ProjectApprovalController extends Controller
 
         $request->validate([
             'comments' => 'nullable|string',
+            'assigned_to' => 'nullable|exists:users,id',
         ]);
 
         $approval->approve($request->comments);
@@ -67,7 +76,7 @@ class ProjectApprovalController extends Controller
             'client_company' => $projectRequest->client->company,
             'priority' => $this->mapTicketPriority($projectRequest->impact, $projectRequest->urgency),
             'status' => 'Pending',
-            'assigned_to' => null,
+            'assigned_to' => $request->assigned_to,
             'start_date' => now(),
             'deadline' => now()->addDays($projectRequest->estimated_duration ?? 30),
             'progress' => 0,

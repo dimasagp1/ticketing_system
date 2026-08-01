@@ -239,9 +239,33 @@ class SuperAdminController extends Controller
             'maintenance_mode' => 'nullable|boolean',
             'app_logo' => 'nullable|image|max:2048', // max 2MB
             'app_favicon' => 'nullable|image|mimes:jpeg,png,jpg,gif,svg,ico|max:1024', // max 1MB
+            'company_department_name' => 'nullable|string|max:255',
+            'company_subtitle' => 'nullable|string|max:255',
+            'company_address' => 'nullable|string|max:255',
+            'company_phone' => 'nullable|string|max:100',
+            'company_city' => 'nullable|string|max:100',
+            'head_of_it_name' => 'nullable|string|max:255',
+            'head_of_it_title' => 'nullable|string|max:255',
+            'it_supervisor_signature' => 'nullable|image|max:2048',
         ]);
 
         $settings = $this->loadSystemSettings();
+
+        if ($request->hasFile('it_supervisor_signature')) {
+            if ($request->file('it_supervisor_signature')->isValid()) {
+                if (!empty($settings['it_supervisor_signature'])) {
+                    $oldPath = storage_path('app/public/' . ltrim($settings['it_supervisor_signature'], '/'));
+                    if (File::exists($oldPath)) {
+                        File::delete($oldPath);
+                    }
+                }
+                $sigFile = $request->file('it_supervisor_signature');
+                $sigName = \Illuminate\Support\Str::random(40) . '.' . $sigFile->getClientOriginalExtension();
+                $sigPath = 'settings/' . $sigName;
+                \Illuminate\Support\Facades\Storage::disk('public')->put($sigPath, file_get_contents($sigFile->getPathname()));
+                $settings['it_supervisor_signature'] = $sigPath;
+            }
+        }
 
         if ($request->hasFile('app_logo')) {
             if (!$request->file('app_logo')->isValid()) {
@@ -285,6 +309,13 @@ class SuperAdminController extends Controller
         $settings['email_notifications'] = (bool) ($request->boolean('email_notifications'));
         $settings['notification_window_days'] = (int) $validated['notification_window_days'];
         $settings['maintenance_mode'] = (bool) ($request->boolean('maintenance_mode'));
+        $settings['company_department_name'] = $validated['company_department_name'] ?? 'DEPARTEMEN INFORMATION TECHNOLOGY';
+        $settings['company_subtitle'] = $validated['company_subtitle'] ?? 'Formulir Layanan Dukungan Teknis dan Infrastruktur';
+        $settings['company_address'] = $validated['company_address'] ?? 'Jl. Raya Perusahaan No. 123';
+        $settings['company_phone'] = $validated['company_phone'] ?? '(021) 1234567';
+        $settings['company_city'] = $validated['company_city'] ?? 'Purbalingga';
+        $settings['head_of_it_name'] = $validated['head_of_it_name'] ?? 'Head of IT / Manager';
+        $settings['head_of_it_title'] = $validated['head_of_it_title'] ?? 'IT Officer / Supervisor';
         $settings['updated_at'] = now()->toDateTimeString();
         $settings['updated_by'] = auth()->id();
 
@@ -713,6 +744,14 @@ class SuperAdminController extends Controller
             'email_notifications' => true,
             'notification_window_days' => 3,
             'maintenance_mode' => false,
+            'company_department_name' => 'DEPARTEMEN INFORMATION TECHNOLOGY',
+            'company_subtitle' => 'Formulir Layanan Dukungan Teknis dan Infrastruktur',
+            'company_address' => 'Jl. Raya Perusahaan No. 123',
+            'company_phone' => '(021) 1234567',
+            'company_city' => 'Purbalingga',
+            'head_of_it_name' => 'Head of IT / Manager',
+            'head_of_it_title' => 'IT Officer / Supervisor',
+            'it_supervisor_signature' => '',
         ];
     }
 

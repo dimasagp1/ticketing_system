@@ -11,11 +11,11 @@
     <div class="col-md-8">
         <!-- Project Details -->
         <div class="card support-shell-card mb-4">
-            <div class="card-header border-0 bg-white pt-4 px-4 pb-2 d-flex justify-content-between align-items-center">
+            <div class="card-header border-0 bg-white pt-4 px-4 pb-2 d-flex justify-content-between align-items-center w-100 flex-wrap">
                 <h3 class="card-title mb-0 font-weight-bold" style="font-size: 1.15rem;">Informasi Proyek</h3>
-                <div class="card-tools">
+                <div class="ml-auto ms-auto">
                     @if(auth()->user()->isClient() && in_array($projectRequest->status, ['draft', 'revision_requested']))
-                        <a href="{{ route('project-requests.edit', $projectRequest) }}" class="btn btn-warning px-3 shadow-sm" style="border-radius: 0.5rem; font-weight: 500;">
+                        <a href="{{ route('project-requests.edit', $projectRequest) }}" class="btn btn-warning px-3 shadow-sm font-weight-bold" style="border-radius: 0.5rem;">
                             <i class="fas fa-edit mr-1"></i> Ubah
                         </a>
                     @endif
@@ -204,6 +204,19 @@
                     </a>
                 @endif
 
+                {{-- Tombol Export & Cetak Berita Acara Pengerjaan IT --}}
+                @if(in_array($projectRequest->ticket_status, ['resolved', 'closed']) || in_array($projectRequest->status, ['approved', 'converted_to_queue']))
+                    <div class="mt-3 pt-3 border-top">
+                        <h6 class="font-weight-bold mb-2 text-dark"><i class="fas fa-file-contract text-primary mr-1"></i> Berita Acara Pengerjaan IT</h6>
+                        <a href="{{ route('berita-acara.pdf', $projectRequest) }}" class="btn btn-outline-primary btn-block font-weight-bold shadow-sm mb-2" style="border-radius: 0.5rem;">
+                            <i class="fas fa-file-pdf mr-1 text-danger"></i> Unduh Berita Acara (PDF)
+                        </a>
+                        <button type="button" class="btn btn-outline-dark btn-block font-weight-bold shadow-sm" style="border-radius: 0.5rem;" onclick="openBeritaAcaraModal('{{ route('berita-acara.print', $projectRequest) }}')">
+                            <i class="fas fa-print mr-1"></i> Pratinjau & Cetak BA
+                        </button>
+                    </div>
+                @endif
+
                 @if(auth()->user()->hasRole(['admin', 'super_admin']) && $projectRequest->status !== 'draft' && in_array($projectRequest->ticket_status, \App\Models\ProjectRequest::resolvableTicketStatuses(), true))
                     <form action="{{ route('project-requests.resolve', $projectRequest) }}" method="POST" class="mt-2">
                         @csrf
@@ -218,6 +231,17 @@
                         @csrf
                         <button type="submit" class="btn btn-secondary btn-block font-weight-500 shadow-sm" style="border-radius: 0.5rem;">
                             <i class="fas fa-lock mr-1"></i> Tutup Tiket
+                        </button>
+                    </form>
+                @endif
+
+                {{-- Opsi Hapus Tiket (Batal Pengajuan) --}}
+                @if((auth()->user()->isClient() && auth()->id() === $projectRequest->client_id && !in_array($projectRequest->status, ['approved', 'converted_to_queue'])) || auth()->user()->canApproveProjects())
+                    <form action="{{ route('project-requests.destroy', $projectRequest) }}" method="POST" class="mt-3" id="delete-ticket-form-{{ $projectRequest->id }}">
+                        @csrf
+                        @method('DELETE')
+                        <button type="button" class="btn btn-outline-danger btn-block font-weight-bold shadow-sm" style="border-radius: 0.5rem;" onclick="confirmAction('delete-ticket-form-{{ $projectRequest->id }}', 'Hapus Tiket / Batal Pengajuan?', 'Tiket ini akan dihapus dari sistem jika Anda tidak jadi mengajukan.', 'Ya, Hapus Tiket', '#ef4444', 'warning')">
+                            <i class="fas fa-trash-alt mr-1"></i> Hapus Tiket (Batal Pengajuan)
                         </button>
                     </form>
                 @endif
@@ -270,4 +294,68 @@
     </div>
 </div>
 @include('layouts.partials.requirement-preview-modal')
+
+<!-- Modal Pratinjau Berita Acara -->
+<div class="modal fade" id="modalBeritaAcara" tabindex="-1" role="dialog" aria-labelledby="modalBeritaAcaraTitle" aria-hidden="true">
+    <div class="modal-dialog modal-xl modal-dialog-centered" role="document" style="max-width: 90vw;">
+        <div class="modal-content border-0 shadow-lg" style="border-radius: 12px; overflow: hidden;">
+            <div class="modal-header bg-dark text-white py-3 px-4 d-flex justify-content-between align-items-center">
+                <h5 class="modal-title font-weight-bold mb-0" id="modalBeritaAcaraTitle">
+                    <i class="fas fa-file-contract text-warning mr-2"></i> Pratinjau Berita Acara IT
+                </h5>
+                <div class="d-flex align-items-center">
+                    <a href="{{ route('berita-acara.pdf', $projectRequest) }}" class="btn btn-sm btn-danger font-weight-bold mr-2" style="border-radius: 6px;">
+                        <i class="fas fa-file-pdf mr-1"></i> Unduh PDF
+                    </a>
+                    <button type="button" class="btn btn-sm btn-warning font-weight-bold mr-2 text-dark" style="border-radius: 6px;" onclick="document.getElementById('iframeBeritaAcara').contentWindow.print()">
+                        <i class="fas fa-print mr-1"></i> Cetak Dokumen
+                    </button>
+                    <button type="button" class="close text-white opacity-100 ml-2" data-dismiss="modal" aria-label="Close" style="outline: none;">
+                        <span aria-hidden="true" style="font-size: 1.5rem;">&times;</span>
+                    </button>
+                </div>
+            </div>
+            <div class="modal-body p-0" style="height: 80vh; background: #e5e7eb;">
+                <iframe id="iframeBeritaAcara" src="" style="width: 100%; height: 100%; border: none;"></iframe>
+            </div>
+        </div>
+    </div>
+</div>
 @endsection
+
+@push('scripts')
+<script>
+    function openBeritaAcaraModal(url) {
+        var iframe = document.getElementById('iframeBeritaAcara');
+        if (iframe) {
+            iframe.src = url;
+        }
+        if (window.jQuery && window.jQuery.fn && window.jQuery.fn.modal) {
+            window.jQuery('#modalBeritaAcara').modal('show');
+        } else {
+            var modalEl = document.getElementById('modalBeritaAcara');
+            if (modalEl) {
+                modalEl.classList.add('show');
+                modalEl.style.display = 'block';
+                document.body.classList.add('modal-open');
+            }
+        }
+    }
+</script>
+@endpush
+
+@push('js')
+<script>
+    if (typeof openBeritaAcaraModal === 'undefined') {
+        function openBeritaAcaraModal(url) {
+            var iframe = document.getElementById('iframeBeritaAcara');
+            if (iframe) {
+                iframe.src = url;
+            }
+            if (window.jQuery && window.jQuery.fn && window.jQuery.fn.modal) {
+                window.jQuery('#modalBeritaAcara').modal('show');
+            }
+        }
+    }
+</script>
+@endpush
