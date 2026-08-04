@@ -12,18 +12,37 @@ class BeritaAcaraController extends Controller
 {
     public function exportPdf(ProjectRequest $projectRequest)
     {
-        $data = $this->prepareData($projectRequest);
+        @ini_set('memory_limit', '512M');
+        @set_time_limit(300);
 
-        $pdf = Pdf::loadView('pdf.berita-acara', $data)
-            ->setPaper('a4', 'portrait');
+        try {
+            $data = $this->prepareData($projectRequest);
 
-        $filename = 'Berita_Acara_' . preg_replace('/[^A-Za-z0-9_\-]/', '_', $projectRequest->ticket_number ?? ('ID_' . $projectRequest->id)) . '.pdf';
+            $pdf = Pdf::loadView('pdf.berita-acara', $data)
+                ->setPaper('a4', 'portrait')
+                ->setOption([
+                    'isRemoteEnabled' => true,
+                    'isHtml5ParserEnabled' => true,
+                    'chroot' => [public_path(), storage_path()],
+                ]);
 
-        return $pdf->download($filename);
+            $filename = 'Berita_Acara_' . preg_replace('/[^A-Za-z0-9_\-]/', '_', $projectRequest->ticket_number ?? ('ID_' . $projectRequest->id)) . '.pdf';
+
+            return $pdf->download($filename);
+        } catch (\Throwable $e) {
+            \Illuminate\Support\Facades\Log::error('PDF Export Error: ' . $e->getMessage(), [
+                'project_request_id' => $projectRequest->id,
+                'trace' => $e->getTraceAsString(),
+            ]);
+
+            return redirect()->route('berita-acara.print', $projectRequest)
+                ->with('error', 'Gagal mengunduh file PDF secara langsung. Menampilkan tampilan cetak alternatif.');
+        }
     }
 
     public function printView(ProjectRequest $projectRequest)
     {
+        @ini_set('memory_limit', '256M');
         $data = $this->prepareData($projectRequest);
 
         return view('pdf.berita-acara-print', $data);
@@ -164,11 +183,44 @@ class BeritaAcaraController extends Controller
             return null;
         }
 
-        $fullPath = storage_path('app/public/' . ltrim($path, '/'));
-        if (file_exists($fullPath)) {
-            $type = pathinfo($fullPath, PATHINFO_EXTENSION);
-            $data = file_get_contents($fullPath);
-            return 'data:image/' . ($type === 'svg' ? 'svg+xml' : $type) . ';base64,' . base64_encode($data);
+        if (str_starts_with($path, 'http://') || str_starts_with($path, 'https://')) {
+            $parsedUrl = parse_url($path);
+            $path = $parsedUrl['path'] ?? '';
+        }
+
+        $path = str_replace('\\', '/', $path);
+        $cleanPath = ltrim($path, '/');
+
+        if (str_starts_with($cleanPath, 'storage/')) {
+            $cleanPath = substr($cleanPath, 8);
+        }
+        if (str_starts_with($cleanPath, 'public/')) {
+            $cleanPath = substr($cleanPath, 7);
+        }
+
+        $candidates = array_unique(array_filter([
+            storage_path('app/public/' . $cleanPath),
+            public_path('storage/' . $cleanPath),
+            public_path($cleanPath),
+            base_path($cleanPath),
+            $path,
+        ]));
+
+        foreach ($candidates as $fullPath) {
+            if (!empty($fullPath) && @file_exists($fullPath) && !@is_dir($fullPath)) {
+                $ext = strtolower(pathinfo($fullPath, PATHINFO_EXTENSION));
+                $mime = match($ext) {
+                    'png' => 'image/png',
+                    'jpg', 'jpeg' => 'image/jpeg',
+                    'gif' => 'image/gif',
+                    'svg' => 'image/svg+xml',
+                    default => 'image/png',
+                };
+                $data = @file_get_contents($fullPath);
+                if ($data !== false && strlen($data) > 0) {
+                    return 'data:' . $mime . ';base64,' . base64_encode($data);
+                }
+            }
         }
 
         return null;
