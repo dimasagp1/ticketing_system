@@ -29,7 +29,7 @@
                     </tr>
                     <tr>
                         <th>Deskripsi:</th>
-                        <td>{{ $approval->projectRequest->description }}</td>
+                        <td class="text-justify" style="text-align: justify; text-justify: inter-word; white-space: pre-line;">{{ $approval->projectRequest->description }}</td>
                     </tr>
                 </table>
             </div>

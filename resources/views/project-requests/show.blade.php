@@ -52,7 +52,7 @@
                     </tr>
                     <tr>
                         <th>Deskripsi:</th>
-                        <td>{{ $projectRequest->description }}</td>
+                        <td class="text-justify" style="text-align: justify; text-justify: inter-word; white-space: pre-line;">{{ $projectRequest->description }}</td>
                     </tr>
                     <tr>
                         <th>SLA Respon:</th>

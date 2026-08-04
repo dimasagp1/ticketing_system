@@ -187,15 +187,15 @@
                 <i class="fas fa-exclamation-triangle text-primary"></i> Detail Masalah
             </div>
             <div class="mb-1 small font-weight-600 text-muted">Deskripsi Masalah / Komplain</div>
-            <div class="content-block mb-3">{{ $dailyLog->issue_description }}</div>
+            <div class="content-block mb-3 text-justify" style="text-align: justify; text-justify: inter-word; white-space: pre-line;">{{ $dailyLog->issue_description }}</div>
 
             <div class="mb-1 small font-weight-600 text-muted">Tindakan / Solusi yang Dilakukan</div>
-            <div class="content-block">{{ $dailyLog->action_taken }}</div>
+            <div class="content-block text-justify" style="text-align: justify; text-justify: inter-word; white-space: pre-line;">{{ $dailyLog->action_taken }}</div>
 
             @if($dailyLog->notes)
             <div class="mt-3">
                 <div class="mb-1 small font-weight-600 text-muted">Catatan Tambahan</div>
-                <div class="content-block" style="background:#fffbeb; border:1px solid #fde68a;">{{ $dailyLog->notes }}</div>
+                <div class="content-block text-justify" style="background:#fffbeb; border:1px solid #fde68a; text-align: justify; text-justify: inter-word; white-space: pre-line;">{{ $dailyLog->notes }}</div>
             </div>
             @endif
         </div>

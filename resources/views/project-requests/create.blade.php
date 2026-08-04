@@ -119,7 +119,8 @@
                     <div class="form-group">
                         <label for="description">Deskripsi Proyek <span class="text-danger">*</span></label>
                         <textarea name="description" id="description" rows="5" 
-                                  class="form-control @error('description') is-invalid @enderror" 
+                                  class="form-control text-justify @error('description') is-invalid @enderror" 
+                                  style="text-align: justify; text-justify: inter-word;"
                                   required>{{ old('description') }}</textarea>
                         @error('description')
                             <span class="invalid-feedback">{{ $message }}</span>

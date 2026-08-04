@@ -147,12 +147,28 @@
             padding: 0.4em 0.8em !important;
         }
 
-        .form-control, select, textarea {
+        .form-control, select {
             border: 3px solid #000000 !important;
             border-radius: 1rem !important;
             box-shadow: 3px 3px 0px 0px #000000 !important;
             font-family: 'Plus Jakarta Sans', sans-serif !important;
             font-weight: 700 !important;
+        }
+
+        textarea {
+            border: 3px solid #000000 !important;
+            border-radius: 1rem !important;
+            box-shadow: 3px 3px 0px 0px #000000 !important;
+            font-family: 'Plus Jakarta Sans', sans-serif !important;
+            font-weight: 700 !important;
+            text-align: justify !important;
+            text-justify: inter-word !important;
+        }
+
+        .text-justify, .description-text, .timeline-body {
+            text-align: justify !important;
+            text-justify: inter-word !important;
+            white-space: pre-line;
         }
 
         .form-control:focus, select:focus, textarea:focus {

@@ -167,6 +167,8 @@
             word-wrap: break-word;
             margin-bottom: 10px;
             background-color: #fafafa;
+            text-align: justify;
+            text-justify: inter-word;
         }
 
         /* Status Inline */

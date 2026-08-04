@@ -60,7 +60,7 @@
                 <h3 class="card-title mb-0 font-weight-bold" style="font-size: 1.15rem;">Description</h3>
             </div>
             <div class="card-body px-4 pb-4 pt-2">
-                <p class="text-muted mb-0">{{ $queue->description }}</p>
+                <p class="text-muted mb-0 text-justify" style="text-align: justify; text-justify: inter-word; white-space: pre-line;">{{ $queue->description }}</p>
             </div>
         </div>
     </div>
@@ -94,7 +94,7 @@
                                         <span class="time"><i class="far fa-clock"></i> {{ $log->created_at->format('H:i') }}</span>
                                         <h3 class="timeline-header"><a href="#">{{ $log->updatedBy->name }}</a> updated: {{ $log->projectStage->name }}</h3>
                                         <div class="timeline-body">
-                                            <p>{{ $log->activity_description }}</p>
+                                            <p class="text-justify" style="text-align: justify; text-justify: inter-word; white-space: pre-line;">{{ $log->activity_description }}</p>
                                             
                                             {{-- Lampiran Progres (Opsional) --}}
                                             @if($log->attachment_path)
@@ -171,7 +171,7 @@
                                 <div class="form-group row">
                                     <label for="activity_description" class="col-sm-2 col-form-label">Activity Description</label>
                                     <div class="col-sm-10">
-                                        <textarea class="form-control" id="activity_description" name="activity_description" rows="3" placeholder="Describe the work done..."></textarea>
+                                        <textarea class="form-control text-justify" id="activity_description" name="activity_description" rows="3" placeholder="Describe the work done..." style="text-align: justify; text-justify: inter-word;"></textarea>
                                     </div>
                                 </div>
                                 <div class="form-group row">
@@ -197,7 +197,7 @@
                                 @csrf
                                 <div class="form-group">
                                     <label>Add Activity Log (without changing stage)</label>
-                                    <textarea class="form-control" name="activity_description" rows="2" placeholder="Quick update..."></textarea>
+                                    <textarea class="form-control text-justify" name="activity_description" rows="2" placeholder="Quick update..." style="text-align: justify; text-justify: inter-word;"></textarea>
                                 </div>
                                 <button type="submit" class="btn btn-secondary btn-sm">Log Activity</button>
                             </form>
