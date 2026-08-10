@@ -66,7 +66,7 @@
                                 <select name="role" id="role" class="form-control @error('role') is-invalid @enderror" required>
                                     <option value="">Pilih Peran</option>
                                     <option value="client" {{ old('role') == 'client' ? 'selected' : '' }}>Klien</option>
-                                    {{-- <option value="developer" {{ old('role') == 'developer' ? 'selected' : '' }}>Developer</option> --}}
+                                    <option value="developer" {{ old('role') == 'developer' ? 'selected' : '' }}>Developer</option>
                                     <option value="admin" {{ old('role') == 'admin' ? 'selected' : '' }}>Admin</option>
                                     <option value="super_admin" {{ old('role') == 'super_admin' ? 'selected' : '' }}>Super Admin</option>
                                 </select>
