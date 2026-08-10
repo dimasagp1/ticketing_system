@@ -594,31 +594,34 @@
         }
 
         .support-stat-card {
-            border-radius: 1.25rem;
-            border: 1px solid #e2e8f0;
-            padding: 1.25rem;
+            border-radius: 1rem;
+            border: 3px solid #000 !important;
+            padding: 1rem 1.25rem;
             background: #fff;
             height: 100%;
-            box-shadow: 0 4px 6px -1px rgba(0, 0, 0, 0.05), 0 2px 4px -1px rgba(0, 0, 0, 0.03);
-            transition: all 0.3s ease;
+            box-shadow: 4px 4px 0px 0px rgba(0, 0, 0, 1) !important;
+            transition: all 0.2s ease;
         }
         
         .support-stat-card:hover {
-            transform: translateY(-3px);
-            box-shadow: 0 10px 15px -3px rgba(0, 0, 0, 0.08), 0 4px 6px -2px rgba(0, 0, 0, 0.04);
+            transform: translate(-2px, -2px);
+            box-shadow: 6px 6px 0px 0px rgba(0, 0, 0, 1) !important;
         }
 
         .support-stat-value {
-            font-size: 1.5rem;
-            font-weight: 700;
+            font-family: 'Fredoka', sans-serif !important;
+            font-weight: 900 !important;
+            font-size: 1.6rem;
             margin-bottom: .15rem;
-            color: #1f2d3d;
+            color: #000;
         }
 
         .support-stat-label {
-            font-size: .875rem;
+            font-family: 'Plus Jakarta Sans', sans-serif !important;
+            font-weight: 800 !important;
+            font-size: .75rem;
             color: #64748b;
-            font-weight: 500;
+            text-transform: uppercase;
         }
 
         .support-search {
@@ -999,10 +1002,37 @@
 
         .breadcrumb {
             margin-bottom: 0;
+            background: #FFFBEA !important;
+            border: 2px solid #000 !important;
+            border-radius: 1rem !important;
+            padding: 0.3rem 0.85rem !important;
+            box-shadow: 2px 2px 0px 0px rgba(0,0,0,1) !important;
+            font-family: 'Fredoka', 'Plus Jakarta Sans', sans-serif !important;
+            font-weight: 800 !important;
+            font-size: 0.75rem !important;
+            display: inline-flex !important;
+        }
+
+        .breadcrumb-item a {
+            color: #0055FF !important;
+            text-decoration: none !important;
+            font-weight: 800 !important;
+        }
+
+        .breadcrumb-item a:hover {
+            color: #FF007A !important;
+        }
+
+        .breadcrumb-item.active {
+            color: #000 !important;
+            font-weight: 800 !important;
         }
 
         .breadcrumb-item + .breadcrumb-item::before {
-            color: #b6c1d2;
+            color: #000 !important;
+            content: "❯" !important;
+            font-weight: 900 !important;
+            padding: 0 0.4rem !important;
         }
 
         .quick-link {
