@@ -1417,7 +1417,9 @@
 
         
         <!-- Chat Widget -->
-        @include('layouts.partials.chat-widget')
+        @if(auth()->check() && !auth()->user()->isManager())
+            @include('layouts.partials.chat-widget')
+        @endif
     </div>
 
     <!-- jQuery -->

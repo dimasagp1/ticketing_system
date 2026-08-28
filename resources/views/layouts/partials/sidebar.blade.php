@@ -99,18 +99,6 @@
                             <p>Ajukan Tiket Baru</p>
                         </a>
                     </li>
-                    <li class="nav-item">
-                        <a href="{{ route('super-admin.reports') }}" class="nav-link {{ request()->routeIs('super-admin.reports*') ? 'active' : '' }}">
-                            <i class="nav-icon fas fa-file-alt"></i>
-                            <p>Laporan & Rekap</p>
-                        </a>
-                    </li>
-                    <li class="nav-item">
-                        <a href="{{ route('chat.index') }}" class="nav-link {{ request()->routeIs('chat.*') ? 'active' : '' }}">
-                            <i class="nav-icon fas fa-comments"></i>
-                            <p>Chat</p>
-                        </a>
-                    </li>
                 @elseif(auth()->user()->canApproveProjects())
                     <!-- Admin Menu -->
                     <li class="nav-header">MANAJEMEN</li>

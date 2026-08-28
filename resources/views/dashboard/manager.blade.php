@@ -37,9 +37,6 @@
             <a href="{{ route('project-requests.index') }}" class="btn bg-[#0055FF] text-white border-3 border-black font-fredoka font-black rounded-2xl px-4 py-2 text-sm shadow-[3px_3px_0px_0px_rgba(0,0,0,1)] hover:bg-[#00E5FF] hover:text-black transition-all">
                 <i class="fas fa-list mr-1"></i> Semua Tiket
             </a>
-            <a href="{{ route('super-admin.reports') }}" class="btn bg-[#00E5FF] text-black border-3 border-black font-fredoka font-black rounded-2xl px-4 py-2 text-sm shadow-[3px_3px_0px_0px_rgba(0,0,0,1)] hover:bg-[#FFE600] transition-all">
-                <i class="fas fa-file-pdf mr-1"></i> Laporan
-            </a>
         </div>
     </div>
 </div>

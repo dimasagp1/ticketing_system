@@ -199,8 +199,8 @@ Route::middleware(['auth', 'role:admin,super_admin'])->prefix('super-admin')->na
     Route::post('/users/{user}/suspend', [UserManagementController::class, 'suspend'])->name('users.suspend');
 });
 
-// Reports Routes (Accessible by Admin, Super Admin, and Managers)
-Route::middleware(['auth', 'role:admin,super_admin,operational_manager,general_manager'])->prefix('super-admin')->name('super-admin.')->group(function () {
+// Reports Routes (Accessible by Admin and Super Admin only)
+Route::middleware(['auth', 'role:admin,super_admin'])->prefix('super-admin')->name('super-admin.')->group(function () {
     Route::get('/reports', [SuperAdminController::class, 'reports'])->name('reports');
     Route::get('/reports/technical', [SuperAdminController::class, 'technicalReports'])->name('reports.technical');
     Route::get('/reports/technical/export/csv', [SuperAdminController::class, 'exportTechnicalReportCsv'])->name('reports.technical.export.csv');
