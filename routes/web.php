@@ -150,8 +150,8 @@ Route::middleware(['auth'])->group(function () {
     Route::resource('daily-logs', DailyLogController::class);
 });
 
-// Approval Routes (Admin and Super Admin only)
-Route::middleware(['auth', 'role:admin,super_admin'])->prefix('approvals')->name('approvals.')->group(function () {
+// Approval Routes (Admin, Super Admin, Operational Manager, General Manager)
+Route::middleware(['auth', 'role:admin,super_admin,operational_manager,general_manager'])->prefix('approvals')->name('approvals.')->group(function () {
     Route::get('/', [ProjectApprovalController::class, 'index'])->name('index');
     Route::get('/{approval}', [ProjectApprovalController::class, 'show'])->name('show');
     Route::post('/{approval}/approve', [ProjectApprovalController::class, 'approve'])->name('approve');
@@ -191,6 +191,7 @@ Route::middleware(['auth'])->prefix('chat')->name('chat.')->group(function () {
     Route::get('/{conversation}/messages', [ChatController::class, 'getMessages'])->name('messages');
 });
 
+// Super Admin & Admin User Management
 Route::middleware(['auth', 'role:admin,super_admin'])->prefix('super-admin')->name('super-admin.')->group(function () {
     Route::resource('users', UserManagementController::class);
     Route::post('/users/{user}/activate', [UserManagementController::class, 'activate'])->name('users.activate');
@@ -198,17 +199,21 @@ Route::middleware(['auth', 'role:admin,super_admin'])->prefix('super-admin')->na
     Route::post('/users/{user}/suspend', [UserManagementController::class, 'suspend'])->name('users.suspend');
 });
 
-// Super Admin Routes
-Route::middleware(['auth', 'super_admin'])->prefix('super-admin')->name('super-admin.')->group(function () {
-    Route::get('/dashboard', [SuperAdminController::class, 'dashboard'])->name('dashboard');
-    Route::get('/activity-logs', [SuperAdminController::class, 'activityLogs'])->name('activity-logs');
-    Route::get('/settings', [SuperAdminController::class, 'settings'])->name('settings');
-    Route::post('/settings', [SuperAdminController::class, 'updateSettings'])->name('settings.update');
+// Reports Routes (Accessible by Admin, Super Admin, and Managers)
+Route::middleware(['auth', 'role:admin,super_admin,operational_manager,general_manager'])->prefix('super-admin')->name('super-admin.')->group(function () {
     Route::get('/reports', [SuperAdminController::class, 'reports'])->name('reports');
     Route::get('/reports/technical', [SuperAdminController::class, 'technicalReports'])->name('reports.technical');
     Route::get('/reports/technical/export/csv', [SuperAdminController::class, 'exportTechnicalReportCsv'])->name('reports.technical.export.csv');
     Route::get('/reports/technical/export/pdf', [SuperAdminController::class, 'exportTechnicalReportPdf'])->name('reports.technical.export.pdf');
     Route::get('/reports/export', [SuperAdminController::class, 'exportMonthlyCumulativeReport'])->name('reports.export');
+});
+
+// Super Admin Only Routes
+Route::middleware(['auth', 'super_admin'])->prefix('super-admin')->name('super-admin.')->group(function () {
+    Route::get('/dashboard', [SuperAdminController::class, 'dashboard'])->name('dashboard');
+    Route::get('/activity-logs', [SuperAdminController::class, 'activityLogs'])->name('activity-logs');
+    Route::get('/settings', [SuperAdminController::class, 'settings'])->name('settings');
+    Route::post('/settings', [SuperAdminController::class, 'updateSettings'])->name('settings.update');
 });
 
 // Chat API Routes for Popup Widget
