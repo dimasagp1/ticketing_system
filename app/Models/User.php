@@ -68,6 +68,11 @@ class User extends Authenticatable
         return $this->hasMany(ProjectApproval::class, 'approver_id');
     }
 
+    public function managedProjectRequests()
+    {
+        return $this->hasMany(ProjectRequest::class, 'manager_id');
+    }
+
     public function assignedQueues()
     {
         return $this->hasMany(Queue::class, 'assigned_to');
@@ -93,7 +98,26 @@ class User extends Authenticatable
         return $this->hasMany(ActivityLog::class);
     }
 
-    // Role-based helper methods
+    public function isOperationalManager()
+    {
+        return $this->role === 'operational_manager';
+    }
+
+    public function isGeneralManager()
+    {
+        return $this->role === 'general_manager';
+    }
+
+    public function isManager()
+    {
+        return in_array($this->role, ['operational_manager', 'general_manager']);
+    }
+
+    public function canApproveAsManager()
+    {
+        return in_array($this->role, ['operational_manager', 'general_manager', 'super_admin']);
+    }
+
     public function isClient()
     {
         return $this->role === 'client';
@@ -128,7 +152,20 @@ class User extends Authenticatable
 
     public function canApproveProjects()
     {
-        return in_array($this->role, ['admin', 'super_admin']);
+        return in_array($this->role, ['admin', 'super_admin', 'operational_manager', 'general_manager']);
+    }
+
+    public function getRoleDisplayNameAttribute(): string
+    {
+        return match ($this->role) {
+            'operational_manager' => 'Operational Manager',
+            'general_manager' => 'General Manager',
+            'super_admin' => 'Super Admin',
+            'admin' => 'Admin',
+            'developer' => 'Developer',
+            'client' => 'Client',
+            default => ucfirst(str_replace('_', ' ', $this->role ?? '')),
+        };
     }
 
     public function canManageUsers()

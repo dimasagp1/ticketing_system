@@ -18,13 +18,15 @@ class ProjectRequestController extends Controller
 
         if ($user->isClient()) {
             $query = ProjectRequest::where('client_id', $user->id)
-                ->with(['requirements', 'approvals']);
+                ->with(['requirements', 'approvals', 'manager']);
         } elseif ($user->isDeveloper()) {
             $query = ProjectRequest::whereHas('queue', function ($q) use ($user) {
                 $q->where('assigned_to', $user->id);
-            })->with(['client', 'requirements', 'approvals', 'queue']);
+            })->with(['client', 'requirements', 'approvals', 'queue', 'manager']);
+        } elseif ($user->isManager()) {
+            $query = ProjectRequest::with(['client', 'requirements', 'approvals', 'queue', 'manager']);
         } else {
-            $query = ProjectRequest::with(['client', 'requirements', 'approvals', 'queue']);
+            $query = ProjectRequest::with(['client', 'requirements', 'approvals', 'queue', 'manager']);
         }
 
         if ($request->filled('search')) {
@@ -89,7 +91,10 @@ class ProjectRequestController extends Controller
 
     public function create()
     {
-        return view('project-requests.create');
+        $operationalManagers = User::where('role', 'operational_manager')->where('status', 'active')->orderBy('name')->get();
+        $generalManagers = User::where('role', 'general_manager')->where('status', 'active')->orderBy('name')->get();
+
+        return view('project-requests.create', compact('operationalManagers', 'generalManagers'));
     }
 
     public function store(Request $request)
@@ -98,6 +103,8 @@ class ProjectRequestController extends Controller
             'project_name' => 'required|string|max:255',
             'ticket_category' => 'required|in:incident,service_request,access,bug,technical_support,other',
             'technical_subcategory' => 'nullable|required_if:ticket_category,technical_support|in:wifi,printer,komputer,software_install,supporting',
+            'manager_role' => 'nullable|in:operational_manager,general_manager',
+            'manager_id' => 'nullable|exists:users,id',
             'description' => 'required|string',
             'location_detail' => 'nullable|string|max:255',
             'asset_code' => 'nullable|string|max:255',
@@ -121,6 +128,9 @@ class ProjectRequestController extends Controller
             'project_name' => $validated['project_name'],
             'ticket_category' => $validated['ticket_category'],
             'technical_subcategory' => $isTechnicalSupport ? ($validated['technical_subcategory'] ?? null) : null,
+            'manager_role' => $validated['manager_role'] ?? null,
+            'manager_id' => $validated['manager_id'] ?? null,
+            'manager_approval_status' => !empty($validated['manager_id']) ? 'pending' : null,
             'description' => $validated['description'],
             'location_detail' => $validated['location_detail'] ?? null,
             'asset_code' => $validated['asset_code'] ?? null,
@@ -160,12 +170,12 @@ class ProjectRequestController extends Controller
 
     public function show(ProjectRequest $projectRequest)
     {
-        // Authorization check
+        // Authorization check: Client can only see own requests
         if (auth()->user()->isClient() && $projectRequest->client_id !== auth()->id()) {
             abort(403);
         }
 
-        $projectRequest->load(['client', 'requirements', 'approvals.approver', 'revisions']);
+        $projectRequest->load(['client', 'requirements', 'approvals.approver', 'revisions', 'manager']);
 
         return view('project-requests.show', compact('projectRequest'));
     }
@@ -183,7 +193,10 @@ class ProjectRequestController extends Controller
             abort(403);
         }
 
-        return view('project-requests.edit', compact('projectRequest'));
+        $operationalManagers = User::where('role', 'operational_manager')->where('status', 'active')->orderBy('name')->get();
+        $generalManagers = User::where('role', 'general_manager')->where('status', 'active')->orderBy('name')->get();
+
+        return view('project-requests.edit', compact('projectRequest', 'operationalManagers', 'generalManagers'));
     }
 
     public function update(Request $request, ProjectRequest $projectRequest)
@@ -192,6 +205,8 @@ class ProjectRequestController extends Controller
             'project_name' => 'required|string|max:255',
             'ticket_category' => 'required|in:incident,service_request,access,bug,technical_support,other',
             'technical_subcategory' => 'nullable|required_if:ticket_category,technical_support|in:wifi,printer,komputer,software_install,supporting',
+            'manager_role' => 'nullable|in:operational_manager,general_manager',
+            'manager_id' => 'nullable|exists:users,id',
             'description' => 'required|string',
             'location_detail' => 'nullable|string|max:255',
             'asset_code' => 'nullable|string|max:255',
@@ -214,6 +229,8 @@ class ProjectRequestController extends Controller
             'project_name' => $validated['project_name'],
             'ticket_category' => $validated['ticket_category'],
             'technical_subcategory' => $isTechnicalSupport ? ($validated['technical_subcategory'] ?? null) : null,
+            'manager_role' => $validated['manager_role'] ?? null,
+            'manager_id' => $validated['manager_id'] ?? null,
             'description' => $validated['description'],
             'location_detail' => $validated['location_detail'] ?? null,
             'asset_code' => $validated['asset_code'] ?? null,
@@ -225,12 +242,12 @@ class ProjectRequestController extends Controller
             'sla_resolution_due_at' => $projectRequest->resolved_at ? $projectRequest->sla_resolution_due_at : $slaTargets['resolution_due_at'],
         ];
 
-        // If it was a revision request, we update status to submitted so it appears in approvals again
+        // If it was a revision request, reset to draft/submitted state
         if ($projectRequest->status === 'revision_requested') {
-            $updateData['status'] = 'submitted';
+            $updateData['status'] = $projectRequest->manager_id ? 'waiting_manager_approval' : 'submitted';
+            $updateData['manager_approval_status'] = $projectRequest->manager_id ? 'pending' : null;
             $updateData['submitted_at'] = now();
-            $updateData['ticket_status'] = 'in_progress';
-            // Also reset approval status if needed, but the approvals table handle checks
+            $updateData['ticket_status'] = 'open';
 
             if (in_array($projectRequest->ticket_status, ['resolved', 'closed'], true)) {
                 $updateData['reopened_count'] = ((int) $projectRequest->reopened_count) + 1;
@@ -323,6 +340,55 @@ class ProjectRequestController extends Controller
                 ->with('error', 'Silakan unggah minimal satu berkas kebutuhan sebelum mengajukan.');
         }
 
+        $ticketCode = $projectRequest->ticket_number ?? ('#' . $projectRequest->id);
+
+        // TIER 1: If Manager is selected, route to Manager Approval first
+        if ($projectRequest->manager_id) {
+            $managerApprover = User::find($projectRequest->manager_id);
+
+            if ($managerApprover && $managerApprover->isActive()) {
+                $projectRequest->update([
+                    'status' => 'waiting_manager_approval',
+                    'submitted_at' => now(),
+                    'manager_approval_status' => 'pending',
+                    'ticket_status' => 'open',
+                    'first_responded_at' => $projectRequest->first_responded_at ?? now(),
+                ]);
+
+                // Create approval record for the manager
+                $approval = $projectRequest->approvals()->create([
+                    'approver_id' => $managerApprover->id,
+                    'status' => 'pending',
+                ]);
+
+                ActivityLog::log('submit_project_manager', "Mengajukan tiket '{$projectRequest->project_name}' ke {$managerApprover->role_display_name} ({$managerApprover->name})", $projectRequest);
+
+                SystemEmailNotifier::sendToUser(
+                    $managerApprover,
+                    'Tiket Baru Menunggu Approval Atasan: ' . $ticketCode,
+                    'Pengajuan tiket baru membutuhkan persetujuan Anda',
+                    "Tiket {$ticketCode} ({$projectRequest->project_name}) diajukan oleh {$projectRequest->client?->name}.\nSilakan tinjau dan berikan keputusan approval manajerial.",
+                    route('approvals.show', $approval),
+                    'Tinjau Tiket',
+                    'Email otomatis dari Sistem Ticketing.'
+                );
+
+                SystemEmailNotifier::sendToUser(
+                    $projectRequest->client,
+                    'Tiket Terkirim ke Atasan: ' . $ticketCode,
+                    'Tiket Anda berhasil diajukan ke Atasan',
+                    "Tiket {$ticketCode} ({$projectRequest->project_name}) saat ini menunggu persetujuan dari {$managerApprover->name} ({$managerApprover->role_display_name}).",
+                    route('project-requests.show', $projectRequest),
+                    'Lihat Detail Tiket',
+                    'Pantau status tiket melalui dashboard Anda.'
+                );
+
+                return redirect()->route('project-requests.show', $projectRequest)
+                    ->with('success', "Tiket berhasil diajukan dan sedang menunggu persetujuan {$managerApprover->role_display_name} ({$managerApprover->name}).");
+            }
+        }
+
+        // TIER 2 / Direct fallback: Route directly to Admin IT
         $projectRequest->update([
             'status' => 'submitted',
             'submitted_at' => now(),
@@ -345,15 +411,13 @@ class ProjectRequestController extends Controller
                 ->with('error', 'Tidak ada admin aktif yang tersedia untuk proses approval.');
         }
 
-        // Create approval record
+        // Create approval record for Admin
         $approval = $projectRequest->approvals()->create([
             'approver_id' => $approver->id,
             'status' => 'pending',
         ]);
 
         ActivityLog::log('submit_project', 'Submitted project request for approval: ' . $projectRequest->project_name, $projectRequest);
-
-        $ticketCode = $projectRequest->ticket_number ?? ('#' . $projectRequest->id);
 
         SystemEmailNotifier::sendToUser(
             $approver,

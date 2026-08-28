@@ -67,6 +67,8 @@
                                     <option value="">Pilih Peran</option>
                                     <option value="client" {{ old('role') == 'client' ? 'selected' : '' }}>Klien</option>
                                     <option value="developer" {{ old('role') == 'developer' ? 'selected' : '' }}>Developer</option>
+                                    <option value="operational_manager" {{ old('role') == 'operational_manager' ? 'selected' : '' }}>Operational Manager</option>
+                                    <option value="general_manager" {{ old('role') == 'general_manager' ? 'selected' : '' }}>General Manager</option>
                                     <option value="admin" {{ old('role') == 'admin' ? 'selected' : '' }}>Admin</option>
                                     <option value="super_admin" {{ old('role') == 'super_admin' ? 'selected' : '' }}>Super Admin</option>
                                 </select>

@@ -48,6 +48,8 @@
                                 <select name="role" id="role" class="form-control @error('role') is-invalid @enderror" required>
                                     <option value="client" {{ old('role', $user->role) == 'client' ? 'selected' : '' }}>Klien</option>
                                     <option value="developer" {{ old('role', $user->role) == 'developer' ? 'selected' : '' }}>Developer</option>
+                                    <option value="operational_manager" {{ old('role', $user->role) == 'operational_manager' ? 'selected' : '' }}>Operational Manager</option>
+                                    <option value="general_manager" {{ old('role', $user->role) == 'general_manager' ? 'selected' : '' }}>General Manager</option>
                                     <option value="admin" {{ old('role', $user->role) == 'admin' ? 'selected' : '' }}>Admin</option>
                                     <option value="super_admin" {{ old('role', $user->role) == 'super_admin' ? 'selected' : '' }}>Super Admin</option>
                                 </select>

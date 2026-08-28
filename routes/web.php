@@ -55,6 +55,49 @@ Route::get('/dashboard', function () {
         'activeProjectRequests' => $activeProjectRequests,
     ];
     
+    // For Managers (Operational Manager / General Manager)
+    if ($user->isManager()) {
+        $managerPendingApprovals = \App\Models\ProjectApproval::with(['projectRequest.client', 'projectRequest.requirements'])
+            ->pending()
+            ->where(function ($q) use ($user) {
+                $q->where('approver_id', $user->id)
+                  ->orWhereHas('projectRequest', function ($pq) use ($user) {
+                      $pq->where('manager_id', $user->id);
+                  });
+            })
+            ->latest()
+            ->get();
+
+        $managerActiveTickets = \App\Models\ProjectRequest::with(['client', 'developer', 'queue.assignedTo', 'queue.progressLogs'])
+            ->where(function ($q) use ($user) {
+                $q->where('manager_id', $user->id)
+                  ->orWhereIn('status', ['waiting_manager_approval', 'submitted', 'under_review', 'approved', 'converted_to_queue']);
+            })
+            ->whereIn('ticket_status', ['open', 'in_progress', 'pending_user', 'paused'])
+            ->orderByRaw("FIELD(status, 'waiting_manager_approval', 'submitted') DESC")
+            ->orderBy('created_at', 'desc')
+            ->limit(15)
+            ->get();
+
+        $managerStats = [
+            'pending_approvals_count' => $managerPendingApprovals->count(),
+            'active_tickets_count' => \App\Models\ProjectRequest::whereIn('ticket_status', ['open', 'in_progress', 'pending_user', 'paused'])->count(),
+            'completed_this_month' => \App\Models\ProjectRequest::whereIn('ticket_status', ['resolved', 'closed'])
+                ->whereMonth('updated_at', now()->month)
+                ->whereYear('updated_at', now()->year)
+                ->count(),
+            'overdue_count' => \App\Models\ProjectRequest::whereIn('ticket_status', \App\Models\ProjectRequest::slaTrackedTicketStatuses())
+                ->whereNotNull('sla_resolution_due_at')
+                ->where('sla_resolution_due_at', '<', now())
+                ->count(),
+            'total_tickets' => \App\Models\ProjectRequest::count(),
+        ];
+
+        $viewData['managerPendingApprovals'] = $managerPendingApprovals;
+        $viewData['managerActiveTickets'] = $managerActiveTickets;
+        $viewData['managerStats'] = $managerStats;
+    }
+
     // For clients, fetch global active queues to show IT workload/queue position
     if ($user->isClient()) {
         $viewData['globalQueues'] = \App\Models\Queue::with(['assignedTo', 'progressLogs.updatedBy'])

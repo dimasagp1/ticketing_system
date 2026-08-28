@@ -75,7 +75,43 @@
                     </li>
                 @endif
 
-                @if(auth()->user()->canApproveProjects())
+                @if(auth()->user()->isManager())
+                    <!-- Manager Executive Menu -->
+                    <li class="nav-header">MANAJEMEN EKSEKUTIF</li>
+                    <li class="nav-item">
+                        <a href="{{ route('approvals.index') }}" class="nav-link {{ request()->routeIs('approvals.*') ? 'active' : '' }}">
+                            <i class="nav-icon fas fa-clipboard-check"></i>
+                            <p>
+                                Persetujuan Saya
+                                <span class="badge badge-warning right">Baru</span>
+                            </p>
+                        </a>
+                    </li>
+                    <li class="nav-item">
+                        <a href="{{ route('project-requests.index') }}" class="nav-link {{ request()->routeIs('project-requests.*') ? 'active' : '' }}">
+                            <i class="nav-icon fas fa-folder"></i>
+                            <p>Semua Permintaan</p>
+                        </a>
+                    </li>
+                    <li class="nav-item">
+                        <a href="{{ route('project-requests.create') }}" class="nav-link">
+                            <i class="nav-icon fas fa-plus-circle"></i>
+                            <p>Ajukan Tiket Baru</p>
+                        </a>
+                    </li>
+                    <li class="nav-item">
+                        <a href="{{ route('super-admin.reports') }}" class="nav-link {{ request()->routeIs('super-admin.reports*') ? 'active' : '' }}">
+                            <i class="nav-icon fas fa-file-alt"></i>
+                            <p>Laporan & Rekap</p>
+                        </a>
+                    </li>
+                    <li class="nav-item">
+                        <a href="{{ route('chat.index') }}" class="nav-link {{ request()->routeIs('chat.*') ? 'active' : '' }}">
+                            <i class="nav-icon fas fa-comments"></i>
+                            <p>Chat</p>
+                        </a>
+                    </li>
+                @elseif(auth()->user()->canApproveProjects())
                     <!-- Admin Menu -->
                     <li class="nav-header">MANAJEMEN</li>
                     <li class="nav-item">

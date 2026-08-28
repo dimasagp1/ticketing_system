@@ -17,12 +17,26 @@
                 <table class="table table-borderless detail-table mb-0">
                     <tr>
                         <th width="200">Nama Proyek:</th>
-                        <td>{{ $approval->projectRequest->project_name }}</td>
+                        <td><strong>{{ $approval->projectRequest->project_name }}</strong></td>
                     </tr>
                     <tr>
-                        <th>Klien:</th>
+                        <th>Klien / Pemohon:</th>
                         <td>{{ $approval->projectRequest->client->name }} ({{ $approval->projectRequest->client->email }})</td>
                     </tr>
+                    @if($approval->projectRequest->manager_role)
+                    <tr>
+                        <th>Atasan Penyetuju:</th>
+                        <td>
+                            <span class="badge badge-info mr-1">{{ $approval->projectRequest->manager_role_label }}</span>
+                            {{ $approval->projectRequest->manager?->name ?? '-' }}
+                            @if($approval->projectRequest->manager_approval_status)
+                                <span class="badge badge-{{ $approval->projectRequest->manager_approval_status_badge_class }} ml-1">
+                                    {{ $approval->projectRequest->manager_approval_status_label }}
+                                </span>
+                            @endif
+                        </td>
+                    </tr>
+                    @endif
                     <tr>
                         <th>Durasi:</th>
                         <td>{{ $approval->projectRequest->estimated_duration ? $approval->projectRequest->estimated_duration . ' hari' : '-' }}</td>
@@ -80,7 +94,7 @@
                         </table>
                     </div>
                 @else
-                    <p class="text-muted">Belum ada berkas diunggah</p>
+                    <p class="text-muted p-4 mb-0">Belum ada berkas diunggah</p>
                 @endif
             </div>
         </div>
@@ -89,11 +103,18 @@
     <div class="col-md-4">
         <div class="card support-shell-card mb-4" style="border-top: 3px solid var(--theme-green) !important;">
             <div class="card-header border-0 bg-white pt-4 px-4 pb-2">
-                <h3 class="card-title mb-0 font-weight-bold" style="font-size: 1.15rem;">Setujui Proyek</h3>
+                <h3 class="card-title mb-0 font-weight-bold" style="font-size: 1.15rem;">
+                    @if($isManagerTier ?? false)
+                        <i class="fas fa-user-check text-success mr-1"></i> Setujui Pengajuan Atasan
+                    @else
+                        <i class="fas fa-check-circle text-success mr-1"></i> Setujui & Triage IT
+                    @endif
+                </h3>
             </div>
             <form action="{{ route('approvals.approve', $approval) }}" method="POST">
                 @csrf
                 <div class="card-body px-4 pb-4 pt-2">
+                    @if(!($isManagerTier ?? false))
                     <div class="form-group mb-3">
                         <label class="font-weight-600 text-dark mb-1">
                             <i class="fas fa-user-tag text-primary mr-1"></i> Penugasan Developer / Teknisi
@@ -110,15 +131,26 @@
                             Pilih teknisi yang akan langsung menangani tiket ini.
                         </small>
                     </div>
+                    @else
+                    <div class="alert alert-info py-2 px-3 mb-3 text-sm">
+                        <i class="fas fa-info-circle mr-1"></i>
+                        Sebagai Atasan, persetujuan Anda akan meneruskan tiket ini ke Tim IT untuk dijadwalkan dan dikerjakan.
+                    </div>
+                    @endif
 
                     <div class="form-group mb-0">
-                        <label class="text-muted font-weight-500">Komentar (Opsional)</label>
-                        <textarea name="comments" class="form-control" rows="3" placeholder="Tambahkan komentar persetujuan..." style="border-radius: 0.5rem;"></textarea>
+                        <label class="text-muted font-weight-500">Komentar / Catatan (Opsional)</label>
+                        <textarea name="comments" class="form-control" rows="3" placeholder="Tambahkan catatan persetujuan..." style="border-radius: 0.5rem;"></textarea>
                     </div>
                 </div>
                 <div class="card-footer bg-white border-0 px-4 pb-4 pt-0">
                     <button type="submit" class="btn btn-success btn-block font-weight-500 shadow-sm" style="border-radius: 0.5rem;">
-                        <i class="fas fa-check mr-2"></i> Setujui & Buat Antrian
+                        <i class="fas fa-check mr-2"></i> 
+                        @if($isManagerTier ?? false)
+                            Setujui & Teruskan ke IT
+                        @else
+                            Setujui & Buat Antrian
+                        @endif
                     </button>
                 </div>
             </form>

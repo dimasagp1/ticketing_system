@@ -21,6 +21,11 @@ class ProjectRequest extends Model
         'affected_users_count',
         'estimated_duration',
         'client_id',
+        'manager_role',
+        'manager_id',
+        'manager_approval_status',
+        'manager_approved_at',
+        'manager_notes',
         'impact',
         'urgency',
         'status',
@@ -43,6 +48,7 @@ class ProjectRequest extends Model
 
     protected $casts = [
         'submitted_at' => 'datetime',
+        'manager_approved_at' => 'datetime',
         'sla_response_due_at' => 'datetime',
         'sla_resolution_due_at' => 'datetime',
         'escalated_at' => 'datetime',
@@ -56,6 +62,11 @@ class ProjectRequest extends Model
     public function client()
     {
         return $this->belongsTo(User::class, 'client_id');
+    }
+
+    public function manager()
+    {
+        return $this->belongsTo(User::class, 'manager_id');
     }
 
     public function developer()
@@ -97,6 +108,11 @@ class ProjectRequest extends Model
     public function scopeDraft($query)
     {
         return $query->where('status', 'draft');
+    }
+
+    public function scopeWaitingManagerApproval($query)
+    {
+        return $query->where('status', 'waiting_manager_approval');
     }
 
     public function scopeSubmitted($query)
@@ -329,15 +345,64 @@ class ProjectRequest extends Model
         };
     }
 
+    public static function managerRoleLabels(): array
+    {
+        return [
+            'operational_manager' => 'Operational Manager',
+            'general_manager' => 'General Manager',
+        ];
+    }
+
+    public function getManagerRoleLabelAttribute(): ?string
+    {
+        if (!$this->manager_role) {
+            return null;
+        }
+
+        return static::managerRoleLabels()[$this->manager_role] ?? ucfirst(str_replace('_', ' ', $this->manager_role));
+    }
+
+    public static function managerApprovalStatusLabels(): array
+    {
+        return [
+            'pending' => 'Menunggu Review Atasan',
+            'approved' => 'Disetujui Atasan',
+            'rejected' => 'Ditolak Atasan',
+            'revision_requested' => 'Revisi Diminta Atasan',
+        ];
+    }
+
+    public function getManagerApprovalStatusLabelAttribute(): ?string
+    {
+        if (!$this->manager_approval_status) {
+            return null;
+        }
+
+        return static::managerApprovalStatusLabels()[$this->manager_approval_status] ?? ucfirst(str_replace('_', ' ', $this->manager_approval_status));
+    }
+
+    public function getManagerApprovalStatusBadgeClassAttribute(): string
+    {
+        return match ($this->manager_approval_status) {
+            'approved' => 'success',
+            'rejected' => 'danger',
+            'revision_requested' => 'warning',
+            'pending' => 'info',
+            default => 'secondary',
+        };
+    }
+
     public static function requestStatusLabels(): array
     {
         return [
             'draft' => 'Draft',
-            'submitted' => 'Diajukan',
-            'under_review' => 'Ditinjau',
-            'approved' => 'Disetujui',
+            'waiting_manager_approval' => 'Menunggu Approval Atasan',
+            'submitted' => 'Diajukan ke IT',
+            'under_review' => 'Ditinjau IT',
+            'approved' => 'Disetujui IT',
             'rejected' => 'Ditolak',
             'revision_requested' => 'Perlu Revisi',
+            'converted_to_queue' => 'Dalam Antrean',
         ];
     }
 
@@ -350,11 +415,13 @@ class ProjectRequest extends Model
     {
         return match ($this->status) {
             'draft' => 'secondary',
-            'submitted' => 'warning',
+            'waiting_manager_approval' => 'warning',
+            'submitted' => 'info',
             'under_review' => 'info',
             'approved' => 'success',
             'rejected' => 'danger',
             'revision_requested' => 'primary',
+            'converted_to_queue' => 'success',
             default => 'dark',
         };
     }

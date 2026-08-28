@@ -36,9 +36,31 @@
                         <td>{{ $projectRequest->ticket_category_label }}</td>
                     </tr>
                     <tr>
-                        <th>Klien:</th>
+                        <th>Klien / Pemohon:</th>
                         <td>{{ $projectRequest->client->name }}</td>
                     </tr>
+                    @if($projectRequest->manager_role)
+                    <tr>
+                        <th>Atasan Penyetuju:</th>
+                        <td>
+                            <span class="badge badge-info mr-1">{{ $projectRequest->manager_role_label }}</span>
+                            <strong>{{ $projectRequest->manager?->name ?? '-' }}</strong>
+                            @if($projectRequest->manager_approval_status)
+                                <span class="badge badge-{{ $projectRequest->manager_approval_status_badge_class }} ml-1">
+                                    {{ $projectRequest->manager_approval_status_label }}
+                                </span>
+                            @endif
+                            @if($projectRequest->manager_approved_at)
+                                <small class="text-muted d-block mt-1">Disetujui pada: {{ $projectRequest->manager_approved_at->format('d M Y H:i') }}</small>
+                            @endif
+                            @if($projectRequest->manager_notes)
+                                <div class="small text-muted mt-1 p-2 bg-light rounded">
+                                    <em>"{{ $projectRequest->manager_notes }}"</em>
+                                </div>
+                            @endif
+                        </td>
+                    </tr>
+                    @endif
                     <tr>
                         <th>Dampak / Urgensi:</th>
                         <td>
@@ -171,6 +193,20 @@
                 <div class="mb-3 text-center">
                     <span class="badge badge-{{ $projectRequest->ticket_status_badge_class }}">{{ $projectRequest->ticket_status_label }}</span>
                 </div>
+
+                @php
+                    $userPendingApproval = $projectRequest->approvals()->where('approver_id', auth()->id())->where('status', 'pending')->first();
+                    if (!$userPendingApproval && (auth()->user()->isSuperAdmin() || (auth()->user()->isManager() && $projectRequest->manager_id === auth()->id()))) {
+                        $userPendingApproval = $projectRequest->approvals()->where('status', 'pending')->latest()->first();
+                    }
+                @endphp
+                @if($userPendingApproval && auth()->user()->canApproveProjects())
+                    <div class="mb-3">
+                        <a href="{{ route('approvals.show', $userPendingApproval) }}" class="btn btn-warning text-dark btn-block font-weight-bold shadow-sm" style="border-radius: 0.5rem;">
+                            <i class="fas fa-clipboard-check mr-1"></i> Tinjau & Berikan Persetujuan
+                        </a>
+                    </div>
+                @endif
 
                 @if(auth()->user()->hasRole(['admin', 'super_admin']) && $projectRequest->status !== 'draft' && in_array($projectRequest->ticket_status, \App\Models\ProjectRequest::pausableTicketStatuses(), true))
                     <form action="{{ route('project-requests.pause', $projectRequest) }}" method="POST" class="mt-2" id="pause-form-{{ $projectRequest->id }}">

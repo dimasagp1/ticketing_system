@@ -43,6 +43,8 @@
                             <select name="role" class="form-control border-2 border-black rounded-xl">
                                 <option value="">Semua Role</option>
                                 <option value="client" {{ request('role') == 'client' ? 'selected' : '' }}>Client</option>
+                                <option value="operational_manager" {{ request('role') == 'operational_manager' ? 'selected' : '' }}>Operational Manager</option>
+                                <option value="general_manager" {{ request('role') == 'general_manager' ? 'selected' : '' }}>General Manager</option>
                                 <option value="admin" {{ request('role') == 'admin' ? 'selected' : '' }}>Admin</option>
                                 <option value="developer" {{ request('role') == 'developer' ? 'selected' : '' }}>Developer</option>
                                 <option value="super_admin" {{ request('role') == 'super_admin' ? 'selected' : '' }}>Super Admin</option>

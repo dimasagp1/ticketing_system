@@ -129,6 +129,60 @@
             </div>
 
             <div class="card support-shell-card mb-4">
+                <div class="card-header border-0 bg-white pt-4 px-4 pb-2 d-flex justify-content-between align-items-center">
+                    <h3 class="card-title mb-0 font-weight-bold" style="font-size: 1.15rem;">
+                        <i class="fas fa-user-shield text-primary mr-2"></i>Persetujuan Atasan (Manager Approval)
+                    </h3>
+                    <span class="badge badge-light border text-muted">Tahap 1 Verifikasi</span>
+                </div>
+                <div class="card-body px-4 pb-4 pt-2">
+                    <div class="alert alert-light border mb-3 text-sm">
+                        <i class="fas fa-info-circle text-info mr-1"></i>
+                        Pilih level atasan yang akan memberikan persetujuan sebelum tiket diteruskan ke Tim IT.
+                    </div>
+
+                    <div class="row">
+                        <div class="col-md-6">
+                            <div class="form-group">
+                                <label for="manager_role">Jabatan Atasan Penyetuju <span class="text-danger">*</span></label>
+                                <select name="manager_role" id="manager_role" class="form-control @error('manager_role') is-invalid @enderror" required>
+                                    <option value="">-- Pilih Jabatan Atasan --</option>
+                                    <option value="operational_manager" {{ old('manager_role', $projectRequest->manager_role) === 'operational_manager' ? 'selected' : '' }}>Operational Manager (OM)</option>
+                                    <option value="general_manager" {{ old('manager_role', $projectRequest->manager_role) === 'general_manager' ? 'selected' : '' }}>General Manager (GM)</option>
+                                </select>
+                                @error('manager_role')
+                                    <span class="invalid-feedback">{{ $message }}</span>
+                                @enderror
+                            </div>
+                        </div>
+
+                        <div class="col-md-6">
+                            <div class="form-group">
+                                <label for="manager_id">Nama Pejabat / Manager <span class="text-danger">*</span></label>
+                                <select name="manager_id" id="manager_id" class="form-control @error('manager_id') is-invalid @enderror" required>
+                                    <option value="">-- Pilih Nama Atasan --</option>
+                                    @foreach($operationalManagers ?? [] as $om)
+                                        <option value="{{ $om->id }}" data-role="operational_manager" {{ old('manager_id', $projectRequest->manager_id) == $om->id ? 'selected' : '' }}>
+                                            {{ $om->name }} (Operational Manager)
+                                        </option>
+                                    @endforeach
+                                    @foreach($generalManagers ?? [] as $gm)
+                                        <option value="{{ $gm->id }}" data-role="general_manager" {{ old('manager_id', $projectRequest->manager_id) == $gm->id ? 'selected' : '' }}>
+                                            {{ $gm->name }} (General Manager)
+                                        </option>
+                                    @endforeach
+                                </select>
+                                @error('manager_id')
+                                    <span class="invalid-feedback">{{ $message }}</span>
+                                @enderror
+                                <small class="text-muted d-block mt-1">Pilih nama manajer yang akan memvalidasi pengajuan ini.</small>
+                            </div>
+                        </div>
+                    </div>
+                </div>
+            </div>
+
+            <div class="card support-shell-card mb-4">
                 <div class="card-header border-0 bg-white pt-4 px-4 pb-2">
                     <h3 class="card-title mb-0 font-weight-bold" style="font-size: 1.15rem;">Perbarui File Kebutuhan</h3>
                 </div>
@@ -184,8 +238,42 @@
         }
     }
 
+    function filterManagerOptions() {
+        const managerRoleSelect = document.getElementById('manager_role');
+        const managerIdSelect = document.getElementById('manager_id');
+        if (!managerRoleSelect || !managerIdSelect) return;
+
+        const selectedRole = managerRoleSelect.value;
+        const options = managerIdSelect.querySelectorAll('option[data-role]');
+
+        let hasSelectedOption = false;
+        options.forEach(opt => {
+            if (!selectedRole || opt.getAttribute('data-role') === selectedRole) {
+                opt.style.display = '';
+                if (opt.selected) hasSelectedOption = true;
+            } else {
+                opt.style.display = 'none';
+                if (opt.selected) opt.selected = false;
+            }
+        });
+
+        // Auto select first visible option if none is currently selected
+        if (!hasSelectedOption && selectedRole) {
+            const firstVisible = Array.from(options).find(opt => opt.getAttribute('data-role') === selectedRole);
+            if (firstVisible) {
+                firstVisible.selected = true;
+            }
+        }
+    }
+
     document.getElementById('ticket_category').addEventListener('change', toggleTechnicalSubcategory);
     toggleTechnicalSubcategory();
+
+    const managerRoleEl = document.getElementById('manager_role');
+    if (managerRoleEl) {
+        managerRoleEl.addEventListener('change', filterManagerOptions);
+        filterManagerOptions();
+    }
 </script>
 @endpush
 @endsection
