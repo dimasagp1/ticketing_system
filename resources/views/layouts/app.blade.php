@@ -26,11 +26,16 @@
         <link rel="apple-touch-icon" href="{{ asset('storage/' . $favPath) }}?v={{ $favVersion }}">
     @endif
 
-    <!-- Vite Assets with Direct Production Fallback -->
-    @vite(['resources/css/app.css', 'resources/js/app.js'])
-    @if(file_exists(public_path('build/manifest.json')))
+    <!-- Safe Vite / Production Asset Loading -->
+    @php
+        $manifestPath = public_path('build/manifest.json');
+        $altManifestPath = base_path('public_html/build/manifest.json');
+    @endphp
+    @if(file_exists(public_path('hot')))
+        @vite(['resources/css/app.css', 'resources/js/app.js'])
+    @elseif(file_exists($manifestPath))
         @php
-            $manifest = json_decode(@file_get_contents(public_path('build/manifest.json')), true) ?? [];
+            $manifest = json_decode(@file_get_contents($manifestPath), true) ?? [];
             $cssFile = $manifest['resources/css/app.css']['file'] ?? null;
             $jsFile = $manifest['resources/js/app.js']['file'] ?? null;
         @endphp
@@ -40,6 +45,21 @@
         @if($jsFile)
             <script src="{{ asset('build/' . $jsFile) }}" defer></script>
         @endif
+    @elseif(file_exists($altManifestPath))
+        @php
+            $manifest = json_decode(@file_get_contents($altManifestPath), true) ?? [];
+            $cssFile = $manifest['resources/css/app.css']['file'] ?? null;
+            $jsFile = $manifest['resources/js/app.js']['file'] ?? null;
+        @endphp
+        @if($cssFile)
+            <link rel="stylesheet" href="{{ asset('build/' . $cssFile) }}">
+        @endif
+        @if($jsFile)
+            <script src="{{ asset('build/' . $jsFile) }}" defer></script>
+        @endif
+    @else
+        <link rel="stylesheet" href="{{ asset('build/assets/app-EP1E7moD.css') }}">
+        <script src="{{ asset('build/assets/app-BK0v_jRu.js') }}" defer></script>
     @endif
 
     <!-- Google Fonts: Fredoka & Plus Jakarta Sans -->

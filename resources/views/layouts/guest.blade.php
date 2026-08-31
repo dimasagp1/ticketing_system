@@ -12,8 +12,41 @@
         <link rel="preconnect" href="https://fonts.gstatic.com" crossorigin>
         <link href="https://fonts.googleapis.com/css2?family=Fredoka:wght@400;500;600;700;800&family=Plus+Jakarta+Sans:wght@400;600;700;800&display=swap" rel="stylesheet">
 
-        <!-- Scripts & Styles -->
-        @vite(['resources/css/app.css', 'resources/js/app.js'])
+        <!-- Safe Vite / Production Asset Loading -->
+        @php
+            $manifestPath = public_path('build/manifest.json');
+            $altManifestPath = base_path('public_html/build/manifest.json');
+        @endphp
+        @if(file_exists(public_path('hot')))
+            @vite(['resources/css/app.css', 'resources/js/app.js'])
+        @elseif(file_exists($manifestPath))
+            @php
+                $manifest = json_decode(@file_get_contents($manifestPath), true) ?? [];
+                $cssFile = $manifest['resources/css/app.css']['file'] ?? null;
+                $jsFile = $manifest['resources/js/app.js']['file'] ?? null;
+            @endphp
+            @if($cssFile)
+                <link rel="stylesheet" href="{{ asset('build/' . $cssFile) }}">
+            @endif
+            @if($jsFile)
+                <script src="{{ asset('build/' . $jsFile) }}" defer></script>
+            @endif
+        @elseif(file_exists($altManifestPath))
+            @php
+                $manifest = json_decode(@file_get_contents($altManifestPath), true) ?? [];
+                $cssFile = $manifest['resources/css/app.css']['file'] ?? null;
+                $jsFile = $manifest['resources/js/app.js']['file'] ?? null;
+            @endphp
+            @if($cssFile)
+                <link rel="stylesheet" href="{{ asset('build/' . $cssFile) }}">
+            @endif
+            @if($jsFile)
+                <script src="{{ asset('build/' . $jsFile) }}" defer></script>
+            @endif
+        @else
+            <link rel="stylesheet" href="{{ asset('build/assets/app-EP1E7moD.css') }}">
+            <script src="{{ asset('build/assets/app-BK0v_jRu.js') }}" defer></script>
+        @endif
     </head>
     <body class="font-jakarta text-black antialiased bg-[#FFFBEA] selection:bg-[#FF007A] selection:text-white min-h-screen flex flex-col justify-center items-center p-4 relative overflow-x-hidden">
         
