@@ -119,7 +119,7 @@
                         @forelse($pendingApprovalTickets as $req)
                             <tr>
                                 <td class="p-3"><span class="badge bg-black text-white font-fredoka font-black">{{ $req->ticket_number ?? '#'.$req->id }}</span></td>
-                                <td class="p-3 font-fredoka font-black text-black dark:text-white">{{ $req->title }}</td>
+                                <td class="p-3 font-fredoka font-black text-black dark:text-white">{{ $req->project_name }}</td>
                                 <td class="p-3 font-mono text-xs">{{ $req->created_at->format('d/m/Y H:i') }}</td>
                                 <td class="p-3">
                                     <span class="badge bg-[#FFE600] text-black border-2 border-black font-fredoka font-black text-xs px-2 py-1">
@@ -171,7 +171,7 @@
                                 <td class="p-3"><span class="badge bg-black text-white font-fredoka font-black">{{ $req->ticket_number ?? '#'.$req->id }}</span></td>
                                 <td class="p-3 font-fredoka font-black text-black dark:text-white">
                                     <a href="{{ route('project-requests.show', $req) }}" class="text-black dark:text-white hover:text-[#FF007A]">
-                                        {{ $req->title }}
+                                        {{ $req->project_name }}
                                     </a>
                                 </td>
                                 <td class="p-3 font-mono text-xs">{{ $req->created_at->format('d/m/Y H:i') }}</td>

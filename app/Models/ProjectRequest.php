@@ -256,6 +256,11 @@ class ProjectRequest extends Model
         ];
     }
 
+    public function getTitleAttribute(): ?string
+    {
+        return $this->project_name;
+    }
+
     public function getTicketStatusLabelAttribute(): string
     {
         $status = $this->ticket_status ?? 'open';

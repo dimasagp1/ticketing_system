@@ -100,7 +100,7 @@
                             <tr>
                                 <td class="p-3"><span class="badge bg-black text-white font-fredoka font-black">#{{ $queue->id }}</span></td>
                                 <td class="p-3 font-fredoka font-black text-black dark:text-white">
-                                    {{ $queue->projectRequest->title ?? $queue->project_name }}
+                                    {{ $queue->projectRequest?->project_name ?? $queue->project_name }}
                                 </td>
                                 <td class="p-3">
                                     <span class="badge bg-[#0055FF] text-white border-2 border-black font-fredoka font-black text-xs px-2 py-1">

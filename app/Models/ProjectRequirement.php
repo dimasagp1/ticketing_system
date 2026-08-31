@@ -32,6 +32,11 @@ class ProjectRequirement extends Model
     }
 
     // Accessors
+    public function getTitleAttribute(): ?string
+    {
+        return $this->file_name;
+    }
+
     public function getFileUrlAttribute()
     {
         return Storage::url($this->file_path);

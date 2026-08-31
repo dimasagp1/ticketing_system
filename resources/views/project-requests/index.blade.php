@@ -137,7 +137,7 @@
                                 </td>
                                 <td>
                                     <a href="{{ route('project-requests.show', $request) }}" class="font-fredoka font-black text-black dark:text-white hover:text-[#FF007A]">
-                                        {{ $request->title }}
+                                        {{ $request->project_name }}
                                     </a>
                                 </td>
                                 @if(!auth()->user()->isClient())

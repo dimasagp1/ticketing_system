@@ -331,7 +331,7 @@
             @foreach($requirements as $idx => $req)
                 <tr>
                     <td style="text-align: center;">{{ $idx + 1 }}</td>
-                    <td><strong>{{ $req->title }}</strong>@if($req->description) <br><small style="color:#555;">{{ $req->description }}</small>@endif</td>
+                    <td><strong>{{ $req->file_name ?? $req->title }}</strong>@if($req->description) <br><small style="color:#555;">{{ $req->description }}</small>@endif</td>
                     <td>{{ ucfirst($req->category ?? 'Functional') }}</td>
                     <td>{{ ucfirst($req->priority ?? 'Medium') }}</td>
                 </tr>
