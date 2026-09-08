@@ -101,9 +101,19 @@
                                                 <div class="mt-2 mb-3 p-2.5 bg-light border rounded-xl d-inline-flex align-items-center gap-2 shadow-sm flex-wrap">
                                                     <i class="fas {{ $log->file_icon_class }} fa-lg mr-1"></i>
                                                     <span class="font-weight-bold text-sm mr-2 text-dark">{{ $log->attachment_name }}</span>
-                                                    <a href="{{ route('progress.attachment.view', $log) }}" target="_blank" class="btn btn-sm btn-light text-info border font-weight-bold px-2.5 py-1" style="border-radius: 0.45rem;" title="Lihat Lampiran">
-                                                        <i class="fas fa-eye mr-1"></i> Lihat
-                                                    </a>
+                                                    <button type="button"
+            class="btn btn-sm btn-light text-info border font-weight-bold px-2.5 py-1 requirement-preview-btn"
+            data-toggle="modal"
+            data-target="#requirementPreviewModal"
+            data-url="{{ route('progress.attachment.view', $log) }}"
+            data-download-url="{{ route('progress.attachment.download', $log) }}"
+            data-name="{{ $log->attachment_name }}"
+            data-mime="{{ $log->attachment_type ?? '' }}"
+            data-previewable="{{ $log->is_previewable ? '1' : '0' }}"
+            title="Lihat Pratinjau Lampiran"
+            style="border-radius: 0.45rem;">
+        <i class="fas fa-eye mr-1"></i> Lihat
+    </button>
                                                     <a href="{{ route('progress.attachment.download', $log) }}" class="btn btn-sm btn-light text-primary border font-weight-bold px-2.5 py-1" style="border-radius: 0.45rem;" title="Unduh Lampiran">
                                                         <i class="fas fa-download mr-1"></i> Unduh
                                                     </a>
@@ -236,6 +246,8 @@
     </div>
 </div>
 @endif
+
+@include('layouts.partials.requirement-preview-modal')
 
 @endsection
 

@@ -32,6 +32,15 @@ class ProjectProgressLog extends Model
         return !empty($this->attachment_path);
     }
 
+    public function getIsPreviewableAttribute(): bool
+    {
+        if (!$this->attachment_name) {
+            return false;
+        }
+        $ext = strtolower(pathinfo((string) $this->attachment_name, PATHINFO_EXTENSION));
+        return in_array($ext, ['jpg', 'jpeg', 'png', 'gif', 'webp', 'svg', 'pdf', 'txt'], true) || $this->is_image;
+    }
+
     public function getIsImageAttribute(): bool
     {
         if (!$this->attachment_type && !$this->attachment_name) {
