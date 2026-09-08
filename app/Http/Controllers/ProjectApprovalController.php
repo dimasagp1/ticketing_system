@@ -7,6 +7,7 @@ use App\Models\ProjectApproval;
 use App\Models\ProjectRevision;
 use App\Models\Queue;
 use App\Models\ActivityLog;
+use App\Models\User;
 use App\Services\SystemEmailNotifier;
 use Illuminate\Http\Request;
 
