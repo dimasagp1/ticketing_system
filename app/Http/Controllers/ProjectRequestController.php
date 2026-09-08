@@ -557,6 +557,13 @@ class ProjectRequestController extends Controller
             'closed_at' => $projectRequest->closed_at ?? now(),
         ]);
 
+        // Automatically cancel any pending approvals for this ticket
+        $projectRequest->approvals()->where('status', 'pending')->update([
+            'status' => 'rejected',
+            'comments' => 'Tiket telah ditutup/dibatalkan.',
+            'reviewed_at' => now(),
+        ]);
+
         ActivityLog::log('close_ticket', 'Closed ticket: ' . ($projectRequest->ticket_number ?? $projectRequest->project_name), $projectRequest);
 
         $ticketCode = $projectRequest->ticket_number ?? ('#' . $projectRequest->id);

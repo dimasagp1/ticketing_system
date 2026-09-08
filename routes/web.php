@@ -30,9 +30,10 @@ Route::get('/', function () {
 Route::get('/dashboard', function () {
     $user = auth()->user();
     
-    // 1. Fetch tickets waiting for approval (Status: submitted / Belum Disetujui)
+    // 1. Fetch tickets waiting for approval (Status: submitted / waiting_manager_approval / revision_requested)
     $pendingApprovalTickets = \App\Models\ProjectRequest::with(['client'])
-        ->whereIn('status', ['submitted', 'revision_requested'])
+        ->whereIn('status', ['submitted', 'revision_requested', 'waiting_manager_approval'])
+        ->whereNotIn('ticket_status', ['closed', 'cancelled'])
         ->when($user->isClient(), function ($query) use ($user) {
             return $query->where('client_id', $user->id);
         })
@@ -41,6 +42,7 @@ Route::get('/dashboard', function () {
 
     // 2. Fetch active tickets ordered: APPROVED FIRST, then by REQUEST DATE (created_at desc)
     $activeProjectRequests = \App\Models\ProjectRequest::with(['client', 'queue'])
+        ->whereNotIn('ticket_status', ['closed', 'cancelled'])
         ->when($user->isClient(), function ($query) use ($user) {
             return $query->where('client_id', $user->id);
         })
@@ -59,6 +61,10 @@ Route::get('/dashboard', function () {
     if ($user->isManager()) {
         $managerPendingApprovals = \App\Models\ProjectApproval::with(['projectRequest.client', 'projectRequest.requirements'])
             ->pending()
+            ->whereHas('projectRequest', function ($pq) {
+                $pq->whereNotIn('ticket_status', ['closed', 'cancelled'])
+                   ->whereNotIn('status', ['rejected', 'closed', 'cancelled']);
+            })
             ->where(function ($q) use ($user) {
                 $q->where('approver_id', $user->id)
                   ->orWhereHas('projectRequest', function ($pq) use ($user) {

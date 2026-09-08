@@ -46,6 +46,10 @@ class NotificationController extends Controller
         // Count unread pending approvals (for admins)
         if ($user->canApproveProjects()) {
             $counts['pending_approvals'] = ProjectApproval::pending()
+                ->whereHas('projectRequest', function ($pq) {
+                    $pq->whereNotIn('ticket_status', ['closed', 'cancelled'])
+                       ->whereNotIn('status', ['rejected', 'closed', 'cancelled']);
+                })
                 ->whereNotIn('id', function ($query) use ($user) {
                     $query->select('reference_id')
                         ->from('notification_reads')
@@ -159,6 +163,10 @@ class NotificationController extends Controller
         if ($user->canApproveProjects()) {
             $pendingApprovals = ProjectApproval::with('projectRequest.client')
                 ->pending()
+                ->whereHas('projectRequest', function ($pq) {
+                    $pq->whereNotIn('ticket_status', ['closed', 'cancelled'])
+                       ->whereNotIn('status', ['rejected', 'closed', 'cancelled']);
+                })
                 ->whereNotIn('id', function ($query) use ($user) {
                     $query->select('reference_id')
                         ->from('notification_reads')

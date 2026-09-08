@@ -3,7 +3,9 @@
     $totalTickets = \App\Models\ProjectRequest::count();
     $openTickets = \App\Models\ProjectRequest::where('ticket_status', 'open')->count();
     $resolvedTickets = \App\Models\ProjectRequest::where('ticket_status', 'resolved')->count();
-    $pendingApprovals = \App\Models\ProjectApproval::pending()->count();
+    $pendingApprovals = \App\Models\ProjectApproval::pending()
+        ->whereHas('projectRequest', fn($q) => $q->whereNotIn('ticket_status', ['closed', 'cancelled'])->whereNotIn('status', ['rejected', 'closed', 'cancelled']))
+        ->count();
     $activeQueues = \App\Models\Queue::where('status', 'In Progress')->count();
     $totalQueues = \App\Models\Queue::count();
     $overdueTickets = \App\Models\ProjectRequest::whereIn('ticket_status', \App\Models\ProjectRequest::slaTrackedTicketStatuses())

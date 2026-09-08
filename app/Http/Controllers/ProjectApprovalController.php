@@ -20,6 +20,10 @@ class ProjectApprovalController extends Controller
         if ($user->canApproveProjects()) {
             $query = ProjectApproval::with(['projectRequest.client', 'projectRequest.requirements', 'projectRequest.manager'])
                 ->pending()
+                ->whereHas('projectRequest', function ($pq) {
+                    $pq->whereNotIn('ticket_status', ['closed', 'cancelled'])
+                       ->whereNotIn('status', ['rejected', 'closed', 'cancelled']);
+                })
                 ->latest();
 
             if ($user->isManager()) {
