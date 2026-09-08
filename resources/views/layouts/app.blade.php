@@ -133,6 +133,16 @@
             border-radius: 1.3rem 1.3rem 0 0 !important;
         }
 
+        .card-header.bg-white,
+        .card-header.border-0,
+        .card-header.bg-transparent,
+        .card.support-shell-card > .card-header,
+        .support-shell-card .card-header {
+            background-color: #ffffff !important;
+            border-bottom: 0 !important;
+            border-bottom: none !important;
+        }
+
         /* Fix Bootstrap 4 Collapse vs Tailwind CSS visibility:collapse conflict */
         .collapse {
             visibility: visible !important;
@@ -510,6 +520,16 @@
             background-color: #FF007A !important;
             color: #ffffff !important;
             border-bottom: 3px solid #ffffff !important;
+        }
+
+        body.dark-mode .card-header.bg-white,
+        body.dark-mode .card-header.border-0,
+        body.dark-mode .card-header.bg-transparent,
+        body.dark-mode .support-shell-card > .card-header,
+        body.dark-mode .support-shell-card .card-header {
+            background-color: #121212 !important;
+            border-bottom: 0 !important;
+            border-bottom: none !important;
         }
 
         body.dark-mode .table {
