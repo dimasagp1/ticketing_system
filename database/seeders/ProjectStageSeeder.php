@@ -94,7 +94,10 @@ class ProjectStageSeeder extends Seeder
         ];
 
         foreach ($stages as $stage) {
-            ProjectStage::create($stage);
+            ProjectStage::updateOrCreate(
+                ['name' => $stage['name']],
+                $stage
+            );
         }
     }
 }

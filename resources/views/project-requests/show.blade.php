@@ -62,6 +62,40 @@
                     </tr>
                     @endif
                     <tr>
+                        <th>Teknisi / Developer:</th>
+                        <td>
+                            @php
+                                $assignedDev = $projectRequest->developer ?? $projectRequest->queue?->assignedTo;
+                            @endphp
+                            @if($assignedDev)
+                                <span class="badge badge-success px-2 py-1 font-weight-bold">
+                                    <i class="fas fa-user-check mr-1"></i> {{ $assignedDev->name }} ({{ strtoupper(str_replace('_', ' ', $assignedDev->role)) }})
+                                </span>
+                            @else
+                                <span class="badge badge-secondary px-2 py-1">
+                                    <i class="fas fa-user-clock mr-1"></i> Belum Ditugaskan
+                                </span>
+                            @endif
+
+                            @if($projectRequest->queue && auth()->user()->canApproveProjects())
+                                <div class="mt-2">
+                                    <form action="{{ route('queues.assign', $projectRequest->queue) }}" method="POST" class="d-inline-flex align-items-center flex-wrap">
+                                        @csrf
+                                        <select name="assigned_to" class="custom-select custom-select-sm font-weight-bold mr-2" onchange="this.form.submit()" style="max-width: 240px; border-radius: 0.35rem;">
+                                            <option value="">-- Pilih / Ganti Teknisi --</option>
+                                            @foreach(\App\Models\User::whereIn('role', ['developer', 'admin', 'super_admin'])->where('status', 'active')->orderBy('name')->get() as $devOption)
+                                                <option value="{{ $devOption->id }}" {{ ($assignedDev && $assignedDev->id == $devOption->id) ? 'selected' : '' }}>
+                                                    {{ $devOption->name }} ({{ strtoupper(str_replace('_', ' ', $devOption->role)) }})
+                                                </option>
+                                            @endforeach
+                                        </select>
+                                        <small class="text-muted"><i class="fas fa-info-circle mr-1"></i>Pilih untuk langsung menugaskan</small>
+                                    </form>
+                                </div>
+                            @endif
+                        </td>
+                    </tr>
+                    <tr>
                         <th>Dampak / Urgensi:</th>
                         <td>
                             <span class="badge badge-light">{{ $projectRequest->impact_label }}</span>

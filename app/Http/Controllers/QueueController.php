@@ -105,6 +105,12 @@ class QueueController extends Controller
             'assigned_to' => $request->assigned_to,
         ]);
 
+        if ($queue->projectRequest) {
+            $queue->projectRequest->update([
+                'developer_id' => $request->assigned_to,
+            ]);
+        }
+
         $developer = $request->assigned_to ? \App\Models\User::find($request->assigned_to) : null;
         $devName = $developer ? $developer->name : 'Belum Ditugaskan';
 

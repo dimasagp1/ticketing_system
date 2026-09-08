@@ -16,7 +16,7 @@ class ProjectProgressController extends Controller
     {
         $queue->load(['assignedTo', 'progressLogs.projectStage', 'progressLogs.updatedBy']);
         
-        $stages = ProjectStage::active()->ordered()->get();
+        $stages = ProjectStage::active()->ordered()->get()->unique('name');
         $currentStage = $queue->getCurrentStage();
         $completedStages = $queue->getCompletedStages();
 

@@ -58,7 +58,7 @@
             <script src="{{ asset('build/' . $jsFile) }}" defer></script>
         @endif
     @else
-        <link rel="stylesheet" href="{{ asset('build/assets/app-EP1E7moD.css') }}">
+        <link rel="stylesheet" href="{{ asset('build/assets/app-DgGQGe7_.css') }}">
         <script src="{{ asset('build/assets/app-BK0v_jRu.js') }}" defer></script>
     @endif
 
@@ -131,6 +131,25 @@
             font-weight: 800 !important;
             color: #000000 !important;
             border-radius: 1.3rem 1.3rem 0 0 !important;
+        }
+
+        /* Fix Bootstrap 4 Collapse vs Tailwind CSS visibility:collapse conflict */
+        .collapse {
+            visibility: visible !important;
+        }
+        .collapse:not(.show) {
+            display: none !important;
+        }
+        .collapse.show {
+            display: block !important;
+            visibility: visible !important;
+        }
+        .collapsing {
+            position: relative;
+            height: 0;
+            overflow: hidden;
+            transition: height 0.35s ease;
+            visibility: visible !important;
         }
 
         .btn {

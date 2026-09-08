@@ -98,3 +98,22 @@
 .dark .toon-card-base:hover, body.dark-mode .toon-card:hover, body.dark-mode .card:hover {
   box-shadow: 10px 10px 0px 0px #FFE600 !important;
 }
+
+/* Fix Bootstrap 4 Collapse vs Tailwind CSS visibility:collapse conflict */
+.collapse {
+  visibility: visible !important;
+}
+.collapse:not(.show) {
+  display: none !important;
+}
+.collapse.show {
+  display: block !important;
+  visibility: visible !important;
+}
+.collapsing {
+  position: relative;
+  height: 0;
+  overflow: hidden;
+  transition: height 0.35s ease;
+  visibility: visible !important;
+}
