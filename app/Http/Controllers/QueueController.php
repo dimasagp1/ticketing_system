@@ -68,14 +68,20 @@ class QueueController extends Controller
             });
         }
 
-        if ($request->input('sort') === 'sla_asc') {
+        $sort = $request->input('sort', 'latest');
+
+        if ($sort === 'sla_asc') {
             $query->leftJoin('project_requests', 'project_requests.queue_id', '=', 'queues.id')
                 ->select('queues.*')
                 ->orderByRaw('CASE WHEN project_requests.sla_resolution_due_at IS NULL THEN 1 ELSE 0 END')
                 ->orderBy('project_requests.sla_resolution_due_at');
-        } else {
+        } elseif ($sort === 'oldest') {
+            $query->oldest();
+        } elseif ($sort === 'status') {
             $query->orderByRaw("FIELD(status, 'In Progress', 'Pending', 'On Hold', 'Completed', 'Cancelled')")
                 ->latest();
+        } else {
+            $query->latest();
         }
 
         $queues = $query->paginate(15)->appends($request->query());

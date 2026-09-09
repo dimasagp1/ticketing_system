@@ -77,9 +77,13 @@ class ProjectRequestController extends Controller
             }
         }
 
-        if ($request->input('sort') === 'sla_asc') {
+        $sort = $request->input('sort', 'latest');
+
+        if ($sort === 'sla_asc') {
             $query->orderByRaw('CASE WHEN sla_resolution_due_at IS NULL THEN 1 ELSE 0 END')
                 ->orderBy('sla_resolution_due_at');
+        } elseif ($sort === 'oldest') {
+            $query->oldest();
         } else {
             $query->latest();
         }

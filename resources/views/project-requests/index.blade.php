@@ -30,11 +30,18 @@
             </div>
 
             <!-- Collapsible Filter Form (Only expands when clicked or when filters are active) -->
-            <div class="collapse {{ request()->anyFilled(['search', 'status', 'ticket_status', 'ticket_category', 'impact', 'urgency', 'sla_filter']) ? 'show' : '' }} mb-4" id="filterCollapse">
+            <div class="collapse {{ request()->anyFilled(['search', 'status', 'ticket_status', 'ticket_category', 'impact', 'urgency', 'sla_filter', 'sort']) ? 'show' : '' }} mb-4" id="filterCollapse">
                 <form method="GET" action="{{ route('project-requests.index') }}" class="p-3 bg-[#FFFBEA] dark:bg-[#1a1a1a] border-3 border-black dark:border-white rounded-2xl shadow-[4px_4px_0px_0px_rgba(0,0,0,1)] font-jakarta font-extrabold text-sm">
                     <div class="form-row">
                         <div class="col-md-3 mb-2">
                             <input type="text" name="search" class="form-control border-2 border-black rounded-xl" placeholder="Cari tiket/proyek/klien..." value="{{ request('search') }}">
+                        </div>
+                        <div class="col-md-2 mb-2">
+                            <select name="sort" class="form-control border-2 border-black rounded-xl font-weight-bold">
+                                <option value="latest" {{ request('sort', 'latest') === 'latest' ? 'selected' : '' }}>🕒 Terbaru (Default)</option>
+                                <option value="oldest" {{ request('sort') === 'oldest' ? 'selected' : '' }}>⏳ Terlama</option>
+                                <option value="sla_asc" {{ request('sort') === 'sla_asc' ? 'selected' : '' }}>🚨 SLA Terdekat</option>
+                            </select>
                         </div>
                         <div class="col-md-2 mb-2">
                             @php($requestStatusOptions = \App\Models\ProjectRequest::requestStatusLabels())
