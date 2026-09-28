@@ -107,6 +107,7 @@ class DeveloperReportController extends Controller
             fputcsv($handle, [
                 'No. Tiket',
                 'Nama Proyek / Masalah',
+                'Deskripsi Masalah / Proyek',
                 'Kategori',
                 'Klien / Pemohon',
                 'Developer Ditugaskan',
@@ -133,9 +134,12 @@ class DeveloperReportController extends Controller
                     }
                 }
 
+                $cleanDescription = $ticket->description ? trim(strip_tags($ticket->description)) : '-';
+
                 fputcsv($handle, [
                     $ticket->ticket_number,
                     $ticket->project_name,
+                    $cleanDescription,
                     $ticket->ticket_category === 'technical_support' ? 'Technical Support' : 'Project Request',
                     $ticket->client ? $ticket->client->name : '-',
                     $ticket->developer ? $ticket->developer->name : ($ticket->queue && $ticket->queue->assignedTo ? $ticket->queue->assignedTo->name : '-'),

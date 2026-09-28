@@ -186,9 +186,9 @@
         table.data-table th,
         table.data-table td {
             border: 1px solid #cbd5e1;
-            padding: 5px 7px;
+            padding: 5px 6px;
             font-size: 8pt;
-            vertical-align: middle;
+            vertical-align: top;
         }
 
         table.data-table th {
@@ -202,6 +202,36 @@
 
         table.data-table tr:nth-child(even) {
             background-color: #f8fafc;
+        }
+
+        .ticket-title {
+            font-weight: bold;
+            color: #1e3a8a;
+            font-size: 8.5pt;
+            margin-bottom: 2px;
+        }
+
+        .ticket-desc-box {
+            font-size: 7.5pt;
+            color: #334155;
+            line-height: 1.35;
+            background-color: #f8fafc;
+            padding: 4px 6px;
+            border-radius: 3px;
+            border-left: 2.5px solid #64748b;
+            margin-top: 4px;
+            word-wrap: break-word;
+            white-space: pre-line;
+        }
+
+        .ticket-desc-label {
+            font-weight: bold;
+            color: #475569;
+            font-size: 7pt;
+            text-transform: uppercase;
+            letter-spacing: 0.3px;
+            margin-bottom: 2px;
+            display: block;
         }
 
         .badge {
@@ -369,14 +399,14 @@
     <table class="data-table">
         <thead>
             <tr>
-                <th style="width: 4%;">No</th>
-                <th style="width: 13%;">No. Tiket</th>
-                <th style="width: 25%;">Nama Permintaan / Proyek</th>
+                <th style="width: 3%; text-align: center;">No</th>
+                <th style="width: 12%;">No. Tiket</th>
+                <th style="width: 35%;">Nama Permintaan & Deskripsi Masalah</th>
                 <th style="width: 14%;">Klien / Departemen</th>
-                <th style="width: 14%;">Developer</th>
-                <th style="width: 10%; text-align: center;">Status</th>
-                <th style="width: 10%; text-align: center;">Tgl Selesai</th>
-                <th style="width: 10%; text-align: center;">Status SLA</th>
+                <th style="width: 12%;">Developer</th>
+                <th style="width: 8%; text-align: center;">Status</th>
+                <th style="width: 8%; text-align: center;">Tgl Selesai</th>
+                <th style="width: 8%; text-align: center;">Status SLA</th>
             </tr>
         </thead>
         <tbody>
@@ -390,14 +420,37 @@
                             ? ($ticket->resolved_at && $ticket->resolved_at > $ticket->sla_resolution_due_at)
                             : (now() > $ticket->sla_resolution_due_at);
                     }
+                    $cleanDesc = $ticket->description ? trim(strip_tags($ticket->description)) : '';
                 @endphp
                 <tr>
-                    <td style="text-align: center;">{{ $index + 1 }}</td>
-                    <td><strong>{{ $ticket->ticket_number }}</strong></td>
-                    <td>{{ $ticket->project_name }}</td>
-                    <td>{{ $ticket->client ? $ticket->client->name : '-' }}</td>
-                    <td>{{ $devUser ? $devUser->name : '-' }}</td>
-                    <td style="text-align: center;">
+                    <td style="text-align: center; vertical-align: top;">{{ $index + 1 }}</td>
+                    <td style="vertical-align: top;">
+                        <strong style="color: #111827;">{{ $ticket->ticket_number }}</strong>
+                        <div style="margin-top: 3px;">
+                            @if($ticket->ticket_category === 'technical_support')
+                                <span class="badge badge-info" style="font-size: 6.5pt;">Teknis</span>
+                            @else
+                                <span class="badge badge-secondary" style="font-size: 6.5pt;">Proyek</span>
+                            @endif
+                        </div>
+                    </td>
+                    <td style="vertical-align: top;">
+                        <div class="ticket-title">{{ $ticket->project_name }}</div>
+                        @if(!empty($cleanDesc))
+                            <div class="ticket-desc-box">
+                                <span class="ticket-desc-label">Deskripsi Masalah:</span>
+                                {{ $cleanDesc }}
+                            </div>
+                        @endif
+                    </td>
+                    <td style="vertical-align: top;">
+                        <div>{{ $ticket->client ? $ticket->client->name : '-' }}</div>
+                        @if($ticket->client && $ticket->client->company)
+                            <div style="font-size: 7pt; color: #64748b; margin-top: 2px;">{{ $ticket->client->company }}</div>
+                        @endif
+                    </td>
+                    <td style="vertical-align: top;">{{ $devUser ? $devUser->name : '-' }}</td>
+                    <td style="text-align: center; vertical-align: top;">
                         @if($isResolved)
                             <span class="badge badge-success">Selesai</span>
                         @elseif($ticket->ticket_status === 'in_progress')
@@ -408,10 +461,10 @@
                             <span class="badge badge-secondary">{{ ucfirst($ticket->ticket_status) }}</span>
                         @endif
                     </td>
-                    <td style="text-align: center;">
+                    <td style="text-align: center; vertical-align: top;">
                         {{ $ticket->resolved_at ? $ticket->resolved_at->format('d/m/Y') : ($isResolved ? $ticket->updated_at->format('d/m/Y') : '-') }}
                     </td>
-                    <td style="text-align: center;">
+                    <td style="text-align: center; vertical-align: top;">
                         @if($ticket->sla_resolution_due_at)
                             <span class="badge {{ $isOverdue ? 'badge-danger' : 'badge-success' }}">
                                 {{ $isOverdue ? 'Overdue' : 'Sesuai SLA' }}

@@ -324,7 +324,12 @@
                                 <div class="font-weight-600 text-dark text-truncate" style="max-width: 320px;" title="{{ $ticket->project_name }}">
                                     {{ $ticket->project_name }}
                                 </div>
-                                <small class="text-muted">Dibuat: {{ $ticket->created_at ? $ticket->created_at->format('d/m/Y H:i') : '-' }}</small>
+                                @if(!empty($ticket->description))
+                                    <div class="text-muted small text-truncate" style="max-width: 320px; font-size: 0.78rem;" title="{{ strip_tags($ticket->description) }}">
+                                        {{ Str::limit(strip_tags($ticket->description), 80) }}
+                                    </div>
+                                @endif
+                                <small class="text-muted d-block mt-1" style="font-size: 0.72rem;">Dibuat: {{ $ticket->created_at ? $ticket->created_at->format('d/m/Y H:i') : '-' }}</small>
                             </td>
                             <td>
                                 <div class="font-weight-600 text-dark">{{ $ticket->client ? $ticket->client->name : '-' }}</div>
