@@ -219,6 +219,7 @@ Route::middleware(['auth', 'role:admin,super_admin'])->prefix('super-admin')->na
 Route::middleware(['auth', 'role:admin,super_admin,operational_manager,general_manager,developer'])->prefix('reports/developer')->name('reports.developer')->group(function () {
     Route::get('/', [\App\Http\Controllers\DeveloperReportController::class, 'index']);
     Route::get('/export/pdf', [\App\Http\Controllers\DeveloperReportController::class, 'exportPdf'])->name('.export.pdf');
+    Route::get('/export/excel', [\App\Http\Controllers\DeveloperReportController::class, 'exportExcel'])->name('.export.excel');
     Route::get('/export/csv', [\App\Http\Controllers\DeveloperReportController::class, 'exportCsv'])->name('.export.csv');
 });
 

@@ -22,13 +22,13 @@
         </p>
     </div>
 
-    {{-- Action buttons: PDF & CSV --}}
+    {{-- Action buttons: PDF & Excel --}}
     <div class="d-flex flex-wrap align-items-center gap-2 mt-2 mt-lg-0">
         <a href="{{ route('reports.developer.export.pdf', request()->query()) }}" class="btn btn-danger btn-sm shadow-sm d-flex align-items-center px-3 py-2 font-weight-600" style="border-radius: 0.5rem;">
             <i class="fas fa-file-pdf mr-2"></i> Ekspor PDF Resmi
         </a>
-        <a href="{{ route('reports.developer.export.csv', request()->query()) }}" class="btn btn-success btn-sm shadow-sm d-flex align-items-center px-3 py-2 font-weight-600" style="border-radius: 0.5rem;">
-            <i class="fas fa-file-excel mr-2"></i> Ekspor Excel/CSV
+        <a href="{{ route('reports.developer.export.excel', request()->query()) }}" class="btn btn-success btn-sm shadow-sm d-flex align-items-center px-3 py-2 font-weight-600" style="border-radius: 0.5rem;">
+            <i class="fas fa-file-excel mr-2"></i> Ekspor Excel (.xlsx)
         </a>
     </div>
 </div>

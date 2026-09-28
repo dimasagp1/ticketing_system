@@ -2,6 +2,7 @@
 
 namespace App\Http\Controllers;
 
+use App\Exports\DeveloperReportExport;
 use App\Models\ProjectRequest;
 use App\Models\Queue;
 use App\Models\User;
@@ -10,6 +11,7 @@ use Carbon\Carbon;
 use Illuminate\Http\Request;
 use Illuminate\Support\Facades\DB;
 use Illuminate\Support\Facades\File;
+use Maatwebsite\Excel\Facades\Excel;
 
 class DeveloperReportController extends Controller
 {
@@ -64,96 +66,24 @@ class DeveloperReportController extends Controller
     }
 
     /**
-     * Export developer report data as CSV / Excel compatible file.
+     * Export customized developer report as Excel (.xlsx).
      */
-    public function exportCsv(Request $request)
+    public function exportExcel(Request $request)
     {
         $reportData = $this->buildDeveloperReportData($request, false);
 
         $devSlug = $reportData['selectedDeveloper'] ? str_replace(' ', '_', $reportData['selectedDeveloper']->name) : 'Semua_Developer';
-        $fileName = 'laporan-developer-' . $devSlug . '-' . now()->format('Ymd_His') . '.csv';
+        $fileName = 'Laporan_Kinerja_Developer_' . $devSlug . '_' . now()->format('Ymd_His') . '.xlsx';
 
-        $headers = [
-            'Content-Type' => 'text/csv; charset=UTF-8',
-        ];
+        return Excel::download(new DeveloperReportExport($reportData), $fileName);
+    }
 
-        return response()->streamDownload(function () use ($reportData) {
-            $handle = fopen('php://output', 'w');
-
-            // UTF-8 BOM for Excel
-            fwrite($handle, "\xEF\xBB\xBF");
-
-            fputcsv($handle, ['LAPORAN KINERJA DAN PENUGASAN DEVELOPER']);
-            fputcsv($handle, ['Developer', $reportData['selectedDeveloper'] ? $reportData['selectedDeveloper']->name : 'Semua Developer']);
-            fputcsv($handle, ['Periode', $reportData['periodLabel']]);
-            fputcsv($handle, ['Rentang Tanggal', $reportData['startDate']->format('d/m/Y') . ' - ' . $reportData['endDate']->format('d/m/Y')]);
-            fputcsv($handle, ['Dicetak Oleh', auth()->user()->name]);
-            fputcsv($handle, ['Tanggal Ekspor', now()->translatedFormat('d F Y H:i')]);
-            fputcsv($handle, []);
-
-            // Summary KPI
-            fputcsv($handle, ['RINGKASAN KINERJA (KPI)']);
-            fputcsv($handle, ['Total Penugasan', $reportData['summary']['total_assigned']]);
-            fputcsv($handle, ['Selesai (Resolved/Closed)', $reportData['summary']['resolved_count']]);
-            fputcsv($handle, ['Sedang Dikerjakan (In Progress)', $reportData['summary']['in_progress_count']]);
-            fputcsv($handle, ['Tingkat Penyelesaian (%)', $reportData['summary']['completion_rate'] . '%']);
-            fputcsv($handle, ['Tiket Melewati SLA', $reportData['summary']['overdue_count']]);
-            fputcsv($handle, ['Kepatuhan SLA (%)', $reportData['summary']['sla_compliance_rate'] . '%']);
-            fputcsv($handle, ['Rata-rata Waktu Pengerjaan (MTTR)', $reportData['summary']['avg_resolution_hours'] . ' Jam']);
-            fputcsv($handle, []);
-
-            // Ticket Details
-            fputcsv($handle, ['DAFTAR TIKET & PENUGASAN']);
-            fputcsv($handle, [
-                'No. Tiket',
-                'Nama Proyek / Masalah',
-                'Deskripsi Masalah / Proyek',
-                'Kategori',
-                'Klien / Pemohon',
-                'Developer Ditugaskan',
-                'Prioritas',
-                'Status Tiket',
-                'Tanggal Masuk',
-                'Tanggal Selesai',
-                'Durasi (Jam)',
-                'Status SLA'
-            ]);
-
-            foreach ($reportData['tickets'] as $ticket) {
-                $durationHours = '-';
-                if ($ticket->resolved_at && $ticket->created_at) {
-                    $durationHours = number_format($ticket->created_at->diffInMinutes($ticket->resolved_at) / 60, 1);
-                }
-
-                $slaStatus = 'Normal';
-                if ($ticket->sla_resolution_due_at) {
-                    if (in_array($ticket->ticket_status, ['resolved', 'closed'])) {
-                        $slaStatus = $ticket->resolved_at && $ticket->resolved_at <= $ticket->sla_resolution_due_at ? 'Tepat Waktu' : 'Terlambat';
-                    } elseif (now() > $ticket->sla_resolution_due_at) {
-                        $slaStatus = 'Overdue';
-                    }
-                }
-
-                $cleanDescription = $ticket->description ? trim(strip_tags($ticket->description)) : '-';
-
-                fputcsv($handle, [
-                    $ticket->ticket_number,
-                    $ticket->project_name,
-                    $cleanDescription,
-                    $ticket->ticket_category === 'technical_support' ? 'Technical Support' : 'Project Request',
-                    $ticket->client ? $ticket->client->name : '-',
-                    $ticket->developer ? $ticket->developer->name : ($ticket->queue && $ticket->queue->assignedTo ? $ticket->queue->assignedTo->name : '-'),
-                    ucfirst($ticket->impact ?? 'Normal'),
-                    $ticket->ticket_status,
-                    $ticket->created_at ? $ticket->created_at->format('d/m/Y H:i') : '-',
-                    $ticket->resolved_at ? $ticket->resolved_at->format('d/m/Y H:i') : '-',
-                    $durationHours,
-                    $slaStatus
-                ]);
-            }
-
-            fclose($handle);
-        }, $fileName, $headers);
+    /**
+     * Export developer report data as CSV / Excel fallback.
+     */
+    public function exportCsv(Request $request)
+    {
+        return $this->exportExcel($request);
     }
 
     /**
